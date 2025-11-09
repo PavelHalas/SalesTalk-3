@@ -1,0 +1,106 @@
+[
+  {
+    "pk": "MSG#550e8400-e29b-41d4-a716-446655440001",
+    "sk": "2025-11-09T10:00:00.000Z",
+    "tenantId": "acme-corp-001",
+    "messageId": "550e8400-e29b-41d4-a716-446655440001",
+    "sessionId": "session-acme-001",
+    "sender": "user",
+    "text": "What was revenue in Q3?",
+    "classification": {
+      "intent": "fact_retrieval",
+      "subject": "revenue",
+      "measure": "total",
+      "timeRange": {
+        "period": "quarter",
+        "value": "Q3",
+        "year": 2025
+      },
+      "filters": [],
+      "confidence": 0.92,
+      "components": {
+        "intent_confidence": 0.95,
+        "subject_confidence": 0.91,
+        "measure_confidence": 0.90,
+        "time_confidence": 0.93
+      }
+    },
+    "metadata": {
+      "classifierModel": "trm-classifier-v1.2",
+      "processingTimeMs": 87
+    },
+    "timestamp": 1699524000
+  },
+  {
+    "pk": "MSG#550e8400-e29b-41d4-a716-446655440002",
+    "sk": "2025-11-09T10:00:02.000Z",
+    "tenantId": "acme-corp-001",
+    "messageId": "550e8400-e29b-41d4-a716-446655440002",
+    "sessionId": "session-acme-001",
+    "sender": "assistant",
+    "text": "Revenue in Q3 2025 was $2.5M, representing a 15% increase from Q2 2025 ($2.17M). The growth was primarily driven by new enterprise deals in North America and strong renewal rates (95%, up from 89% last quarter).",
+    "metadata": {
+      "aiModel": "bedrock/claude-v2",
+      "tokenUsage": {
+        "promptTokens": 387,
+        "completionTokens": 156,
+        "totalTokens": 543
+      },
+      "costUSD": 0.0217,
+      "generationTimeMs": 1542
+    },
+    "timestamp": 1699524002
+  },
+  {
+    "pk": "MSG#550e8400-e29b-41d4-a716-446655440003",
+    "sk": "2025-11-09T10:05:00.000Z",
+    "tenantId": "acme-corp-001",
+    "messageId": "550e8400-e29b-41d4-a716-446655440003",
+    "sessionId": "session-acme-001",
+    "sender": "user",
+    "text": "How did margin perform?",
+    "classification": {
+      "intent": "fact_retrieval",
+      "subject": "margin",
+      "measure": "total",
+      "timeRange": {
+        "period": "quarter",
+        "value": "Q3",
+        "year": 2025
+      },
+      "filters": [],
+      "confidence": 0.88,
+      "components": {
+        "intent_confidence": 0.90,
+        "subject_confidence": 0.87,
+        "measure_confidence": 0.85,
+        "time_confidence": 0.90
+      }
+    },
+    "metadata": {
+      "classifierModel": "trm-classifier-v1.2",
+      "processingTimeMs": 92
+    },
+    "timestamp": 1699524300
+  },
+  {
+    "pk": "MSG#550e8400-e29b-41d4-a716-446655440004",
+    "sk": "2025-11-09T10:05:02.000Z",
+    "tenantId": "acme-corp-001",
+    "messageId": "550e8400-e29b-41d4-a716-446655440004",
+    "sessionId": "session-acme-001",
+    "sender": "assistant",
+    "text": "Gross margin in Q3 2025 was 35%, which is solid performance for the manufacturing sector. This represents consistent margin maintenance despite the revenue growth.",
+    "metadata": {
+      "aiModel": "bedrock/claude-v2",
+      "tokenUsage": {
+        "promptTokens": 425,
+        "completionTokens": 98,
+        "totalTokens": 523
+      },
+      "costUSD": 0.0187,
+      "generationTimeMs": 1234
+    },
+    "timestamp": 1699524302
+  }
+]

@@ -1,0 +1,205 @@
+[
+  {
+    "pk": "METRIC#revenue",
+    "sk": "2025-Q3",
+    "tenantId": "acme-corp-001",
+    "metricId": "acme-rev-q3-001",
+    "metricType": "revenue",
+    "subject": "revenue",
+    "value": 2500000,
+    "unit": "USD",
+    "dimensions": {
+      "region": "North America",
+      "productLine": "Enterprise",
+      "segment": "New Business"
+    },
+    "dimensionKey": "region:North America",
+    "timestamp": 1696118400,
+    "metadata": {
+      "source": "seed_data",
+      "note": "Q3 2025 total revenue"
+    }
+  },
+  {
+    "pk": "METRIC#revenue",
+    "sk": "2025-Q4",
+    "tenantId": "acme-corp-001",
+    "metricId": "acme-rev-q4-001",
+    "metricType": "revenue",
+    "subject": "revenue",
+    "value": 2750000,
+    "unit": "USD",
+    "dimensions": {
+      "region": "North America",
+      "productLine": "Enterprise",
+      "segment": "New Business"
+    },
+    "dimensionKey": "region:North America",
+    "timestamp": 1704067200,
+    "metadata": {
+      "source": "seed_data",
+      "note": "Q4 2025 total revenue - 10% growth from Q3"
+    }
+  },
+  {
+    "pk": "METRIC#margin",
+    "sk": "2025-Q3",
+    "tenantId": "acme-corp-001",
+    "metricId": "acme-margin-q3-001",
+    "metricType": "margin",
+    "subject": "margin",
+    "value": 0.35,
+    "unit": "percentage",
+    "dimensions": {
+      "region": "North America",
+      "productLine": "Enterprise"
+    },
+    "dimensionKey": "region:North America",
+    "timestamp": 1696118400,
+    "metadata": {
+      "source": "seed_data",
+      "note": "35% gross margin in Q3"
+    }
+  },
+  {
+    "pk": "METRIC#margin",
+    "sk": "2025-Q4",
+    "tenantId": "acme-corp-001",
+    "metricId": "acme-margin-q4-001",
+    "metricType": "margin",
+    "subject": "margin",
+    "value": 0.32,
+    "unit": "percentage",
+    "dimensions": {
+      "region": "North America",
+      "productLine": "Enterprise"
+    },
+    "dimensionKey": "region:North America",
+    "timestamp": 1704067200,
+    "metadata": {
+      "source": "seed_data",
+      "note": "32% gross margin in Q4 - slight decrease due to promotional pricing"
+    }
+  },
+  {
+    "pk": "METRIC#customers",
+    "sk": "2025-Q3",
+    "tenantId": "acme-corp-001",
+    "metricId": "acme-cust-q3-001",
+    "metricType": "customers",
+    "subject": "customers",
+    "value": 245,
+    "unit": "count",
+    "dimensions": {
+      "region": "North America",
+      "customerType": "Enterprise"
+    },
+    "dimensionKey": "customerType:Enterprise",
+    "timestamp": 1696118400,
+    "metadata": {
+      "source": "seed_data",
+      "note": "Total enterprise customers at end of Q3"
+    }
+  },
+  {
+    "pk": "METRIC#customers",
+    "sk": "2025-Q4",
+    "tenantId": "acme-corp-001",
+    "metricId": "acme-cust-q4-001",
+    "metricType": "customers",
+    "subject": "customers",
+    "value": 268,
+    "unit": "count",
+    "dimensions": {
+      "region": "North America",
+      "customerType": "Enterprise"
+    },
+    "dimensionKey": "customerType:Enterprise",
+    "timestamp": 1704067200,
+    "metadata": {
+      "source": "seed_data",
+      "note": "Total enterprise customers at end of Q4 - added 23 new customers"
+    }
+  },
+  {
+    "pk": "METRIC#products",
+    "sk": "2025-Q3",
+    "tenantId": "acme-corp-001",
+    "metricId": "acme-prod-q3-001",
+    "metricType": "products",
+    "subject": "products",
+    "value": 12500,
+    "unit": "count",
+    "dimensions": {
+      "productLine": "Enterprise",
+      "category": "Hardware"
+    },
+    "dimensionKey": "productLine:Enterprise",
+    "timestamp": 1696118400,
+    "metadata": {
+      "source": "seed_data",
+      "note": "Units sold in Q3"
+    }
+  },
+  {
+    "pk": "METRIC#renewal_rate",
+    "sk": "2025-Q3",
+    "tenantId": "acme-corp-001",
+    "metricId": "acme-renewal-q3-001",
+    "metricType": "renewal_rate",
+    "subject": "renewal_rate",
+    "value": 0.95,
+    "unit": "percentage",
+    "dimensions": {
+      "region": "North America",
+      "customerType": "Enterprise"
+    },
+    "dimensionKey": "customerType:Enterprise",
+    "timestamp": 1696118400,
+    "metadata": {
+      "source": "seed_data",
+      "note": "95% renewal rate for enterprise customers"
+    }
+  },
+  {
+    "pk": "METRIC#renewal_rate",
+    "sk": "2025-Q2",
+    "tenantId": "acme-corp-001",
+    "metricId": "acme-renewal-q2-001",
+    "metricType": "renewal_rate",
+    "subject": "renewal_rate",
+    "value": 0.89,
+    "unit": "percentage",
+    "dimensions": {
+      "region": "North America",
+      "customerType": "Enterprise"
+    },
+    "dimensionKey": "customerType:Enterprise",
+    "timestamp": 1688140800,
+    "metadata": {
+      "source": "seed_data",
+      "note": "89% renewal rate for enterprise customers in Q2"
+    }
+  },
+  {
+    "pk": "METRIC#revenue",
+    "sk": "2025-Q2",
+    "tenantId": "acme-corp-001",
+    "metricId": "acme-rev-q2-001",
+    "metricType": "revenue",
+    "subject": "revenue",
+    "value": 2170000,
+    "unit": "USD",
+    "dimensions": {
+      "region": "North America",
+      "productLine": "Enterprise",
+      "segment": "New Business"
+    },
+    "dimensionKey": "region:North America",
+    "timestamp": 1688140800,
+    "metadata": {
+      "source": "seed_data",
+      "note": "Q2 2025 revenue for comparison"
+    }
+  }
+]
