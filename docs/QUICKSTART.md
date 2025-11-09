@@ -11,7 +11,7 @@
 
 ```bash
 # Install dependencies
-pip install -r requirements.txt
+pip install -r backend/requirements.txt
 
 # Or with specific packages
 pip install boto3 pytest pytest-cov
@@ -21,13 +21,13 @@ pip install boto3 pytest pytest-cov
 
 ```bash
 # Run all contract tests
-pytest tests/contracts/test_contracts.py -v
+pytest backend/tests/contracts/test_contracts.py -v
 
 # Run with coverage
-pytest tests/contracts/test_contracts.py --cov=src --cov-report=html
+pytest backend/tests/contracts/test_contracts.py --cov=backend/src --cov-report=html
 
 # Run only unit tests (skip integration)
-pytest tests/contracts/test_contracts.py -m "not skip" -v
+pytest backend/tests/contracts/test_contracts.py -m "not skip" -v
 ```
 
 Expected output: **16 passed, 4 skipped**
@@ -39,10 +39,10 @@ Expected output: **16 passed, 4 skipped**
 docker-compose up -d
 
 # Run seed script
-python scripts/seed_localstack.py
+python backend/scripts/seed_localstack.py
 
 # Or with custom endpoint
-python scripts/seed_localstack.py --endpoint-url http://localhost:4566
+python backend/scripts/seed_localstack.py --endpoint-url http://localhost:4566
 ```
 
 This will create:
@@ -58,37 +58,39 @@ And seed them with sample data.
 
 ```
 SalesTalk-3/
-├── DATA_CONTRACTS.md           # Data contract specifications
-├── PHASE2_CHECKLIST.md         # Phase 2 completion checklist
-├── requirements.txt            # Python dependencies
-├── pyproject.toml             # pytest configuration
+├── README.md
+├── docs/
+│   ├── DATA_CONTRACTS.md        # Data contract specifications
+│   ├── PHASE2_CHECKLIST.md      # Phase 2 completion checklist
+│   ├── QUICKSTART.md            # Quick start guide
+│   └── ...
 │
-├── infra/
-│   └── terraform/
-│       ├── dynamodb.tf        # DynamoDB table definitions
-│       └── variables.tf       # Terraform variables
+├── backend/
+│   ├── requirements.txt         # Python dependencies
+│   ├── pyproject.toml          # pytest configuration
+│   ├── src/
+│   │   └── ingestion/
+│   │       ├── __init__.py
+│   │       └── idempotent_ingestion.py  # Ingestion stubs
+│   ├── tests/
+│   │   └── contracts/
+│   │       ├── __init__.py
+│   │       └── test_contracts.py   # Contract validation tests
+│   ├── scripts/
+│   │   └── seed_localstack.py     # LocalStack seeding script
+│   └── seed_data/               # Test tenant data
+│       ├── README.md
+│       ├── tenant_acme_corp.json
+│       ├── tenant_techstart_inc.json
+│       ├── acme_corp_metrics.json
+│       ├── acme_corp_messages.json
+│       ├── techstart_inc_metrics.json
+│       └── techstart_inc_messages.json
 │
-├── seed_data/                 # Test tenant data
-│   ├── README.md
-│   ├── tenant_acme_corp.json
-│   ├── tenant_techstart_inc.json
-│   ├── acme_corp_metrics.json
-│   ├── acme_corp_messages.json
-│   ├── techstart_inc_metrics.json
-│   └── techstart_inc_messages.json
-│
-├── scripts/
-│   └── seed_localstack.py     # LocalStack seeding script
-│
-├── src/
-│   └── ingestion/
-│       ├── __init__.py
-│       └── idempotent_ingestion.py  # Ingestion stubs
-│
-└── tests/
-    └── contracts/
-        ├── __init__.py
-        └── test_contracts.py   # Contract validation tests
+└── infra/
+    └── terraform/
+        ├── dynamodb.tf        # DynamoDB table definitions
+        └── variables.tf       # Terraform variables
 ```
 
 ## 🗄️ DynamoDB Schema Summary
@@ -233,24 +235,24 @@ for msg in response['Items']:
 ```bash
 # Validate seed data structure
 python -c "
-from scripts.seed_localstack import LocalStackSeeder
+from backend.scripts.seed_localstack import LocalStackSeeder
 from pathlib import Path
 
 seeder = LocalStackSeeder()
-tenant_data = seeder.load_json_file(Path('seed_data/tenant_acme_corp.json'))
+tenant_data = seeder.load_json_file(Path('backend/seed_data/tenant_acme_corp.json'))
 print(f'✓ Tenant: {tenant_data[\"tenantId\"]}')
 "
 
 # Validate contract compliance
-pytest tests/contracts/test_contracts.py::TestConfidenceValidation -v
-pytest tests/contracts/test_contracts.py::TestReferenceFormat -v
+pytest backend/tests/contracts/test_contracts.py::TestConfidenceValidation -v
+pytest backend/tests/contracts/test_contracts.py::TestReferenceFormat -v
 ```
 
 ## 📖 Documentation
 
-- **DATA_CONTRACTS.md**: Complete data contract specifications
-- **seed_data/README.md**: Seed data documentation
-- **PHASE2_CHECKLIST.md**: Phase 2 completion status
+- **docs/DATA_CONTRACTS.md**: Complete data contract specifications
+- **backend/seed_data/README.md**: Seed data documentation
+- **docs/PHASE2_CHECKLIST.md**: Phase 2 completion status
 - **docs/contracts/EVENTS.md**: Event schemas
 - **docs/architecture/ARCHITECTURE_OVERVIEW.md**: System architecture
 
@@ -263,7 +265,7 @@ pytest tests/contracts/test_contracts.py::TestReferenceFormat -v
 cd /path/to/SalesTalk-3
 
 # Install dependencies
-pip install -r requirements.txt
+pip install -r backend/requirements.txt
 ```
 
 ### LocalStack Connection Issues
@@ -280,10 +282,10 @@ curl http://localhost:4566/_localstack/health
 
 ```bash
 # Run with verbose output
-pytest tests/contracts/test_contracts.py -vv
+pytest backend/tests/contracts/test_contracts.py -vv
 
 # Run specific test
-pytest tests/contracts/test_contracts.py::TestConfidenceValidation::test_valid_confidence_scores -v
+pytest backend/tests/contracts/test_contracts.py::TestConfidenceValidation::test_valid_confidence_scores -v
 ```
 
 ## 🚀 Next Steps
@@ -297,4 +299,4 @@ Phase 2 is complete! Next phases:
 
 ---
 
-**Need Help?** See DATA_CONTRACTS.md for detailed specifications.
+**Need Help?** See docs/DATA_CONTRACTS.md for detailed specifications.

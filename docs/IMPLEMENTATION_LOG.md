@@ -16,10 +16,10 @@
 ### Infrastructure Implementation (30 minutes)
 1. Created directory structure:
    - `infra/terraform/`
-   - `seed_data/`
-   - `scripts/`
-   - `tests/contracts/`
-   - `src/ingestion/`
+   - `backend/seed_data/`
+   - `backend/scripts/`
+   - `backend/tests/contracts/`
+   - `backend/src/ingestion/`
 
 2. Implemented Terraform configuration:
    - `dynamodb.tf`: 230 lines with 3 table types, 6 GSIs
@@ -65,11 +65,11 @@
    - QUICKSTART.md: Developer guide
    - PHASE2_CHECKLIST.md: Quality checklist
    - PHASE2_SUMMARY.md: Executive summary
-   - seed_data/README.md: Data documentation
+   - backend/seed_data/README.md: Data documentation
 
 2. Added configuration files:
-   - requirements.txt
-   - pyproject.toml
+   - backend/requirements.txt
+   - backend/pyproject.toml
    - Updated .gitignore
 
 ### Ingestion Stubs (20 minutes)
@@ -169,19 +169,25 @@
 
 ```
 SalesTalk-3/
-├── infra/terraform/          # Infrastructure as code
-│   ├── dynamodb.tf
-│   └── variables.tf
-├── seed_data/                # Test data (7 files)
-├── scripts/                  # Automation scripts
-│   ├── seed_localstack.py
-│   └── validate_phase2.py
-├── src/ingestion/           # Ingestion module stubs
-├── tests/contracts/         # Contract test harness
-├── DATA_CONTRACTS.md        # Data contract specification
-├── QUICKSTART.md           # Developer quick start
-├── PHASE2_CHECKLIST.md     # Quality checklist
-└── PHASE2_SUMMARY.md       # Executive summary
+├── README.md
+├── docs/
+│   ├── DATA_CONTRACTS.md        # Data contract specification
+│   ├── QUICKSTART.md            # Developer quick start
+│   ├── PHASE2_CHECKLIST.md      # Quality checklist
+│   ├── PHASE2_SUMMARY.md        # Executive summary
+│   └── ...
+├── backend/
+│   ├── src/ingestion/           # Ingestion module stubs
+│   ├── tests/contracts/         # Contract test harness
+│   ├── scripts/                 # Automation scripts
+│   │   ├── seed_localstack.py
+│   │   └── validate_phase2.py
+│   ├── seed_data/               # Test data (7 files)
+│   ├── requirements.txt
+│   └── pyproject.toml
+└── infra/terraform/             # Infrastructure as code
+    ├── dynamodb.tf
+    └── variables.tf
 ```
 
 ---

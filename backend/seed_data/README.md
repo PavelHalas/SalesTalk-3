@@ -51,10 +51,10 @@ The seed data is loaded into LocalStack DynamoDB using the `seed_localstack.py` 
 docker-compose up -d
 
 # Run seed script
-python scripts/seed_localstack.py
+python backend/scripts/seed_localstack.py
 
 # Or with custom endpoint
-python scripts/seed_localstack.py --endpoint-url http://localhost:4566
+python backend/scripts/seed_localstack.py --endpoint-url http://localhost:4566
 ```
 
 ## Sample Queries

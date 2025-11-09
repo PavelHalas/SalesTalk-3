@@ -25,7 +25,7 @@ class Phase2Validator:
     """Validates Phase 2 deliverables."""
     
     def __init__(self):
-        self.root = Path(__file__).parent.parent
+        self.root = Path(__file__).parent.parent.parent
         self.passed = 0
         self.failed = 0
         self.warnings = 0
@@ -122,7 +122,7 @@ class Phase2Validator:
         """Validate DATA_CONTRACTS.md."""
         self.section("Data Contracts Documentation")
         
-        contracts_file = self.root / "DATA_CONTRACTS.md"
+        contracts_file = self.root / "docs" / "DATA_CONTRACTS.md"
         self.validate_file_exists(contracts_file, "Data contracts documentation")
         
         if contracts_file.exists():
@@ -139,7 +139,7 @@ class Phase2Validator:
         """Validate seed data files."""
         self.section("Seed Data")
         
-        seed_dir = self.root / "seed_data"
+        seed_dir = self.root / "backend" / "seed_data"
         
         # Tenant metadata
         tenant1 = seed_dir / "tenant_acme_corp.json"
@@ -200,7 +200,7 @@ class Phase2Validator:
         """Validate seed script."""
         self.section("Seed Script")
         
-        script = self.root / "scripts" / "seed_localstack.py"
+        script = self.root / "backend" / "scripts" / "seed_localstack.py"
         self.validate_file_exists(script, "LocalStack seed script")
         
         if script.exists():
@@ -216,7 +216,7 @@ class Phase2Validator:
         """Validate contract tests."""
         self.section("Contract Tests")
         
-        test_file = self.root / "tests" / "contracts" / "test_contracts.py"
+        test_file = self.root / "backend" / "tests" / "contracts" / "test_contracts.py"
         self.validate_file_exists(test_file, "Contract test file")
         
         if test_file.exists():
@@ -230,7 +230,7 @@ class Phase2Validator:
         try:
             import subprocess
             result = subprocess.run(
-                ["python", "-m", "pytest", "tests/contracts/test_contracts.py", "-q"],
+                ["python", "-m", "pytest", "backend/tests/contracts/test_contracts.py", "-q"],
                 cwd=self.root,
                 capture_output=True,
                 text=True,
@@ -254,7 +254,7 @@ class Phase2Validator:
         """Validate ingestion module stubs."""
         self.section("Ingestion Stubs")
         
-        ingestion_dir = self.root / "src" / "ingestion"
+        ingestion_dir = self.root / "backend" / "src" / "ingestion"
         stub_file = ingestion_dir / "idempotent_ingestion.py"
         
         self.validate_file_exists(stub_file, "Ingestion stub module")
@@ -273,12 +273,12 @@ class Phase2Validator:
         """Validate documentation files."""
         self.section("Documentation")
         
-        self.validate_file_exists(self.root / "DATA_CONTRACTS.md", "Data contracts doc")
-        self.validate_file_exists(self.root / "QUICKSTART.md", "Quick start guide")
-        self.validate_file_exists(self.root / "PHASE2_CHECKLIST.md", "Phase 2 checklist")
-        self.validate_file_exists(self.root / "requirements.txt", "Requirements file")
-        self.validate_file_exists(self.root / "pyproject.toml", "PyProject config")
-        self.validate_file_exists(self.root / "seed_data" / "README.md", "Seed data README")
+        self.validate_file_exists(self.root / "docs" / "DATA_CONTRACTS.md", "Data contracts doc")
+        self.validate_file_exists(self.root / "docs" / "QUICKSTART.md", "Quick start guide")
+        self.validate_file_exists(self.root / "docs" / "PHASE2_CHECKLIST.md", "Phase 2 checklist")
+        self.validate_file_exists(self.root / "backend" / "requirements.txt", "Requirements file")
+        self.validate_file_exists(self.root / "backend" / "pyproject.toml", "PyProject config")
+        self.validate_file_exists(self.root / "backend" / "seed_data" / "README.md", "Seed data README")
         
         return True
     

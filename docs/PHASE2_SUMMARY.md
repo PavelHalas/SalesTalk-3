@@ -17,11 +17,11 @@ Phase 2 Data Platform Bootstrapping has been **successfully completed** with all
 | Requirement | Status | Deliverable |
 |------------|--------|-------------|
 | Design DynamoDB PK/SK & GSI patterns | ✅ Complete | `infra/terraform/dynamodb.tf` |
-| Add LocalStack seed script | ✅ Complete | `scripts/seed_localstack.py` |
-| Implement ingestion stubs & idempotency strategy | ✅ Complete | `src/ingestion/idempotent_ingestion.py` |
-| Provide seeded test tenants (at least 2) | ✅ Complete | `seed_data/` (2 tenants) |
-| Add data contract tests | ✅ Complete | `tests/contracts/test_contracts.py` (16 tests) |
-| Tester: Contract test harness skeleton | ✅ Complete | `tests/contracts/` |
+| Add LocalStack seed script | ✅ Complete | `backend/scripts/seed_localstack.py` |
+| Implement ingestion stubs & idempotency strategy | ✅ Complete | `backend/src/ingestion/idempotent_ingestion.py` |
+| Provide seeded test tenants (at least 2) | ✅ Complete | `backend/seed_data/` (2 tenants) |
+| Add data contract tests | ✅ Complete | `backend/tests/contracts/test_contracts.py` (16 tests) |
+| Tester: Contract test harness skeleton | ✅ Complete | `backend/tests/contracts/` |
 | Output Artifacts | ✅ Complete | All specified files created |
 
 ---
@@ -54,7 +54,7 @@ Comprehensive documentation including:
 
 ### 3. Seed Data
 
-**Directory**: `seed_data/` (7 files)
+**Directory**: `backend/seed_data/` (7 files)
 
 **Test Tenant 1: ACME Corporation** (`acme-corp-001`)
 - Industry: Manufacturing
@@ -76,7 +76,7 @@ Comprehensive documentation including:
 
 ### 4. LocalStack Seed Script
 
-**File**: `scripts/seed_localstack.py` (12,022 bytes)
+**File**: `backend/scripts/seed_localstack.py` (12,022 bytes)
 
 Features:
 - Creates all DynamoDB tables programmatically
@@ -90,7 +90,7 @@ Features:
 
 ### 5. Contract Test Harness
 
-**File**: `tests/contracts/test_contracts.py` (15,615 bytes)
+**File**: `backend/tests/contracts/test_contracts.py` (15,615 bytes)
 
 **Test Results**: ✅ 16/16 passing, 4/4 integration placeholders
 
@@ -103,7 +103,7 @@ Test Coverage:
 
 ### 6. Ingestion Stubs
 
-**File**: `src/ingestion/idempotent_ingestion.py` (11,787 bytes)
+**File**: `backend/src/ingestion/idempotent_ingestion.py` (11,787 bytes)
 
 Components:
 - **IdempotencyStrategy**: Idempotency key generation, retry logic, backoff calculation
@@ -118,13 +118,13 @@ Components:
 - `DATA_CONTRACTS.md` - Comprehensive data contract specification
 - `QUICKSTART.md` - Developer quick start guide (7,015 bytes)
 - `PHASE2_CHECKLIST.md` - Quality checklist (4,479 bytes)
-- `seed_data/README.md` - Seed data documentation
+- `backend/seed_data/README.md` - Seed data documentation
 - `requirements.txt` - Python dependencies
 - `pyproject.toml` - pytest configuration
 
 ### 8. Validation
 
-**File**: `scripts/validate_phase2.py` (12,948 bytes)
+**File**: `backend/scripts/validate_phase2.py` (12,948 bytes)
 
 Automated validation script with 57 checks:
 - Terraform configuration validation (6 checks)
@@ -291,26 +291,26 @@ All Phase 2 requirements met with exceptional quality. Ready to proceed with imp
 - `DATA_CONTRACTS.md`
 
 **Seed Data** (7 files):
-- `seed_data/README.md`
-- `seed_data/tenant_acme_corp.json`
-- `seed_data/tenant_techstart_inc.json`
-- `seed_data/acme_corp_metrics.json`
-- `seed_data/acme_corp_messages.json`
-- `seed_data/techstart_inc_metrics.json`
-- `seed_data/techstart_inc_messages.json`
+- `backend/seed_data/README.md`
+- `backend/seed_data/tenant_acme_corp.json`
+- `backend/seed_data/tenant_techstart_inc.json`
+- `backend/seed_data/acme_corp_metrics.json`
+- `backend/seed_data/acme_corp_messages.json`
+- `backend/seed_data/techstart_inc_metrics.json`
+- `backend/seed_data/techstart_inc_messages.json`
 
 **Scripts** (2 files):
-- `scripts/seed_localstack.py`
-- `scripts/validate_phase2.py`
+- `backend/scripts/seed_localstack.py`
+- `backend/scripts/validate_phase2.py`
 
 **Source Code** (2 files):
-- `src/ingestion/__init__.py`
-- `src/ingestion/idempotent_ingestion.py`
+- `backend/src/ingestion/__init__.py`
+- `backend/src/ingestion/idempotent_ingestion.py`
 
 **Tests** (3 files):
 - `tests/__init__.py`
-- `tests/contracts/__init__.py`
-- `tests/contracts/test_contracts.py`
+- `backend/tests/contracts/__init__.py`
+- `backend/tests/contracts/test_contracts.py`
 
 **Documentation** (4 files):
 - `QUICKSTART.md`

@@ -42,7 +42,7 @@
 - [x] Error handling for existing tables
 
 ### Contract Test Harness
-- [x] tests/contracts/ directory created
+- [x] backend/tests/contracts/ directory created
 - [x] test_contracts.py with validation tests
 - [x] Confidence range validation tests (4 tests)
 - [x] Classification schema validation tests (4 tests)
@@ -53,7 +53,7 @@
 - [x] pytest configuration in pyproject.toml
 
 ### Ingestion Stubs
-- [x] src/ingestion/ module created
+- [x] backend/src/ingestion/ module created
 - [x] IdempotencyStrategy class documented
 - [x] MessageIngestion stub class
 - [x] MetricsIngestion stub class
@@ -63,7 +63,7 @@
 
 ### Documentation
 - [x] DATA_CONTRACTS.md comprehensive documentation
-- [x] seed_data/README.md with usage guide
+- [x] backend/seed_data/README.md with usage guide
 - [x] Inline code documentation in all modules
 - [x] requirements.txt with dependencies
 - [x] .gitignore updated for Terraform and LocalStack
