@@ -241,6 +241,31 @@ For MVP launch approval, the following must be met:
 
 ### GitHub Actions Workflow
 
+The workflow is configured to run evaluations but **not enforce gate criteria by default** (since it uses a mock classifier for demonstration). 
+
+To enforce gate criteria and fail the build when criteria aren't met:
+
+```yaml
+- name: Check MVP gate criteria
+  env:
+    ENFORCE_GATES: 'true'  # Set to 'true' to enforce criteria
+  run: |
+    python3 scripts/evaluate_classification.py --all --output evaluation/ci_results.json
+    # ... gate checking code ...
+```
+
+**Default behavior (ENFORCE_GATES not set or 'false'):**
+- Runs evaluation and reports metrics
+- Shows PASS/FAIL status for each criterion
+- **Does not fail the build** if criteria aren't met
+- Displays informational message about mock classifier
+
+**Enforced behavior (ENFORCE_GATES='true'):**
+- Runs evaluation and reports metrics
+- Shows PASS/FAIL status for each criterion
+- **Fails the build** if any criterion isn't met
+- Use this when integrating with a real classifier
+
 Add to `.github/workflows/evaluate.yml`:
 
 ```yaml
