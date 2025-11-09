@@ -1,0 +1,204 @@
+[
+  {
+    "pk": "METRIC#revenue",
+    "sk": "2025-Q3",
+    "tenantId": "techstart-inc-002",
+    "metricId": "tech-rev-q3-001",
+    "metricType": "revenue",
+    "subject": "revenue",
+    "value": 1800000,
+    "unit": "EUR",
+    "dimensions": {
+      "region": "Europe",
+      "productLine": "SaaS",
+      "segment": "SMB"
+    },
+    "dimensionKey": "region:Europe",
+    "timestamp": 1696118400,
+    "metadata": {
+      "source": "seed_data",
+      "note": "Q3 2025 total revenue"
+    }
+  },
+  {
+    "pk": "METRIC#revenue",
+    "sk": "2025-Q4",
+    "tenantId": "techstart-inc-002",
+    "metricId": "tech-rev-q4-001",
+    "metricType": "revenue",
+    "subject": "revenue",
+    "value": 2100000,
+    "unit": "EUR",
+    "dimensions": {
+      "region": "Europe",
+      "productLine": "SaaS",
+      "segment": "SMB"
+    },
+    "dimensionKey": "region:Europe",
+    "timestamp": 1704067200,
+    "metadata": {
+      "source": "seed_data",
+      "note": "Q4 2025 revenue - 16.7% growth from Q3"
+    }
+  },
+  {
+    "pk": "METRIC#margin",
+    "sk": "2025-Q3",
+    "tenantId": "techstart-inc-002",
+    "metricId": "tech-margin-q3-001",
+    "metricType": "margin",
+    "subject": "margin",
+    "value": 0.68,
+    "unit": "percentage",
+    "dimensions": {
+      "region": "Europe",
+      "productLine": "SaaS"
+    },
+    "dimensionKey": "region:Europe",
+    "timestamp": 1696118400,
+    "metadata": {
+      "source": "seed_data",
+      "note": "68% gross margin typical for SaaS"
+    }
+  },
+  {
+    "pk": "METRIC#margin",
+    "sk": "2025-Q4",
+    "tenantId": "techstart-inc-002",
+    "metricId": "tech-margin-q4-001",
+    "metricType": "margin",
+    "subject": "margin",
+    "value": 0.70,
+    "unit": "percentage",
+    "dimensions": {
+      "region": "Europe",
+      "productLine": "SaaS"
+    },
+    "dimensionKey": "region:Europe",
+    "timestamp": 1704067200,
+    "metadata": {
+      "source": "seed_data",
+      "note": "70% gross margin - improved efficiency"
+    }
+  },
+  {
+    "pk": "METRIC#customers",
+    "sk": "2025-Q3",
+    "tenantId": "techstart-inc-002",
+    "metricId": "tech-cust-q3-001",
+    "metricType": "customers",
+    "subject": "customers",
+    "value": 1250,
+    "unit": "count",
+    "dimensions": {
+      "region": "Europe",
+      "customerType": "SMB"
+    },
+    "dimensionKey": "customerType:SMB",
+    "timestamp": 1696118400,
+    "metadata": {
+      "source": "seed_data",
+      "note": "Total SMB customers at end of Q3"
+    }
+  },
+  {
+    "pk": "METRIC#customers",
+    "sk": "2025-Q4",
+    "tenantId": "techstart-inc-002",
+    "metricId": "tech-cust-q4-001",
+    "metricType": "customers",
+    "subject": "customers",
+    "value": 1480,
+    "unit": "count",
+    "dimensions": {
+      "region": "Europe",
+      "customerType": "SMB"
+    },
+    "dimensionKey": "customerType:SMB",
+    "timestamp": 1704067200,
+    "metadata": {
+      "source": "seed_data",
+      "note": "Total SMB customers at end of Q4 - strong growth"
+    }
+  },
+  {
+    "pk": "METRIC#churn_rate",
+    "sk": "2025-Q3",
+    "tenantId": "techstart-inc-002",
+    "metricId": "tech-churn-q3-001",
+    "metricType": "churn_rate",
+    "subject": "churn_rate",
+    "value": 0.08,
+    "unit": "percentage",
+    "dimensions": {
+      "region": "Europe",
+      "customerType": "SMB"
+    },
+    "dimensionKey": "customerType:SMB",
+    "timestamp": 1696118400,
+    "metadata": {
+      "source": "seed_data",
+      "note": "8% monthly churn rate"
+    }
+  },
+  {
+    "pk": "METRIC#churn_rate",
+    "sk": "2025-Q4",
+    "tenantId": "techstart-inc-002",
+    "metricId": "tech-churn-q4-001",
+    "metricType": "churn_rate",
+    "subject": "churn_rate",
+    "value": 0.06,
+    "unit": "percentage",
+    "dimensions": {
+      "region": "Europe",
+      "customerType": "SMB"
+    },
+    "dimensionKey": "customerType:SMB",
+    "timestamp": 1704067200,
+    "metadata": {
+      "source": "seed_data",
+      "note": "6% monthly churn rate - improved retention"
+    }
+  },
+  {
+    "pk": "METRIC#arr",
+    "sk": "2025-Q3",
+    "tenantId": "techstart-inc-002",
+    "metricId": "tech-arr-q3-001",
+    "metricType": "arr",
+    "subject": "arr",
+    "value": 7200000,
+    "unit": "EUR",
+    "dimensions": {
+      "region": "Europe",
+      "productLine": "SaaS"
+    },
+    "dimensionKey": "productLine:SaaS",
+    "timestamp": 1696118400,
+    "metadata": {
+      "source": "seed_data",
+      "note": "Annual Recurring Revenue at end of Q3"
+    }
+  },
+  {
+    "pk": "METRIC#arr",
+    "sk": "2025-Q4",
+    "tenantId": "techstart-inc-002",
+    "metricId": "tech-arr-q4-001",
+    "metricType": "arr",
+    "subject": "arr",
+    "value": 8400000,
+    "unit": "EUR",
+    "dimensions": {
+      "region": "Europe",
+      "productLine": "SaaS"
+    },
+    "dimensionKey": "productLine:SaaS",
+    "timestamp": 1704067200,
+    "metadata": {
+      "source": "seed_data",
+      "note": "Annual Recurring Revenue at end of Q4 - 16.7% growth"
+    }
+  }
+]

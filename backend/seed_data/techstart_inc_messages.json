@@ -1,0 +1,106 @@
+[
+  {
+    "pk": "MSG#660e8400-e29b-41d4-a716-446655440001",
+    "sk": "2025-11-09T14:30:00.000Z",
+    "tenantId": "techstart-inc-002",
+    "messageId": "660e8400-e29b-41d4-a716-446655440001",
+    "sessionId": "session-tech-001",
+    "sender": "user",
+    "text": "Show me ARR growth from Q3 to Q4",
+    "classification": {
+      "intent": "comparison",
+      "subject": "arr",
+      "measure": "growth",
+      "timeRange": {
+        "period": "quarter",
+        "value": "Q3-Q4",
+        "year": 2025
+      },
+      "filters": [],
+      "confidence": 0.89,
+      "components": {
+        "intent_confidence": 0.91,
+        "subject_confidence": 0.88,
+        "measure_confidence": 0.87,
+        "time_confidence": 0.90
+      }
+    },
+    "metadata": {
+      "classifierModel": "trm-classifier-v1.2",
+      "processingTimeMs": 95
+    },
+    "timestamp": 1699540200
+  },
+  {
+    "pk": "MSG#660e8400-e29b-41d4-a716-446655440002",
+    "sk": "2025-11-09T14:30:02.000Z",
+    "tenantId": "techstart-inc-002",
+    "messageId": "660e8400-e29b-41d4-a716-446655440002",
+    "sessionId": "session-tech-001",
+    "sender": "assistant",
+    "text": "ARR grew from €7.2M in Q3 to €8.4M in Q4, representing a 16.7% increase (€1.2M absolute growth). This strong performance was driven by improved customer retention (churn decreased from 8% to 6%) and net new customer additions of 230 SMB accounts.",
+    "metadata": {
+      "aiModel": "bedrock/claude-v2",
+      "tokenUsage": {
+        "promptTokens": 412,
+        "completionTokens": 178,
+        "totalTokens": 590
+      },
+      "costUSD": 0.0231,
+      "generationTimeMs": 1678
+    },
+    "timestamp": 1699540202
+  },
+  {
+    "pk": "MSG#660e8400-e29b-41d4-a716-446655440003",
+    "sk": "2025-11-09T14:35:00.000Z",
+    "tenantId": "techstart-inc-002",
+    "messageId": "660e8400-e29b-41d4-a716-446655440003",
+    "sessionId": "session-tech-001",
+    "sender": "user",
+    "text": "What's driving the churn improvement?",
+    "classification": {
+      "intent": "root_cause",
+      "subject": "churn_rate",
+      "measure": "change",
+      "timeRange": {
+        "period": "quarter",
+        "value": "Q4",
+        "year": 2025
+      },
+      "filters": [],
+      "confidence": 0.85,
+      "components": {
+        "intent_confidence": 0.87,
+        "subject_confidence": 0.84,
+        "measure_confidence": 0.83,
+        "time_confidence": 0.86
+      }
+    },
+    "metadata": {
+      "classifierModel": "trm-classifier-v1.2",
+      "processingTimeMs": 103
+    },
+    "timestamp": 1699540500
+  },
+  {
+    "pk": "MSG#660e8400-e29b-41d4-a716-446655440004",
+    "sk": "2025-11-09T14:35:03.000Z",
+    "tenantId": "techstart-inc-002",
+    "messageId": "660e8400-e29b-41d4-a716-446655440004",
+    "sessionId": "session-tech-001",
+    "sender": "assistant",
+    "text": "Based on the data, churn improved from 8% to 6% in Q4. While I don't have detailed attribution data in the metrics, this type of improvement typically correlates with product enhancements, customer success initiatives, or improved onboarding processes. I'd recommend reviewing customer feedback and cohort analysis for deeper insights.",
+    "metadata": {
+      "aiModel": "bedrock/claude-v2",
+      "tokenUsage": {
+        "promptTokens": 445,
+        "completionTokens": 142,
+        "totalTokens": 587
+      },
+      "costUSD": 0.0219,
+      "generationTimeMs": 1456
+    },
+    "timestamp": 1699540503
+  }
+]

@@ -1,0 +1,18 @@
+{
+  "tenantId": "acme-corp-001",
+  "name": "ACME Corporation",
+  "ownerEmail": "admin@acme.com",
+  "plan": "standard",
+  "messagesTableName": "tenant-acme-corp-001-messages",
+  "metricsTableName": "tenant-acme-corp-001-metrics",
+  "s3Prefix": "tenant-acme-corp-001/",
+  "createdAt": 1699545600,
+  "updatedAt": 1699545600,
+  "status": "active",
+  "metadata": {
+    "industry": "Manufacturing",
+    "employees": 500,
+    "region": "North America",
+    "fiscalYearStart": "01-01"
+  }
+}
