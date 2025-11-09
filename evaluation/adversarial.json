@@ -1,0 +1,660 @@
+{
+  "metadata": {
+    "version": "1.0",
+    "created": "2025-11-09",
+    "author": "Data Science Copilot",
+    "description": "Adversarial dataset of edge cases, ambiguous questions, and challenging inputs for robustness testing",
+    "total_questions": 35,
+    "quality_standard": "Intentionally difficult cases to test classifier boundaries and error handling",
+    "usage": "Robustness evaluation and hallucination detection testing"
+  },
+  "questions": [
+    {
+      "id": "adv_001",
+      "question": "How are we doing?",
+      "expected": {
+        "intent": "what",
+        "subject": "unknown",
+        "measure": "unknown",
+        "dimension": {},
+        "time": {
+          "period": "current",
+          "granularity": "unknown"
+        },
+        "should_refuse": true,
+        "refusal_reason": "Ambiguous - no clear metric specified"
+      },
+      "difficulty": "hard",
+      "category": "vague",
+      "tags": ["ambiguous", "underspecified", "refusal_case"]
+    },
+    {
+      "id": "adv_002",
+      "question": "revenue Q3 EMEA?",
+      "expected": {
+        "intent": "what",
+        "subject": "revenue",
+        "measure": "revenue",
+        "dimension": {
+          "region": "EMEA"
+        },
+        "time": {
+          "period": "Q3",
+          "granularity": "quarter"
+        }
+      },
+      "difficulty": "medium",
+      "category": "incomplete_syntax",
+      "tags": ["telegram_style", "missing_words", "fragmented"]
+    },
+    {
+      "id": "adv_003",
+      "question": "What's the thing for the stuff we sold last month?",
+      "expected": {
+        "intent": "what",
+        "subject": "revenue",
+        "measure": "revenue",
+        "dimension": {},
+        "time": {
+          "period": "last_month",
+          "granularity": "month"
+        },
+        "should_refuse": false,
+        "confidence_should_be": "medium"
+      },
+      "difficulty": "hard",
+      "category": "colloquial",
+      "tags": ["informal_language", "vague_terms"]
+    },
+    {
+      "id": "adv_004",
+      "question": "¿Cuál es el ingreso del tercer trimestre?",
+      "expected": {
+        "intent": "unknown",
+        "subject": "unknown",
+        "measure": "unknown",
+        "dimension": {},
+        "time": {},
+        "should_refuse": true,
+        "refusal_reason": "Non-English language not supported in v0"
+      },
+      "difficulty": "hard",
+      "category": "non_english",
+      "tags": ["spanish", "language_barrier", "out_of_scope"]
+    },
+    {
+      "id": "adv_005",
+      "question": "revenue revenue revenue Q3 Q3 revenue",
+      "expected": {
+        "intent": "what",
+        "subject": "revenue",
+        "measure": "revenue",
+        "dimension": {},
+        "time": {
+          "period": "Q3",
+          "granularity": "quarter"
+        },
+        "confidence_should_be": "medium"
+      },
+      "difficulty": "medium",
+      "category": "repetitive",
+      "tags": ["duplicate_keywords", "spam_like", "noise"]
+    },
+    {
+      "id": "adv_006",
+      "question": "What is Q3 revenue? Also, how about customer churn? And what's the gross margin trending like?",
+      "expected": {
+        "intent": "what",
+        "subject": "revenue",
+        "measure": "revenue",
+        "dimension": {},
+        "time": {
+          "period": "Q3",
+          "granularity": "quarter"
+        },
+        "should_refuse": false,
+        "note": "Should extract first question or ask user to separate questions"
+      },
+      "difficulty": "hard",
+      "category": "multi_question",
+      "tags": ["compound_question", "multiple_intents"]
+    },
+    {
+      "id": "adv_007",
+      "question": "reveneu Q3",
+      "expected": {
+        "intent": "what",
+        "subject": "revenue",
+        "measure": "revenue",
+        "dimension": {},
+        "time": {
+          "period": "Q3",
+          "granularity": "quarter"
+        }
+      },
+      "difficulty": "easy",
+      "category": "typo",
+      "tags": ["spelling_error", "keyboard_mistake"]
+    },
+    {
+      "id": "adv_008",
+      "question": "Q3",
+      "expected": {
+        "intent": "unknown",
+        "subject": "unknown",
+        "measure": "unknown",
+        "dimension": {},
+        "time": {
+          "period": "Q3",
+          "granularity": "quarter"
+        },
+        "should_refuse": true,
+        "refusal_reason": "Time period only, no metric specified"
+      },
+      "difficulty": "hard",
+      "category": "incomplete",
+      "tags": ["fragment", "underspecified", "refusal_case"]
+    },
+    {
+      "id": "adv_009",
+      "question": "How does our performance look in EMEA versus, you know, the other big region we care about, for revenue specifically in the most recent completed quarter?",
+      "expected": {
+        "intent": "compare",
+        "subject": "revenue",
+        "measure": "revenue",
+        "dimension": {
+          "region": ["EMEA", "unknown"]
+        },
+        "time": {
+          "period": "last_quarter",
+          "granularity": "quarter"
+        },
+        "should_refuse": false,
+        "note": "Verbose but parseable; second region ambiguous"
+      },
+      "difficulty": "hard",
+      "category": "verbose",
+      "tags": ["wordy", "conversational", "ambiguous_reference"]
+    },
+    {
+      "id": "adv_010",
+      "question": "revenue for Q15",
+      "expected": {
+        "intent": "what",
+        "subject": "revenue",
+        "measure": "revenue",
+        "dimension": {},
+        "time": {
+          "period": "unknown",
+          "granularity": "quarter"
+        },
+        "should_refuse": true,
+        "refusal_reason": "Q15 doesn't exist (only Q1-Q4)"
+      },
+      "difficulty": "medium",
+      "category": "invalid_time",
+      "tags": ["nonsense_period", "validation_error"]
+    },
+    {
+      "id": "adv_011",
+      "question": "What was revenue in the future?",
+      "expected": {
+        "intent": "forecast",
+        "subject": "revenue",
+        "measure": "revenue",
+        "dimension": {},
+        "time": {
+          "period": "future",
+          "granularity": "unknown"
+        },
+        "note": "Ambiguous future period - should ask for clarification"
+      },
+      "difficulty": "hard",
+      "category": "temporal_ambiguity",
+      "tags": ["vague_future", "underspecified_time"]
+    },
+    {
+      "id": "adv_012",
+      "question": "Compare apples to oranges",
+      "expected": {
+        "intent": "compare",
+        "subject": "unknown",
+        "measure": "unknown",
+        "dimension": {},
+        "time": {},
+        "should_refuse": true,
+        "refusal_reason": "Literal fruit comparison or idiom, not business metric"
+      },
+      "difficulty": "hard",
+      "category": "nonsense",
+      "tags": ["idiom", "literal_nonsense", "out_of_domain"]
+    },
+    {
+      "id": "adv_013",
+      "question": "REVENUE Q3 2024",
+      "expected": {
+        "intent": "what",
+        "subject": "revenue",
+        "measure": "revenue",
+        "dimension": {},
+        "time": {
+          "period": "2024-Q3",
+          "granularity": "quarter"
+        }
+      },
+      "difficulty": "easy",
+      "category": "all_caps",
+      "tags": ["case_insensitive", "shouting"]
+    },
+    {
+      "id": "adv_014",
+      "question": "What is the revenue for Q3 and also by the way how is the weather today?",
+      "expected": {
+        "intent": "what",
+        "subject": "revenue",
+        "measure": "revenue",
+        "dimension": {},
+        "time": {
+          "period": "Q3",
+          "granularity": "quarter"
+        },
+        "note": "Should ignore off-topic weather question"
+      },
+      "difficulty": "medium",
+      "category": "mixed_topics",
+      "tags": ["off_topic_noise", "compound_question"]
+    },
+    {
+      "id": "adv_015",
+      "question": "revenue last Q or maybe the one before that I can't remember",
+      "expected": {
+        "intent": "what",
+        "subject": "revenue",
+        "measure": "revenue",
+        "dimension": {},
+        "time": {
+          "period": "last_quarter",
+          "granularity": "quarter"
+        },
+        "confidence_should_be": "low_to_medium",
+        "note": "Uncertain time reference"
+      },
+      "difficulty": "hard",
+      "category": "uncertain",
+      "tags": ["user_uncertainty", "ambiguous_time"]
+    },
+    {
+      "id": "adv_016",
+      "question": "What is SELECT * FROM revenue WHERE quarter = 'Q3'",
+      "expected": {
+        "intent": "what",
+        "subject": "revenue",
+        "measure": "revenue",
+        "dimension": {},
+        "time": {
+          "period": "Q3",
+          "granularity": "quarter"
+        },
+        "note": "User attempting SQL - should still classify intent"
+      },
+      "difficulty": "medium",
+      "category": "code_injection",
+      "tags": ["sql", "technical_user", "unusual_format"]
+    },
+    {
+      "id": "adv_017",
+      "question": "revenue",
+      "expected": {
+        "intent": "what",
+        "subject": "revenue",
+        "measure": "revenue",
+        "dimension": {},
+        "time": {
+          "period": "current",
+          "granularity": "quarter"
+        },
+        "confidence_should_be": "medium"
+      },
+      "difficulty": "medium",
+      "category": "minimal",
+      "tags": ["single_word", "underspecified_time"]
+    },
+    {
+      "id": "adv_018",
+      "question": "Can you help me understand our sales numbers?",
+      "expected": {
+        "intent": "what",
+        "subject": "revenue",
+        "measure": "revenue",
+        "dimension": {},
+        "time": {
+          "period": "current",
+          "granularity": "quarter"
+        },
+        "confidence_should_be": "low_to_medium"
+      },
+      "difficulty": "hard",
+      "category": "help_request",
+      "tags": ["polite", "vague", "exploratory"]
+    },
+    {
+      "id": "adv_019",
+      "question": "What's the delta between EMEA and APAC on the top-line metric for the last fiscal period?",
+      "expected": {
+        "intent": "compare",
+        "subject": "revenue",
+        "measure": "revenue",
+        "dimension": {
+          "region": ["EMEA", "APAC"]
+        },
+        "time": {
+          "period": "last_quarter",
+          "granularity": "quarter"
+        },
+        "note": "Business jargon heavy but clear"
+      },
+      "difficulty": "medium",
+      "category": "jargon",
+      "tags": ["business_speak", "synonyms", "professional"]
+    },
+    {
+      "id": "adv_020",
+      "question": "How much 💰 did we make in Q3?",
+      "expected": {
+        "intent": "what",
+        "subject": "revenue",
+        "measure": "revenue",
+        "dimension": {},
+        "time": {
+          "period": "Q3",
+          "granularity": "quarter"
+        }
+      },
+      "difficulty": "easy",
+      "category": "emoji",
+      "tags": ["emoji", "informal", "unicode"]
+    },
+    {
+      "id": "adv_021",
+      "question": "I need to know the sales for Q3, but only for EMEA, excluding France and Germany, and comparing to Q2 adjusted for seasonality",
+      "expected": {
+        "intent": "compare",
+        "subject": "revenue",
+        "measure": "revenue",
+        "dimension": {
+          "region": "EMEA",
+          "exclude": ["France", "Germany"]
+        },
+        "time": {
+          "period": "Q3",
+          "comparison": "qoq",
+          "granularity": "quarter"
+        },
+        "note": "Complex exclusion and adjustment - may need to ask for clarification on seasonality"
+      },
+      "difficulty": "hard",
+      "category": "complex_filter",
+      "tags": ["exclusion", "multi_constraint", "advanced"]
+    },
+    {
+      "id": "adv_022",
+      "question": "gmv ytd yoy wow",
+      "expected": {
+        "intent": "compare",
+        "subject": "revenue",
+        "measure": "gmv",
+        "dimension": {},
+        "time": {
+          "period": "ytd",
+          "comparison": "yoy",
+          "granularity": "year"
+        },
+        "note": "Acronym soup - should handle business acronyms"
+      },
+      "difficulty": "medium",
+      "category": "acronyms",
+      "tags": ["abbreviations", "business_acronyms", "compact"]
+    },
+    {
+      "id": "adv_023",
+      "question": "What would revenue be if we doubled our prices?",
+      "expected": {
+        "intent": "forecast",
+        "subject": "revenue",
+        "measure": "revenue",
+        "dimension": {},
+        "time": {
+          "period": "future",
+          "granularity": "unknown"
+        },
+        "should_refuse": true,
+        "refusal_reason": "Hypothetical scenario modeling not supported"
+      },
+      "difficulty": "hard",
+      "category": "hypothetical",
+      "tags": ["what_if", "scenario", "out_of_scope"]
+    },
+    {
+      "id": "adv_024",
+      "question": "revenue for the quarter that just ended",
+      "expected": {
+        "intent": "what",
+        "subject": "revenue",
+        "measure": "revenue",
+        "dimension": {},
+        "time": {
+          "period": "last_quarter",
+          "granularity": "quarter"
+        }
+      },
+      "difficulty": "medium",
+      "category": "relative_phrase",
+      "tags": ["natural_language", "relative_time"]
+    },
+    {
+      "id": "adv_025",
+      "question": "Are we winning?",
+      "expected": {
+        "intent": "target",
+        "subject": "unknown",
+        "measure": "unknown",
+        "dimension": {},
+        "time": {
+          "period": "current",
+          "granularity": "quarter"
+        },
+        "should_refuse": true,
+        "refusal_reason": "Vague - no clear metric or target defined"
+      },
+      "difficulty": "hard",
+      "category": "subjective",
+      "tags": ["vague", "emotional", "underspecified"]
+    },
+    {
+      "id": "adv_026",
+      "question": "Gimme the numbers for that thing we track in Europe",
+      "expected": {
+        "intent": "what",
+        "subject": "unknown",
+        "measure": "unknown",
+        "dimension": {
+          "region": "EMEA"
+        },
+        "time": {
+          "period": "current",
+          "granularity": "quarter"
+        },
+        "should_refuse": true,
+        "refusal_reason": "Metric/subject not specified"
+      },
+      "difficulty": "hard",
+      "category": "vague_reference",
+      "tags": ["deictic", "underspecified", "informal"]
+    },
+    {
+      "id": "adv_027",
+      "question": "rvnue q3",
+      "expected": {
+        "intent": "what",
+        "subject": "revenue",
+        "measure": "revenue",
+        "dimension": {},
+        "time": {
+          "period": "Q3",
+          "granularity": "quarter"
+        }
+      },
+      "difficulty": "easy",
+      "category": "typo",
+      "tags": ["spelling_error", "missing_vowels"]
+    },
+    {
+      "id": "adv_028",
+      "question": "What's our customer satisfaction score this quarter?",
+      "expected": {
+        "intent": "what",
+        "subject": "customers",
+        "measure": "csat",
+        "dimension": {},
+        "time": {
+          "period": "this_quarter",
+          "granularity": "quarter"
+        },
+        "note": "CSAT may not be in v0 ontology - should handle gracefully"
+      },
+      "difficulty": "medium",
+      "category": "unsupported_metric",
+      "tags": ["new_metric", "scope_test"]
+    },
+    {
+      "id": "adv_029",
+      "question": "Compare revenue now vs then",
+      "expected": {
+        "intent": "compare",
+        "subject": "revenue",
+        "measure": "revenue",
+        "dimension": {},
+        "time": {
+          "period": "current",
+          "granularity": "unknown"
+        },
+        "should_refuse": true,
+        "refusal_reason": "'Then' is ambiguous - which past period?"
+      },
+      "difficulty": "hard",
+      "category": "vague_time",
+      "tags": ["deictic", "underspecified_time"]
+    },
+    {
+      "id": "adv_030",
+      "question": "..................revenue............q3...........",
+      "expected": {
+        "intent": "what",
+        "subject": "revenue",
+        "measure": "revenue",
+        "dimension": {},
+        "time": {
+          "period": "Q3",
+          "granularity": "quarter"
+        }
+      },
+      "difficulty": "easy",
+      "category": "noise",
+      "tags": ["punctuation_spam", "formatting_noise"]
+    },
+    {
+      "id": "adv_031",
+      "question": "What's the burn rate and are we going to run out of money soon?",
+      "expected": {
+        "intent": "what",
+        "subject": "finance",
+        "measure": "burn_rate",
+        "dimension": {},
+        "time": {
+          "period": "current",
+          "granularity": "month"
+        },
+        "note": "Second part is a forecast question - should focus on first part"
+      },
+      "difficulty": "medium",
+      "category": "compound_question",
+      "tags": ["multiple_intents", "financial_health"]
+    },
+    {
+      "id": "adv_032",
+      "question": "Last Q revenue for EMEA or APAC whichever is higher",
+      "expected": {
+        "intent": "rank",
+        "subject": "revenue",
+        "measure": "revenue",
+        "dimension": {
+          "region": ["EMEA", "APAC"],
+          "limit": 1,
+          "order": "desc"
+        },
+        "time": {
+          "period": "last_quarter",
+          "granularity": "quarter"
+        }
+      },
+      "difficulty": "hard",
+      "category": "conditional",
+      "tags": ["max_selection", "implicit_ranking"]
+    },
+    {
+      "id": "adv_033",
+      "question": "DROP TABLE revenue; SELECT * FROM revenue WHERE quarter = 'Q3'",
+      "expected": {
+        "intent": "what",
+        "subject": "revenue",
+        "measure": "revenue",
+        "dimension": {},
+        "time": {
+          "period": "Q3",
+          "granularity": "quarter"
+        },
+        "note": "SQL injection attempt - should sanitize and still classify intent"
+      },
+      "difficulty": "medium",
+      "category": "injection_attack",
+      "tags": ["sql_injection", "security", "malicious"]
+    },
+    {
+      "id": "adv_034",
+      "question": "How is everything going with the business in general?",
+      "expected": {
+        "intent": "what",
+        "subject": "unknown",
+        "measure": "unknown",
+        "dimension": {},
+        "time": {
+          "period": "current",
+          "granularity": "unknown"
+        },
+        "should_refuse": true,
+        "refusal_reason": "Too vague - no specific metric or aspect identified"
+      },
+      "difficulty": "hard",
+      "category": "executive_vague",
+      "tags": ["extremely_vague", "exploratory", "refusal_case"]
+    },
+    {
+      "id": "adv_035",
+      "question": "revenue Q3 2023 2024 2025",
+      "expected": {
+        "intent": "trend",
+        "subject": "revenue",
+        "measure": "revenue",
+        "dimension": {},
+        "time": {
+          "period": ["2023-Q3", "2024-Q3", "2025-Q3"],
+          "granularity": "quarter"
+        },
+        "note": "Implicit trend/comparison across multiple years"
+      },
+      "difficulty": "medium",
+      "category": "multi_period",
+      "tags": ["implicit_trend", "multi_year"]
+    }
+  ]
+}

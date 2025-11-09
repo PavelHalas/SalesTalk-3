@@ -1,0 +1,1712 @@
+{
+  "metadata": {
+    "dataset": "evaluation/adversarial.json",
+    "mode": "adversarial",
+    "total_questions": 35,
+    "dataset_info": {
+      "version": "1.0",
+      "created": "2025-11-09",
+      "author": "Data Science Copilot",
+      "description": "Adversarial dataset of edge cases, ambiguous questions, and challenging inputs for robustness testing",
+      "total_questions": 35,
+      "quality_standard": "Intentionally difficult cases to test classifier boundaries and error handling",
+      "usage": "Robustness evaluation and hallucination detection testing"
+    }
+  },
+  "component_accuracy": {
+    "intent": {
+      "accuracy": 0.6285714285714286,
+      "count": 35
+    },
+    "subject": {
+      "accuracy": 0.6571428571428571,
+      "count": 35
+    },
+    "measure": {
+      "accuracy": 0.7714285714285715,
+      "count": 35
+    },
+    "dimension": {
+      "accuracy": 0.4,
+      "count": 35
+    },
+    "time": {
+      "accuracy": 0.5714285714285714,
+      "count": 35
+    }
+  },
+  "overall_accuracy": 0.08571428571428572,
+  "calibration": {
+    "ece": 0.4214285714285715,
+    "calibration_data": [
+      {
+        "bucket": "0.0-0.6",
+        "confidence": 0.05,
+        "accuracy": 0.0,
+        "count": 13,
+        "gap": 0.05
+      },
+      {
+        "bucket": "0.6-0.7",
+        "confidence": 0.65,
+        "accuracy": 0.14285714285714285,
+        "count": 7,
+        "gap": 0.5071428571428571
+      },
+      {
+        "bucket": "0.7-0.8",
+        "confidence": 0.75,
+        "accuracy": 0.2,
+        "count": 5,
+        "gap": 0.55
+      },
+      {
+        "bucket": "0.8-0.9",
+        "confidence": 0.8500000000000001,
+        "accuracy": 0.14285714285714285,
+        "count": 7,
+        "gap": 0.7071428571428573
+      },
+      {
+        "bucket": "0.9-1.0",
+        "confidence": 0.9500000000000001,
+        "accuracy": 0.0,
+        "count": 3,
+        "gap": 0.9500000000000001
+      }
+    ]
+  },
+  "hallucination": {
+    "hallucination_rate": 0.0,
+    "hallucination_cases": [],
+    "refusal_accuracy": {
+      "correct_refusals": 9,
+      "incorrect_refusals": 0,
+      "total_should_refuse": 10
+    }
+  },
+  "per_question_results": [
+    {
+      "question_id": "adv_001",
+      "question": "How are we doing?",
+      "all_correct": false,
+      "component_results": {
+        "intent": {
+          "correct": false,
+          "score": 0.0,
+          "predicted": null,
+          "expected": "what"
+        },
+        "subject": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": null,
+          "expected": "unknown"
+        },
+        "measure": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": null,
+          "expected": "unknown"
+        },
+        "dimension": {
+          "correct": false,
+          "score": 0.0,
+          "predicted": null,
+          "expected": {}
+        },
+        "time": {
+          "correct": false,
+          "score": 0.0,
+          "predicted": null,
+          "expected": {
+            "period": "current",
+            "granularity": "unknown"
+          }
+        }
+      },
+      "confidence": 0.5152595009611545,
+      "should_refuse": true,
+      "did_refuse": true
+    },
+    {
+      "question_id": "adv_002",
+      "question": "revenue Q3 EMEA?",
+      "all_correct": true,
+      "component_results": {
+        "intent": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "what",
+          "expected": "what"
+        },
+        "subject": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "revenue",
+          "expected": "revenue"
+        },
+        "measure": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "revenue",
+          "expected": "revenue"
+        },
+        "dimension": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": {
+            "region": "EMEA"
+          },
+          "expected": {
+            "region": "EMEA"
+          }
+        },
+        "time": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": {
+            "period": "Q3",
+            "granularity": "quarter"
+          },
+          "expected": {
+            "period": "Q3",
+            "granularity": "quarter"
+          }
+        }
+      },
+      "confidence": 0.702746269606313,
+      "should_refuse": false,
+      "did_refuse": false
+    },
+    {
+      "question_id": "adv_003",
+      "question": "What's the thing for the stuff we sold last month?",
+      "all_correct": false,
+      "component_results": {
+        "intent": {
+          "correct": false,
+          "score": 0.0,
+          "predicted": "compare",
+          "expected": "what"
+        },
+        "subject": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "revenue",
+          "expected": "revenue"
+        },
+        "measure": {
+          "correct": false,
+          "score": 0.0,
+          "predicted": "gm_pct",
+          "expected": "revenue"
+        },
+        "dimension": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": {},
+          "expected": {}
+        },
+        "time": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": {
+            "period": "last_month",
+            "granularity": "month"
+          },
+          "expected": {
+            "period": "last_month",
+            "granularity": "month"
+          }
+        }
+      },
+      "confidence": 0.8840815748921302,
+      "should_refuse": false,
+      "did_refuse": false
+    },
+    {
+      "question_id": "adv_004",
+      "question": "\u00bfCu\u00e1l es el ingreso del tercer trimestre?",
+      "all_correct": false,
+      "component_results": {
+        "intent": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": null,
+          "expected": "unknown"
+        },
+        "subject": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": null,
+          "expected": "unknown"
+        },
+        "measure": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": null,
+          "expected": "unknown"
+        },
+        "dimension": {
+          "correct": false,
+          "score": 0.0,
+          "predicted": null,
+          "expected": {}
+        },
+        "time": {
+          "correct": false,
+          "score": 0.0,
+          "predicted": null,
+          "expected": {}
+        }
+      },
+      "confidence": 0.5590731725284847,
+      "should_refuse": true,
+      "did_refuse": true
+    },
+    {
+      "question_id": "adv_005",
+      "question": "revenue revenue revenue Q3 Q3 revenue",
+      "all_correct": false,
+      "component_results": {
+        "intent": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "what",
+          "expected": "what"
+        },
+        "subject": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "revenue",
+          "expected": "revenue"
+        },
+        "measure": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "revenue",
+          "expected": "revenue"
+        },
+        "dimension": {
+          "correct": false,
+          "score": 0.0,
+          "predicted": "unknown",
+          "expected": {}
+        },
+        "time": {
+          "correct": false,
+          "score": 0.0,
+          "predicted": "unknown",
+          "expected": {
+            "period": "Q3",
+            "granularity": "quarter"
+          }
+        }
+      },
+      "confidence": 0.6082679150864934,
+      "should_refuse": false,
+      "did_refuse": false
+    },
+    {
+      "question_id": "adv_006",
+      "question": "What is Q3 revenue? Also, how about customer churn? And what's the gross margin trending like?",
+      "all_correct": false,
+      "component_results": {
+        "intent": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "what",
+          "expected": "what"
+        },
+        "subject": {
+          "correct": false,
+          "score": 0.0,
+          "predicted": "margin",
+          "expected": "revenue"
+        },
+        "measure": {
+          "correct": false,
+          "score": 0.0,
+          "predicted": "gm_pct",
+          "expected": "revenue"
+        },
+        "dimension": {
+          "correct": false,
+          "score": 0.0,
+          "predicted": "unknown",
+          "expected": {}
+        },
+        "time": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": {
+            "period": "Q3",
+            "granularity": "quarter"
+          },
+          "expected": {
+            "period": "Q3",
+            "granularity": "quarter"
+          }
+        }
+      },
+      "confidence": 0.9123389990450443,
+      "should_refuse": false,
+      "did_refuse": false
+    },
+    {
+      "question_id": "adv_007",
+      "question": "reveneu Q3",
+      "all_correct": false,
+      "component_results": {
+        "intent": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "what",
+          "expected": "what"
+        },
+        "subject": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "revenue",
+          "expected": "revenue"
+        },
+        "measure": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "revenue",
+          "expected": "revenue"
+        },
+        "dimension": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": {},
+          "expected": {}
+        },
+        "time": {
+          "correct": false,
+          "score": 0.0,
+          "predicted": "unknown",
+          "expected": {
+            "period": "Q3",
+            "granularity": "quarter"
+          }
+        }
+      },
+      "confidence": 0.6071391558479652,
+      "should_refuse": false,
+      "did_refuse": false
+    },
+    {
+      "question_id": "adv_008",
+      "question": "Q3",
+      "all_correct": false,
+      "component_results": {
+        "intent": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": null,
+          "expected": "unknown"
+        },
+        "subject": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": null,
+          "expected": "unknown"
+        },
+        "measure": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": null,
+          "expected": "unknown"
+        },
+        "dimension": {
+          "correct": false,
+          "score": 0.0,
+          "predicted": null,
+          "expected": {}
+        },
+        "time": {
+          "correct": false,
+          "score": 0.0,
+          "predicted": null,
+          "expected": {
+            "period": "Q3",
+            "granularity": "quarter"
+          }
+        }
+      },
+      "confidence": 0.5151396324675392,
+      "should_refuse": true,
+      "did_refuse": true
+    },
+    {
+      "question_id": "adv_009",
+      "question": "How does our performance look in EMEA versus, you know, the other big region we care about, for revenue specifically in the most recent completed quarter?",
+      "all_correct": true,
+      "component_results": {
+        "intent": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "compare",
+          "expected": "compare"
+        },
+        "subject": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "revenue",
+          "expected": "revenue"
+        },
+        "measure": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "revenue",
+          "expected": "revenue"
+        },
+        "dimension": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": {
+            "region": [
+              "EMEA",
+              "unknown"
+            ]
+          },
+          "expected": {
+            "region": [
+              "EMEA",
+              "unknown"
+            ]
+          }
+        },
+        "time": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": {
+            "period": "last_quarter",
+            "granularity": "quarter"
+          },
+          "expected": {
+            "period": "last_quarter",
+            "granularity": "quarter"
+          }
+        }
+      },
+      "confidence": 0.691305957585626,
+      "should_refuse": false,
+      "did_refuse": false
+    },
+    {
+      "question_id": "adv_010",
+      "question": "revenue for Q15",
+      "all_correct": false,
+      "component_results": {
+        "intent": {
+          "correct": false,
+          "score": 0.0,
+          "predicted": "compare",
+          "expected": "what"
+        },
+        "subject": {
+          "correct": false,
+          "score": 0.0,
+          "predicted": "margin",
+          "expected": "revenue"
+        },
+        "measure": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "revenue",
+          "expected": "revenue"
+        },
+        "dimension": {
+          "correct": false,
+          "score": 0.0,
+          "predicted": "unknown",
+          "expected": {}
+        },
+        "time": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": {
+            "period": "unknown",
+            "granularity": "quarter"
+          },
+          "expected": {
+            "period": "unknown",
+            "granularity": "quarter"
+          }
+        }
+      },
+      "confidence": 0.8594691765237373,
+      "should_refuse": true,
+      "did_refuse": false
+    },
+    {
+      "question_id": "adv_011",
+      "question": "What was revenue in the future?",
+      "all_correct": false,
+      "component_results": {
+        "intent": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "forecast",
+          "expected": "forecast"
+        },
+        "subject": {
+          "correct": false,
+          "score": 0.0,
+          "predicted": "margin",
+          "expected": "revenue"
+        },
+        "measure": {
+          "correct": false,
+          "score": 0.0,
+          "predicted": "gm_pct",
+          "expected": "revenue"
+        },
+        "dimension": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": {},
+          "expected": {}
+        },
+        "time": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": {
+            "period": "future",
+            "granularity": "unknown"
+          },
+          "expected": {
+            "period": "future",
+            "granularity": "unknown"
+          }
+        }
+      },
+      "confidence": 0.847378697220829,
+      "should_refuse": false,
+      "did_refuse": false
+    },
+    {
+      "question_id": "adv_012",
+      "question": "Compare apples to oranges",
+      "all_correct": false,
+      "component_results": {
+        "intent": {
+          "correct": false,
+          "score": 0.0,
+          "predicted": null,
+          "expected": "compare"
+        },
+        "subject": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": null,
+          "expected": "unknown"
+        },
+        "measure": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": null,
+          "expected": "unknown"
+        },
+        "dimension": {
+          "correct": false,
+          "score": 0.0,
+          "predicted": null,
+          "expected": {}
+        },
+        "time": {
+          "correct": false,
+          "score": 0.0,
+          "predicted": null,
+          "expected": {}
+        }
+      },
+      "confidence": 0.3375249500897193,
+      "should_refuse": true,
+      "did_refuse": true
+    },
+    {
+      "question_id": "adv_013",
+      "question": "REVENUE Q3 2024",
+      "all_correct": false,
+      "component_results": {
+        "intent": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "what",
+          "expected": "what"
+        },
+        "subject": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "revenue",
+          "expected": "revenue"
+        },
+        "measure": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "revenue",
+          "expected": "revenue"
+        },
+        "dimension": {
+          "correct": false,
+          "score": 0.0,
+          "predicted": "unknown",
+          "expected": {}
+        },
+        "time": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": {
+            "period": "2024-Q3",
+            "granularity": "quarter"
+          },
+          "expected": {
+            "period": "2024-Q3",
+            "granularity": "quarter"
+          }
+        }
+      },
+      "confidence": 0.5798790036081304,
+      "should_refuse": false,
+      "did_refuse": false
+    },
+    {
+      "question_id": "adv_014",
+      "question": "What is the revenue for Q3 and also by the way how is the weather today?",
+      "all_correct": false,
+      "component_results": {
+        "intent": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "what",
+          "expected": "what"
+        },
+        "subject": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "revenue",
+          "expected": "revenue"
+        },
+        "measure": {
+          "correct": false,
+          "score": 0.0,
+          "predicted": "gm_pct",
+          "expected": "revenue"
+        },
+        "dimension": {
+          "correct": false,
+          "score": 0.0,
+          "predicted": "unknown",
+          "expected": {}
+        },
+        "time": {
+          "correct": false,
+          "score": 0.0,
+          "predicted": "unknown",
+          "expected": {
+            "period": "Q3",
+            "granularity": "quarter"
+          }
+        }
+      },
+      "confidence": 0.5206206961375527,
+      "should_refuse": false,
+      "did_refuse": false
+    },
+    {
+      "question_id": "adv_015",
+      "question": "revenue last Q or maybe the one before that I can't remember",
+      "all_correct": false,
+      "component_results": {
+        "intent": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "what",
+          "expected": "what"
+        },
+        "subject": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "revenue",
+          "expected": "revenue"
+        },
+        "measure": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "revenue",
+          "expected": "revenue"
+        },
+        "dimension": {
+          "correct": false,
+          "score": 0.0,
+          "predicted": "unknown",
+          "expected": {}
+        },
+        "time": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": {
+            "period": "last_quarter",
+            "granularity": "quarter"
+          },
+          "expected": {
+            "period": "last_quarter",
+            "granularity": "quarter"
+          }
+        }
+      },
+      "confidence": 0.9475135754394055,
+      "should_refuse": false,
+      "did_refuse": false
+    },
+    {
+      "question_id": "adv_016",
+      "question": "What is SELECT * FROM revenue WHERE quarter = 'Q3'",
+      "all_correct": false,
+      "component_results": {
+        "intent": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "what",
+          "expected": "what"
+        },
+        "subject": {
+          "correct": false,
+          "score": 0.0,
+          "predicted": "margin",
+          "expected": "revenue"
+        },
+        "measure": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "revenue",
+          "expected": "revenue"
+        },
+        "dimension": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": {},
+          "expected": {}
+        },
+        "time": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": {
+            "period": "Q3",
+            "granularity": "quarter"
+          },
+          "expected": {
+            "period": "Q3",
+            "granularity": "quarter"
+          }
+        }
+      },
+      "confidence": 0.8196482236260809,
+      "should_refuse": false,
+      "did_refuse": false
+    },
+    {
+      "question_id": "adv_017",
+      "question": "revenue",
+      "all_correct": false,
+      "component_results": {
+        "intent": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "what",
+          "expected": "what"
+        },
+        "subject": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "revenue",
+          "expected": "revenue"
+        },
+        "measure": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "revenue",
+          "expected": "revenue"
+        },
+        "dimension": {
+          "correct": false,
+          "score": 0.0,
+          "predicted": "unknown",
+          "expected": {}
+        },
+        "time": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": {
+            "period": "current",
+            "granularity": "quarter"
+          },
+          "expected": {
+            "period": "current",
+            "granularity": "quarter"
+          }
+        }
+      },
+      "confidence": 0.8431627105715039,
+      "should_refuse": false,
+      "did_refuse": false
+    },
+    {
+      "question_id": "adv_018",
+      "question": "Can you help me understand our sales numbers?",
+      "all_correct": false,
+      "component_results": {
+        "intent": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "what",
+          "expected": "what"
+        },
+        "subject": {
+          "correct": false,
+          "score": 0.0,
+          "predicted": "margin",
+          "expected": "revenue"
+        },
+        "measure": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "revenue",
+          "expected": "revenue"
+        },
+        "dimension": {
+          "correct": false,
+          "score": 0.0,
+          "predicted": "unknown",
+          "expected": {}
+        },
+        "time": {
+          "correct": false,
+          "score": 0.0,
+          "predicted": "unknown",
+          "expected": {
+            "period": "current",
+            "granularity": "quarter"
+          }
+        }
+      },
+      "confidence": 0.7278166551935914,
+      "should_refuse": false,
+      "did_refuse": false
+    },
+    {
+      "question_id": "adv_019",
+      "question": "What's the delta between EMEA and APAC on the top-line metric for the last fiscal period?",
+      "all_correct": false,
+      "component_results": {
+        "intent": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "compare",
+          "expected": "compare"
+        },
+        "subject": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "revenue",
+          "expected": "revenue"
+        },
+        "measure": {
+          "correct": false,
+          "score": 0.0,
+          "predicted": "gm_pct",
+          "expected": "revenue"
+        },
+        "dimension": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": {
+            "region": [
+              "EMEA",
+              "APAC"
+            ]
+          },
+          "expected": {
+            "region": [
+              "EMEA",
+              "APAC"
+            ]
+          }
+        },
+        "time": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": {
+            "period": "last_quarter",
+            "granularity": "quarter"
+          },
+          "expected": {
+            "period": "last_quarter",
+            "granularity": "quarter"
+          }
+        }
+      },
+      "confidence": 0.6217664401013678,
+      "should_refuse": false,
+      "did_refuse": false
+    },
+    {
+      "question_id": "adv_020",
+      "question": "How much \ud83d\udcb0 did we make in Q3?",
+      "all_correct": false,
+      "component_results": {
+        "intent": {
+          "correct": false,
+          "score": 0.0,
+          "predicted": "compare",
+          "expected": "what"
+        },
+        "subject": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "revenue",
+          "expected": "revenue"
+        },
+        "measure": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "revenue",
+          "expected": "revenue"
+        },
+        "dimension": {
+          "correct": false,
+          "score": 0.0,
+          "predicted": "unknown",
+          "expected": {}
+        },
+        "time": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": {
+            "period": "Q3",
+            "granularity": "quarter"
+          },
+          "expected": {
+            "period": "Q3",
+            "granularity": "quarter"
+          }
+        }
+      },
+      "confidence": 0.7041279403743275,
+      "should_refuse": false,
+      "did_refuse": false
+    },
+    {
+      "question_id": "adv_021",
+      "question": "I need to know the sales for Q3, but only for EMEA, excluding France and Germany, and comparing to Q2 adjusted for seasonality",
+      "all_correct": false,
+      "component_results": {
+        "intent": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "compare",
+          "expected": "compare"
+        },
+        "subject": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "revenue",
+          "expected": "revenue"
+        },
+        "measure": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "revenue",
+          "expected": "revenue"
+        },
+        "dimension": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": {
+            "region": "EMEA",
+            "exclude": [
+              "France",
+              "Germany"
+            ]
+          },
+          "expected": {
+            "region": "EMEA",
+            "exclude": [
+              "France",
+              "Germany"
+            ]
+          }
+        },
+        "time": {
+          "correct": false,
+          "score": 0.0,
+          "predicted": "unknown",
+          "expected": {
+            "period": "Q3",
+            "comparison": "qoq",
+            "granularity": "quarter"
+          }
+        }
+      },
+      "confidence": 0.7030874277479846,
+      "should_refuse": false,
+      "did_refuse": false
+    },
+    {
+      "question_id": "adv_022",
+      "question": "gmv ytd yoy wow",
+      "all_correct": false,
+      "component_results": {
+        "intent": {
+          "correct": false,
+          "score": 0.0,
+          "predicted": "what",
+          "expected": "compare"
+        },
+        "subject": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "revenue",
+          "expected": "revenue"
+        },
+        "measure": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "gmv",
+          "expected": "gmv"
+        },
+        "dimension": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": {},
+          "expected": {}
+        },
+        "time": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": {
+            "period": "ytd",
+            "comparison": "yoy",
+            "granularity": "year"
+          },
+          "expected": {
+            "period": "ytd",
+            "comparison": "yoy",
+            "granularity": "year"
+          }
+        }
+      },
+      "confidence": 0.6964771831556972,
+      "should_refuse": false,
+      "did_refuse": false
+    },
+    {
+      "question_id": "adv_023",
+      "question": "What would revenue be if we doubled our prices?",
+      "all_correct": false,
+      "component_results": {
+        "intent": {
+          "correct": false,
+          "score": 0.0,
+          "predicted": null,
+          "expected": "forecast"
+        },
+        "subject": {
+          "correct": false,
+          "score": 0.0,
+          "predicted": null,
+          "expected": "revenue"
+        },
+        "measure": {
+          "correct": false,
+          "score": 0.0,
+          "predicted": null,
+          "expected": "revenue"
+        },
+        "dimension": {
+          "correct": false,
+          "score": 0.0,
+          "predicted": null,
+          "expected": {}
+        },
+        "time": {
+          "correct": false,
+          "score": 0.0,
+          "predicted": null,
+          "expected": {
+            "period": "future",
+            "granularity": "unknown"
+          }
+        }
+      },
+      "confidence": 0.4681823917732477,
+      "should_refuse": true,
+      "did_refuse": true
+    },
+    {
+      "question_id": "adv_024",
+      "question": "revenue for the quarter that just ended",
+      "all_correct": false,
+      "component_results": {
+        "intent": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "what",
+          "expected": "what"
+        },
+        "subject": {
+          "correct": false,
+          "score": 0.0,
+          "predicted": "margin",
+          "expected": "revenue"
+        },
+        "measure": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "revenue",
+          "expected": "revenue"
+        },
+        "dimension": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": {},
+          "expected": {}
+        },
+        "time": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": {
+            "period": "last_quarter",
+            "granularity": "quarter"
+          },
+          "expected": {
+            "period": "last_quarter",
+            "granularity": "quarter"
+          }
+        }
+      },
+      "confidence": 0.690549511694259,
+      "should_refuse": false,
+      "did_refuse": false
+    },
+    {
+      "question_id": "adv_025",
+      "question": "Are we winning?",
+      "all_correct": false,
+      "component_results": {
+        "intent": {
+          "correct": false,
+          "score": 0.0,
+          "predicted": null,
+          "expected": "target"
+        },
+        "subject": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": null,
+          "expected": "unknown"
+        },
+        "measure": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": null,
+          "expected": "unknown"
+        },
+        "dimension": {
+          "correct": false,
+          "score": 0.0,
+          "predicted": null,
+          "expected": {}
+        },
+        "time": {
+          "correct": false,
+          "score": 0.0,
+          "predicted": null,
+          "expected": {
+            "period": "current",
+            "granularity": "quarter"
+          }
+        }
+      },
+      "confidence": 0.3381272415873264,
+      "should_refuse": true,
+      "did_refuse": true
+    },
+    {
+      "question_id": "adv_026",
+      "question": "Gimme the numbers for that thing we track in Europe",
+      "all_correct": false,
+      "component_results": {
+        "intent": {
+          "correct": false,
+          "score": 0.0,
+          "predicted": null,
+          "expected": "what"
+        },
+        "subject": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": null,
+          "expected": "unknown"
+        },
+        "measure": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": null,
+          "expected": "unknown"
+        },
+        "dimension": {
+          "correct": false,
+          "score": 0.0,
+          "predicted": null,
+          "expected": {
+            "region": "EMEA"
+          }
+        },
+        "time": {
+          "correct": false,
+          "score": 0.0,
+          "predicted": null,
+          "expected": {
+            "period": "current",
+            "granularity": "quarter"
+          }
+        }
+      },
+      "confidence": 0.5417367052006916,
+      "should_refuse": true,
+      "did_refuse": true
+    },
+    {
+      "question_id": "adv_027",
+      "question": "rvnue q3",
+      "all_correct": false,
+      "component_results": {
+        "intent": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "what",
+          "expected": "what"
+        },
+        "subject": {
+          "correct": false,
+          "score": 0.0,
+          "predicted": "margin",
+          "expected": "revenue"
+        },
+        "measure": {
+          "correct": false,
+          "score": 0.0,
+          "predicted": "gm_pct",
+          "expected": "revenue"
+        },
+        "dimension": {
+          "correct": false,
+          "score": 0.0,
+          "predicted": "unknown",
+          "expected": {}
+        },
+        "time": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": {
+            "period": "Q3",
+            "granularity": "quarter"
+          },
+          "expected": {
+            "period": "Q3",
+            "granularity": "quarter"
+          }
+        }
+      },
+      "confidence": 0.9422780666219279,
+      "should_refuse": false,
+      "did_refuse": false
+    },
+    {
+      "question_id": "adv_028",
+      "question": "What's our customer satisfaction score this quarter?",
+      "all_correct": false,
+      "component_results": {
+        "intent": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "what",
+          "expected": "what"
+        },
+        "subject": {
+          "correct": false,
+          "score": 0.0,
+          "predicted": "revenue",
+          "expected": "customers"
+        },
+        "measure": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "csat",
+          "expected": "csat"
+        },
+        "dimension": {
+          "correct": false,
+          "score": 0.0,
+          "predicted": "unknown",
+          "expected": {}
+        },
+        "time": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": {
+            "period": "this_quarter",
+            "granularity": "quarter"
+          },
+          "expected": {
+            "period": "this_quarter",
+            "granularity": "quarter"
+          }
+        }
+      },
+      "confidence": 0.8481983751026809,
+      "should_refuse": false,
+      "did_refuse": false
+    },
+    {
+      "question_id": "adv_029",
+      "question": "Compare revenue now vs then",
+      "all_correct": false,
+      "component_results": {
+        "intent": {
+          "correct": false,
+          "score": 0.0,
+          "predicted": null,
+          "expected": "compare"
+        },
+        "subject": {
+          "correct": false,
+          "score": 0.0,
+          "predicted": null,
+          "expected": "revenue"
+        },
+        "measure": {
+          "correct": false,
+          "score": 0.0,
+          "predicted": null,
+          "expected": "revenue"
+        },
+        "dimension": {
+          "correct": false,
+          "score": 0.0,
+          "predicted": null,
+          "expected": {}
+        },
+        "time": {
+          "correct": false,
+          "score": 0.0,
+          "predicted": null,
+          "expected": {
+            "period": "current",
+            "granularity": "unknown"
+          }
+        }
+      },
+      "confidence": 0.33275071597150147,
+      "should_refuse": true,
+      "did_refuse": true
+    },
+    {
+      "question_id": "adv_030",
+      "question": "..................revenue............q3...........",
+      "all_correct": false,
+      "component_results": {
+        "intent": {
+          "correct": false,
+          "score": 0.0,
+          "predicted": "compare",
+          "expected": "what"
+        },
+        "subject": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "revenue",
+          "expected": "revenue"
+        },
+        "measure": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "revenue",
+          "expected": "revenue"
+        },
+        "dimension": {
+          "correct": false,
+          "score": 0.0,
+          "predicted": "unknown",
+          "expected": {}
+        },
+        "time": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": {
+            "period": "Q3",
+            "granularity": "quarter"
+          },
+          "expected": {
+            "period": "Q3",
+            "granularity": "quarter"
+          }
+        }
+      },
+      "confidence": 0.7077691819548603,
+      "should_refuse": false,
+      "did_refuse": false
+    },
+    {
+      "question_id": "adv_031",
+      "question": "What's the burn rate and are we going to run out of money soon?",
+      "all_correct": false,
+      "component_results": {
+        "intent": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "what",
+          "expected": "what"
+        },
+        "subject": {
+          "correct": false,
+          "score": 0.0,
+          "predicted": "revenue",
+          "expected": "finance"
+        },
+        "measure": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "burn_rate",
+          "expected": "burn_rate"
+        },
+        "dimension": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": {},
+          "expected": {}
+        },
+        "time": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": {
+            "period": "current",
+            "granularity": "month"
+          },
+          "expected": {
+            "period": "current",
+            "granularity": "month"
+          }
+        }
+      },
+      "confidence": 0.5442583036953647,
+      "should_refuse": false,
+      "did_refuse": false
+    },
+    {
+      "question_id": "adv_032",
+      "question": "Last Q revenue for EMEA or APAC whichever is higher",
+      "all_correct": true,
+      "component_results": {
+        "intent": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "rank",
+          "expected": "rank"
+        },
+        "subject": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "revenue",
+          "expected": "revenue"
+        },
+        "measure": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "revenue",
+          "expected": "revenue"
+        },
+        "dimension": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": {
+            "region": [
+              "EMEA",
+              "APAC"
+            ],
+            "limit": 1,
+            "order": "desc"
+          },
+          "expected": {
+            "region": [
+              "EMEA",
+              "APAC"
+            ],
+            "limit": 1,
+            "order": "desc"
+          }
+        },
+        "time": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": {
+            "period": "last_quarter",
+            "granularity": "quarter"
+          },
+          "expected": {
+            "period": "last_quarter",
+            "granularity": "quarter"
+          }
+        }
+      },
+      "confidence": 0.8004354420632012,
+      "should_refuse": false,
+      "did_refuse": false
+    },
+    {
+      "question_id": "adv_033",
+      "question": "DROP TABLE revenue; SELECT * FROM revenue WHERE quarter = 'Q3'",
+      "all_correct": false,
+      "component_results": {
+        "intent": {
+          "correct": false,
+          "score": 0.0,
+          "predicted": "compare",
+          "expected": "what"
+        },
+        "subject": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "revenue",
+          "expected": "revenue"
+        },
+        "measure": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "revenue",
+          "expected": "revenue"
+        },
+        "dimension": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": {},
+          "expected": {}
+        },
+        "time": {
+          "correct": false,
+          "score": 0.0,
+          "predicted": "unknown",
+          "expected": {
+            "period": "Q3",
+            "granularity": "quarter"
+          }
+        }
+      },
+      "confidence": 0.6622271862816491,
+      "should_refuse": false,
+      "did_refuse": false
+    },
+    {
+      "question_id": "adv_034",
+      "question": "How is everything going with the business in general?",
+      "all_correct": false,
+      "component_results": {
+        "intent": {
+          "correct": false,
+          "score": 0.0,
+          "predicted": null,
+          "expected": "what"
+        },
+        "subject": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": null,
+          "expected": "unknown"
+        },
+        "measure": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": null,
+          "expected": "unknown"
+        },
+        "dimension": {
+          "correct": false,
+          "score": 0.0,
+          "predicted": null,
+          "expected": {}
+        },
+        "time": {
+          "correct": false,
+          "score": 0.0,
+          "predicted": null,
+          "expected": {
+            "period": "current",
+            "granularity": "unknown"
+          }
+        }
+      },
+      "confidence": 0.32599951424280244,
+      "should_refuse": true,
+      "did_refuse": true
+    },
+    {
+      "question_id": "adv_035",
+      "question": "revenue Q3 2023 2024 2025",
+      "all_correct": false,
+      "component_results": {
+        "intent": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "trend",
+          "expected": "trend"
+        },
+        "subject": {
+          "correct": false,
+          "score": 0.0,
+          "predicted": "margin",
+          "expected": "revenue"
+        },
+        "measure": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "revenue",
+          "expected": "revenue"
+        },
+        "dimension": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": {},
+          "expected": {}
+        },
+        "time": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": {
+            "period": [
+              "2023-Q3",
+              "2024-Q3",
+              "2025-Q3"
+            ],
+            "granularity": "quarter"
+          },
+          "expected": {
+            "period": [
+              "2023-Q3",
+              "2024-Q3",
+              "2025-Q3"
+            ],
+            "granularity": "quarter"
+          }
+        }
+      },
+      "confidence": 0.5240535631068562,
+      "should_refuse": false,
+      "did_refuse": false
+    }
+  ]
+}
