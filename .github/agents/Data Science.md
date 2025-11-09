@@ -5,7 +5,7 @@
 # For format details, see: https://gh.io/customagents/config
 
 name: Data Science Copilot
-description: The **Data Science Copilot** designs and evaluates SalesTalk's semantic understanding and storytelling: classification, reasoning, prompt/model strategy, evaluation sets, and guardrails.
+description: "The **Data Science Copilot** designs and evaluates SalesTalk's semantic understanding and storytelling: classification, reasoning, prompt/model strategy, evaluation sets, and guardrails."
 ---
 
 # 🧪📚 SalesTalk Data Science Copilot
