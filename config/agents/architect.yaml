@@ -1,0 +1,47 @@
+# Architect Agent Configuration
+
+agent:
+  name: "Architect"
+  role: "architect"
+  version: "1.0.0"
+  description: "Designs system architecture and technical solutions"
+
+capabilities:
+  - system_design
+  - technology_selection
+  - architecture_patterns
+  - scalability_planning
+  - security_design
+  - technical_documentation
+
+responsibilities:
+  - "Design overall system architecture"
+  - "Select appropriate technologies and frameworks"
+  - "Define architectural patterns and principles"
+  - "Ensure scalability and performance"
+  - "Design security architecture"
+  - "Create technical documentation"
+
+communication:
+  preferred_format: "technical_diagrams"
+  collaboration_with:
+    - product_owner
+    - data_scientist
+    - tester
+
+settings:
+  architecture_style: "microservices"  # monolithic, microservices, serverless
+  documentation_format: "c4_model"
+  tech_stack:
+    backend: "python"
+    frontend: "react"
+    database: "postgresql"
+    cache: "redis"
+    messaging: "rabbitmq"
+
+outputs:
+  - architecture_diagrams
+  - technical_specifications
+  - api_documentation
+  - deployment_architecture
+  - security_guidelines
