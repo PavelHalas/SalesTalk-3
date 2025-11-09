@@ -1,0 +1,937 @@
+{
+  "metadata": {
+    "version": "1.0",
+    "created": "2025-11-09",
+    "author": "Data Science Copilot",
+    "description": "Gold standard dataset of labeled business questions for classification evaluation",
+    "total_questions": 55,
+    "quality_standard": "All labels manually reviewed and validated",
+    "usage": "Automated daily evaluation of classifier accuracy"
+  },
+  "questions": [
+    {
+      "id": "gold_001",
+      "question": "What is our Q3 revenue?",
+      "expected": {
+        "intent": "what",
+        "subject": "revenue",
+        "measure": "revenue",
+        "dimension": {},
+        "time": {
+          "period": "Q3",
+          "granularity": "quarter"
+        }
+      },
+      "difficulty": "easy",
+      "tags": ["basic", "single_metric", "quarterly"]
+    },
+    {
+      "id": "gold_002",
+      "question": "How does EMEA revenue compare to APAC?",
+      "expected": {
+        "intent": "compare",
+        "subject": "revenue",
+        "measure": "revenue",
+        "dimension": {
+          "region": ["EMEA", "APAC"]
+        },
+        "time": {
+          "period": "current",
+          "granularity": "quarter"
+        }
+      },
+      "difficulty": "medium",
+      "tags": ["comparison", "regional", "multi_dimension"]
+    },
+    {
+      "id": "gold_003",
+      "question": "Why did customer churn increase last month?",
+      "expected": {
+        "intent": "why",
+        "subject": "customers",
+        "measure": "churn_rate",
+        "dimension": {},
+        "time": {
+          "period": "last_month",
+          "comparison": "mom",
+          "granularity": "month"
+        }
+      },
+      "difficulty": "hard",
+      "tags": ["causal", "customer_metrics", "monthly"]
+    },
+    {
+      "id": "gold_004",
+      "question": "What's our gross margin percentage this quarter?",
+      "expected": {
+        "intent": "what",
+        "subject": "margin",
+        "measure": "gm_pct",
+        "dimension": {},
+        "time": {
+          "period": "this_quarter",
+          "granularity": "quarter"
+        }
+      },
+      "difficulty": "easy",
+      "tags": ["basic", "profitability", "quarterly"]
+    },
+    {
+      "id": "gold_005",
+      "question": "Show me revenue trending over the last 12 months",
+      "expected": {
+        "intent": "trend",
+        "subject": "revenue",
+        "measure": "revenue",
+        "dimension": {},
+        "time": {
+          "window": "l12m",
+          "granularity": "month"
+        }
+      },
+      "difficulty": "medium",
+      "tags": ["trend", "time_series", "rolling_window"]
+    },
+    {
+      "id": "gold_006",
+      "question": "Top 5 products by revenue",
+      "expected": {
+        "intent": "rank",
+        "subject": "products",
+        "measure": "revenue",
+        "dimension": {
+          "product": "all",
+          "limit": 5
+        },
+        "time": {
+          "period": "current",
+          "granularity": "quarter"
+        }
+      },
+      "difficulty": "medium",
+      "tags": ["ranking", "product_performance", "top_n"]
+    },
+    {
+      "id": "gold_007",
+      "question": "Break down revenue by region for Q2",
+      "expected": {
+        "intent": "drill",
+        "subject": "revenue",
+        "measure": "revenue",
+        "dimension": {
+          "region": "all"
+        },
+        "time": {
+          "period": "Q2",
+          "granularity": "quarter"
+        }
+      },
+      "difficulty": "medium",
+      "tags": ["drill_down", "regional", "quarterly"]
+    },
+    {
+      "id": "gold_008",
+      "question": "Are we on track to hit our Q4 revenue target?",
+      "expected": {
+        "intent": "target",
+        "subject": "revenue",
+        "measure": "revenue",
+        "dimension": {},
+        "time": {
+          "period": "Q4",
+          "granularity": "quarter"
+        }
+      },
+      "difficulty": "medium",
+      "tags": ["target_tracking", "forecast", "quarterly"]
+    },
+    {
+      "id": "gold_009",
+      "question": "What is the average order value this month?",
+      "expected": {
+        "intent": "what",
+        "subject": "orders",
+        "measure": "aov",
+        "dimension": {},
+        "time": {
+          "period": "this_month",
+          "granularity": "month"
+        }
+      },
+      "difficulty": "easy",
+      "tags": ["basic", "order_metrics", "monthly"]
+    },
+    {
+      "id": "gold_010",
+      "question": "How many new customers did we acquire last quarter?",
+      "expected": {
+        "intent": "what",
+        "subject": "customers",
+        "measure": "new_customers",
+        "dimension": {},
+        "time": {
+          "period": "last_quarter",
+          "granularity": "quarter"
+        }
+      },
+      "difficulty": "easy",
+      "tags": ["basic", "customer_acquisition", "quarterly"]
+    },
+    {
+      "id": "gold_011",
+      "question": "Compare this quarter's revenue to last year same quarter",
+      "expected": {
+        "intent": "compare",
+        "subject": "revenue",
+        "measure": "revenue",
+        "dimension": {},
+        "time": {
+          "period": "this_quarter",
+          "comparison": "yoy",
+          "granularity": "quarter"
+        }
+      },
+      "difficulty": "medium",
+      "tags": ["comparison", "yoy", "quarterly"]
+    },
+    {
+      "id": "gold_012",
+      "question": "What's the LTV to CAC ratio?",
+      "expected": {
+        "intent": "what",
+        "subject": "customers",
+        "measure": "ltv_cac_ratio",
+        "dimension": {},
+        "time": {
+          "period": "current",
+          "granularity": "quarter"
+        }
+      },
+      "difficulty": "medium",
+      "tags": ["customer_economics", "ratio", "unit_economics"]
+    },
+    {
+      "id": "gold_013",
+      "question": "Which sales rep has the highest win rate?",
+      "expected": {
+        "intent": "rank",
+        "subject": "sales",
+        "measure": "win_rate",
+        "dimension": {
+          "rep": "all",
+          "limit": 1
+        },
+        "time": {
+          "period": "current",
+          "granularity": "quarter"
+        }
+      },
+      "difficulty": "medium",
+      "tags": ["ranking", "sales_performance", "people"]
+    },
+    {
+      "id": "gold_014",
+      "question": "What is year-to-date revenue?",
+      "expected": {
+        "intent": "what",
+        "subject": "revenue",
+        "measure": "revenue",
+        "dimension": {},
+        "time": {
+          "period": "ytd",
+          "granularity": "year"
+        }
+      },
+      "difficulty": "easy",
+      "tags": ["basic", "ytd", "cumulative"]
+    },
+    {
+      "id": "gold_015",
+      "question": "How is customer retention trending?",
+      "expected": {
+        "intent": "trend",
+        "subject": "customers",
+        "measure": "retention_rate",
+        "dimension": {},
+        "time": {
+          "window": "l12m",
+          "granularity": "month"
+        }
+      },
+      "difficulty": "medium",
+      "tags": ["trend", "customer_metrics", "retention"]
+    },
+    {
+      "id": "gold_016",
+      "question": "Revenue by channel for last 90 days",
+      "expected": {
+        "intent": "drill",
+        "subject": "revenue",
+        "measure": "revenue",
+        "dimension": {
+          "channel": "all"
+        },
+        "time": {
+          "window": "last_90d",
+          "granularity": "day"
+        }
+      },
+      "difficulty": "medium",
+      "tags": ["drill_down", "channel", "rolling_window"]
+    },
+    {
+      "id": "gold_017",
+      "question": "What was September revenue?",
+      "expected": {
+        "intent": "what",
+        "subject": "revenue",
+        "measure": "revenue",
+        "dimension": {},
+        "time": {
+          "period": "September",
+          "granularity": "month"
+        }
+      },
+      "difficulty": "easy",
+      "tags": ["basic", "monthly", "named_month"]
+    },
+    {
+      "id": "gold_018",
+      "question": "Compare Enterprise vs SMB customer segments by revenue",
+      "expected": {
+        "intent": "compare",
+        "subject": "revenue",
+        "measure": "revenue",
+        "dimension": {
+          "segment": ["Enterprise", "SMB"]
+        },
+        "time": {
+          "period": "current",
+          "granularity": "quarter"
+        }
+      },
+      "difficulty": "medium",
+      "tags": ["comparison", "segmentation", "customer_segments"]
+    },
+    {
+      "id": "gold_019",
+      "question": "What's our current MRR?",
+      "expected": {
+        "intent": "what",
+        "subject": "revenue",
+        "measure": "mrr",
+        "dimension": {},
+        "time": {
+          "period": "current",
+          "granularity": "month"
+        }
+      },
+      "difficulty": "easy",
+      "tags": ["basic", "recurring_revenue", "saas"]
+    },
+    {
+      "id": "gold_020",
+      "question": "How many units did we sell last week?",
+      "expected": {
+        "intent": "what",
+        "subject": "products",
+        "measure": "units_sold",
+        "dimension": {},
+        "time": {
+          "period": "last_week",
+          "granularity": "week"
+        }
+      },
+      "difficulty": "easy",
+      "tags": ["basic", "product_metrics", "weekly"]
+    },
+    {
+      "id": "gold_021",
+      "question": "What is the sales pipeline value?",
+      "expected": {
+        "intent": "what",
+        "subject": "sales",
+        "measure": "pipeline_value",
+        "dimension": {},
+        "time": {
+          "period": "current",
+          "granularity": "day"
+        }
+      },
+      "difficulty": "easy",
+      "tags": ["basic", "sales_metrics", "pipeline"]
+    },
+    {
+      "id": "gold_022",
+      "question": "Revenue growth rate year over year",
+      "expected": {
+        "intent": "compare",
+        "subject": "revenue",
+        "measure": "revenue",
+        "dimension": {},
+        "time": {
+          "period": "current",
+          "comparison": "yoy",
+          "granularity": "year"
+        }
+      },
+      "difficulty": "medium",
+      "tags": ["comparison", "growth", "yoy"]
+    },
+    {
+      "id": "gold_023",
+      "question": "What's the average sales cycle time?",
+      "expected": {
+        "intent": "what",
+        "subject": "sales",
+        "measure": "cycle_time",
+        "dimension": {},
+        "time": {
+          "period": "current",
+          "granularity": "quarter"
+        }
+      },
+      "difficulty": "medium",
+      "tags": ["sales_efficiency", "process_metrics"]
+    },
+    {
+      "id": "gold_024",
+      "question": "Show revenue by product category",
+      "expected": {
+        "intent": "drill",
+        "subject": "revenue",
+        "measure": "revenue",
+        "dimension": {
+          "category": "all"
+        },
+        "time": {
+          "period": "current",
+          "granularity": "quarter"
+        }
+      },
+      "difficulty": "medium",
+      "tags": ["drill_down", "product_category"]
+    },
+    {
+      "id": "gold_025",
+      "question": "What is our EBITDA this year?",
+      "expected": {
+        "intent": "what",
+        "subject": "finance",
+        "measure": "ebitda",
+        "dimension": {},
+        "time": {
+          "period": "ytd",
+          "granularity": "year"
+        }
+      },
+      "difficulty": "medium",
+      "tags": ["profitability", "financial_metrics", "ytd"]
+    },
+    {
+      "id": "gold_026",
+      "question": "Customer count by segment",
+      "expected": {
+        "intent": "drill",
+        "subject": "customers",
+        "measure": "customer_count",
+        "dimension": {
+          "segment": "all"
+        },
+        "time": {
+          "period": "current",
+          "granularity": "month"
+        }
+      },
+      "difficulty": "medium",
+      "tags": ["drill_down", "customer_segmentation"]
+    },
+    {
+      "id": "gold_027",
+      "question": "How much revenue did we make yesterday?",
+      "expected": {
+        "intent": "what",
+        "subject": "revenue",
+        "measure": "revenue",
+        "dimension": {},
+        "time": {
+          "period": "yesterday",
+          "granularity": "day"
+        }
+      },
+      "difficulty": "easy",
+      "tags": ["basic", "daily", "recent"]
+    },
+    {
+      "id": "gold_028",
+      "question": "Compare Q1 vs Q2 vs Q3 revenue",
+      "expected": {
+        "intent": "compare",
+        "subject": "revenue",
+        "measure": "revenue",
+        "dimension": {},
+        "time": {
+          "period": ["Q1", "Q2", "Q3"],
+          "granularity": "quarter"
+        }
+      },
+      "difficulty": "medium",
+      "tags": ["comparison", "multi_period", "quarterly"]
+    },
+    {
+      "id": "gold_029",
+      "question": "What percentage of customers churned last quarter?",
+      "expected": {
+        "intent": "what",
+        "subject": "customers",
+        "measure": "churn_rate",
+        "dimension": {},
+        "time": {
+          "period": "last_quarter",
+          "granularity": "quarter"
+        }
+      },
+      "difficulty": "easy",
+      "tags": ["customer_metrics", "churn", "quarterly"]
+    },
+    {
+      "id": "gold_030",
+      "question": "Forecast Q4 revenue based on current trends",
+      "expected": {
+        "intent": "forecast",
+        "subject": "revenue",
+        "measure": "revenue",
+        "dimension": {},
+        "time": {
+          "period": "Q4",
+          "granularity": "quarter"
+        }
+      },
+      "difficulty": "hard",
+      "tags": ["forecast", "predictive", "quarterly"]
+    },
+    {
+      "id": "gold_031",
+      "question": "Monthly recurring revenue trend for the past year",
+      "expected": {
+        "intent": "trend",
+        "subject": "revenue",
+        "measure": "mrr",
+        "dimension": {},
+        "time": {
+          "window": "l12m",
+          "granularity": "month"
+        }
+      },
+      "difficulty": "medium",
+      "tags": ["trend", "recurring_revenue", "saas", "annual"]
+    },
+    {
+      "id": "gold_032",
+      "question": "What's the average selling price per unit?",
+      "expected": {
+        "intent": "what",
+        "subject": "products",
+        "measure": "asp",
+        "dimension": {},
+        "time": {
+          "period": "current",
+          "granularity": "quarter"
+        }
+      },
+      "difficulty": "medium",
+      "tags": ["product_pricing", "unit_economics"]
+    },
+    {
+      "id": "gold_033",
+      "question": "Revenue this week vs last week",
+      "expected": {
+        "intent": "compare",
+        "subject": "revenue",
+        "measure": "revenue",
+        "dimension": {},
+        "time": {
+          "period": "this_week",
+          "comparison": "wow",
+          "granularity": "week"
+        }
+      },
+      "difficulty": "medium",
+      "tags": ["comparison", "weekly", "wow"]
+    },
+    {
+      "id": "gold_034",
+      "question": "How many orders were placed today?",
+      "expected": {
+        "intent": "what",
+        "subject": "orders",
+        "measure": "order_count",
+        "dimension": {},
+        "time": {
+          "period": "today",
+          "granularity": "day"
+        }
+      },
+      "difficulty": "easy",
+      "tags": ["basic", "order_metrics", "daily", "real_time"]
+    },
+    {
+      "id": "gold_035",
+      "question": "Total customers as of today",
+      "expected": {
+        "intent": "what",
+        "subject": "customers",
+        "measure": "customer_count",
+        "dimension": {},
+        "time": {
+          "period": "today",
+          "granularity": "day"
+        }
+      },
+      "difficulty": "easy",
+      "tags": ["basic", "customer_count", "current_state"]
+    },
+    {
+      "id": "gold_036",
+      "question": "Which region has the lowest gross margin?",
+      "expected": {
+        "intent": "rank",
+        "subject": "margin",
+        "measure": "gm_pct",
+        "dimension": {
+          "region": "all",
+          "order": "asc",
+          "limit": 1
+        },
+        "time": {
+          "period": "current",
+          "granularity": "quarter"
+        }
+      },
+      "difficulty": "medium",
+      "tags": ["ranking", "regional", "profitability", "bottom_n"]
+    },
+    {
+      "id": "gold_037",
+      "question": "What's our contribution margin for the Enterprise segment?",
+      "expected": {
+        "intent": "what",
+        "subject": "margin",
+        "measure": "cm",
+        "dimension": {
+          "segment": "Enterprise"
+        },
+        "time": {
+          "period": "current",
+          "granularity": "quarter"
+        }
+      },
+      "difficulty": "medium",
+      "tags": ["profitability", "segmentation", "contribution_margin"]
+    },
+    {
+      "id": "gold_038",
+      "question": "Inventory turnover rate this quarter",
+      "expected": {
+        "intent": "what",
+        "subject": "operations",
+        "measure": "inventory_turns",
+        "dimension": {},
+        "time": {
+          "period": "this_quarter",
+          "granularity": "quarter"
+        }
+      },
+      "difficulty": "medium",
+      "tags": ["operations", "inventory", "efficiency"]
+    },
+    {
+      "id": "gold_039",
+      "question": "How does online channel revenue compare to retail?",
+      "expected": {
+        "intent": "compare",
+        "subject": "revenue",
+        "measure": "revenue",
+        "dimension": {
+          "channel": ["online", "retail"]
+        },
+        "time": {
+          "period": "current",
+          "granularity": "quarter"
+        }
+      },
+      "difficulty": "medium",
+      "tags": ["comparison", "channel", "distribution"]
+    },
+    {
+      "id": "gold_040",
+      "question": "Customer acquisition cost this quarter",
+      "expected": {
+        "intent": "what",
+        "subject": "customers",
+        "measure": "cac",
+        "dimension": {},
+        "time": {
+          "period": "this_quarter",
+          "granularity": "quarter"
+        }
+      },
+      "difficulty": "medium",
+      "tags": ["customer_economics", "marketing", "unit_economics"]
+    },
+    {
+      "id": "gold_041",
+      "question": "Are there any unusual spikes in refunds this month?",
+      "expected": {
+        "intent": "anomaly",
+        "subject": "orders",
+        "measure": "refund_count",
+        "dimension": {},
+        "time": {
+          "period": "this_month",
+          "granularity": "day"
+        }
+      },
+      "difficulty": "hard",
+      "tags": ["anomaly_detection", "quality", "customer_satisfaction"]
+    },
+    {
+      "id": "gold_042",
+      "question": "Quarter-to-date revenue vs same period last year",
+      "expected": {
+        "intent": "compare",
+        "subject": "revenue",
+        "measure": "revenue",
+        "dimension": {},
+        "time": {
+          "period": "qtd",
+          "comparison": "yoy",
+          "granularity": "quarter"
+        }
+      },
+      "difficulty": "medium",
+      "tags": ["comparison", "qtd", "yoy"]
+    },
+    {
+      "id": "gold_043",
+      "question": "What is our headcount by department?",
+      "expected": {
+        "intent": "drill",
+        "subject": "people",
+        "measure": "headcount",
+        "dimension": {
+          "department": "all"
+        },
+        "time": {
+          "period": "current",
+          "granularity": "month"
+        }
+      },
+      "difficulty": "medium",
+      "tags": ["drill_down", "hr_metrics", "organizational"]
+    },
+    {
+      "id": "gold_044",
+      "question": "Total Annual Recurring Revenue",
+      "expected": {
+        "intent": "what",
+        "subject": "revenue",
+        "measure": "arr",
+        "dimension": {},
+        "time": {
+          "period": "current",
+          "granularity": "year"
+        }
+      },
+      "difficulty": "easy",
+      "tags": ["basic", "recurring_revenue", "saas", "arr"]
+    },
+    {
+      "id": "gold_045",
+      "question": "Percentage change in revenue month over month",
+      "expected": {
+        "intent": "compare",
+        "subject": "revenue",
+        "measure": "revenue",
+        "dimension": {},
+        "time": {
+          "period": "this_month",
+          "comparison": "mom",
+          "granularity": "month"
+        }
+      },
+      "difficulty": "medium",
+      "tags": ["comparison", "growth", "mom", "percentage"]
+    },
+    {
+      "id": "gold_046",
+      "question": "What was our best revenue month this year?",
+      "expected": {
+        "intent": "rank",
+        "subject": "revenue",
+        "measure": "revenue",
+        "dimension": {
+          "limit": 1,
+          "order": "desc"
+        },
+        "time": {
+          "period": "ytd",
+          "granularity": "month"
+        }
+      },
+      "difficulty": "medium",
+      "tags": ["ranking", "best_period", "ytd"]
+    },
+    {
+      "id": "gold_047",
+      "question": "Customer lifetime value for Gold tier accounts",
+      "expected": {
+        "intent": "what",
+        "subject": "customers",
+        "measure": "ltv",
+        "dimension": {
+          "account_tier": "Gold"
+        },
+        "time": {
+          "period": "current",
+          "granularity": "quarter"
+        }
+      },
+      "difficulty": "medium",
+      "tags": ["customer_economics", "segmentation", "ltv"]
+    },
+    {
+      "id": "gold_048",
+      "question": "How many net new customers did we add this month?",
+      "expected": {
+        "intent": "what",
+        "subject": "customers",
+        "measure": "new_customers",
+        "dimension": {},
+        "time": {
+          "period": "this_month",
+          "granularity": "month"
+        }
+      },
+      "difficulty": "easy",
+      "tags": ["customer_acquisition", "monthly", "growth"]
+    },
+    {
+      "id": "gold_049",
+      "question": "Show me the revenue breakdown by both region and channel",
+      "expected": {
+        "intent": "drill",
+        "subject": "revenue",
+        "measure": "revenue",
+        "dimension": {
+          "region": "all",
+          "channel": "all"
+        },
+        "time": {
+          "period": "current",
+          "granularity": "quarter"
+        }
+      },
+      "difficulty": "hard",
+      "tags": ["drill_down", "multi_dimension", "cross_tab"]
+    },
+    {
+      "id": "gold_050",
+      "question": "What's the average time to fulfill an order?",
+      "expected": {
+        "intent": "what",
+        "subject": "operations",
+        "measure": "fulfillment_time",
+        "dimension": {},
+        "time": {
+          "period": "current",
+          "granularity": "quarter"
+        }
+      },
+      "difficulty": "medium",
+      "tags": ["operations", "efficiency", "customer_satisfaction"]
+    },
+    {
+      "id": "gold_051",
+      "question": "Is there a correlation between price and conversion rate?",
+      "expected": {
+        "intent": "correlation",
+        "subject": "sales",
+        "measure": ["price", "conversion_rate"],
+        "dimension": {},
+        "time": {
+          "window": "l12m",
+          "granularity": "month"
+        }
+      },
+      "difficulty": "hard",
+      "tags": ["correlation", "pricing", "conversion", "analytical"]
+    },
+    {
+      "id": "gold_052",
+      "question": "Revenue per employee this year",
+      "expected": {
+        "intent": "what",
+        "subject": "finance",
+        "measure": "revenue_per_employee",
+        "dimension": {},
+        "time": {
+          "period": "ytd",
+          "granularity": "year"
+        }
+      },
+      "difficulty": "medium",
+      "tags": ["productivity", "efficiency", "financial_ratios"]
+    },
+    {
+      "id": "gold_053",
+      "question": "What is our win rate for deals over $100k?",
+      "expected": {
+        "intent": "what",
+        "subject": "sales",
+        "measure": "win_rate",
+        "dimension": {
+          "deal_size": ">100000"
+        },
+        "time": {
+          "period": "current",
+          "granularity": "quarter"
+        }
+      },
+      "difficulty": "hard",
+      "tags": ["sales_efficiency", "filtering", "large_deals"]
+    },
+    {
+      "id": "gold_054",
+      "question": "How many days of runway do we have?",
+      "expected": {
+        "intent": "what",
+        "subject": "finance",
+        "measure": "runway",
+        "dimension": {},
+        "time": {
+          "period": "current",
+          "granularity": "day"
+        }
+      },
+      "difficulty": "medium",
+      "tags": ["financial_health", "cash_management", "critical"]
+    },
+    {
+      "id": "gold_055",
+      "question": "Month-to-date revenue compared to our monthly target",
+      "expected": {
+        "intent": "target",
+        "subject": "revenue",
+        "measure": "revenue",
+        "dimension": {},
+        "time": {
+          "period": "mtd",
+          "granularity": "month"
+        }
+      },
+      "difficulty": "medium",
+      "tags": ["target_tracking", "mtd", "performance_management"]
+    }
+  ]
+}

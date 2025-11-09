@@ -1,0 +1,2729 @@
+{
+  "metadata": {
+    "dataset": "evaluation/gold.json",
+    "mode": "gold",
+    "total_questions": 55,
+    "dataset_info": {
+      "version": "1.0",
+      "created": "2025-11-09",
+      "author": "Data Science Copilot",
+      "description": "Gold standard dataset of labeled business questions for classification evaluation",
+      "total_questions": 55,
+      "quality_standard": "All labels manually reviewed and validated",
+      "usage": "Automated daily evaluation of classifier accuracy"
+    }
+  },
+  "component_accuracy": {
+    "intent": {
+      "accuracy": 0.7818181818181819,
+      "count": 55
+    },
+    "subject": {
+      "accuracy": 0.8363636363636363,
+      "count": 55
+    },
+    "measure": {
+      "accuracy": 0.8545454545454545,
+      "count": 55
+    },
+    "dimension": {
+      "accuracy": 0.8363636363636363,
+      "count": 55
+    },
+    "time": {
+      "accuracy": 0.8545454545454545,
+      "count": 55
+    }
+  },
+  "overall_accuracy": 0.5272727272727272,
+  "calibration": {
+    "ece": 0.24818181818181823,
+    "calibration_data": [
+      {
+        "bucket": "0.0-0.6",
+        "confidence": 0.05,
+        "accuracy": 0.2857142857142857,
+        "count": 7,
+        "gap": 0.2357142857142857
+      },
+      {
+        "bucket": "0.6-0.7",
+        "confidence": 0.65,
+        "accuracy": 0.5,
+        "count": 2,
+        "gap": 0.15000000000000002
+      },
+      {
+        "bucket": "0.7-0.8",
+        "confidence": 0.75,
+        "accuracy": 0.6956521739130435,
+        "count": 23,
+        "gap": 0.05434782608695654
+      },
+      {
+        "bucket": "0.8-0.9",
+        "confidence": 0.8500000000000001,
+        "accuracy": 0.42857142857142855,
+        "count": 14,
+        "gap": 0.42142857142857154
+      },
+      {
+        "bucket": "0.9-1.0",
+        "confidence": 0.9500000000000001,
+        "accuracy": 0.4444444444444444,
+        "count": 9,
+        "gap": 0.5055555555555556
+      }
+    ]
+  },
+  "hallucination": {
+    "hallucination_rate": 0.07272727272727272,
+    "hallucination_cases": [
+      {
+        "question_id": "gold_002",
+        "question": "How does EMEA revenue compare to APAC?",
+        "reason": "Incorrectly refused valid question"
+      },
+      {
+        "question_id": "gold_017",
+        "question": "What was September revenue?",
+        "reason": "Incorrectly refused valid question"
+      },
+      {
+        "question_id": "gold_040",
+        "question": "Customer acquisition cost this quarter",
+        "reason": "Incorrectly refused valid question"
+      },
+      {
+        "question_id": "gold_050",
+        "question": "What's the average time to fulfill an order?",
+        "reason": "Incorrectly refused valid question"
+      }
+    ],
+    "refusal_accuracy": {
+      "correct_refusals": 0,
+      "incorrect_refusals": 4,
+      "total_should_refuse": 0
+    }
+  },
+  "per_question_results": [
+    {
+      "question_id": "gold_001",
+      "question": "What is our Q3 revenue?",
+      "all_correct": false,
+      "component_results": {
+        "intent": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "what",
+          "expected": "what"
+        },
+        "subject": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "revenue",
+          "expected": "revenue"
+        },
+        "measure": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "revenue",
+          "expected": "revenue"
+        },
+        "dimension": {
+          "correct": false,
+          "score": 0.0,
+          "predicted": "unknown",
+          "expected": {}
+        },
+        "time": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": {
+            "period": "Q3",
+            "granularity": "quarter"
+          },
+          "expected": {
+            "period": "Q3",
+            "granularity": "quarter"
+          }
+        }
+      },
+      "confidence": 0.8493076370006039,
+      "should_refuse": false,
+      "did_refuse": false
+    },
+    {
+      "question_id": "gold_002",
+      "question": "How does EMEA revenue compare to APAC?",
+      "all_correct": false,
+      "component_results": {
+        "intent": {
+          "correct": false,
+          "score": 0.0,
+          "predicted": null,
+          "expected": "compare"
+        },
+        "subject": {
+          "correct": false,
+          "score": 0.0,
+          "predicted": null,
+          "expected": "revenue"
+        },
+        "measure": {
+          "correct": false,
+          "score": 0.0,
+          "predicted": null,
+          "expected": "revenue"
+        },
+        "dimension": {
+          "correct": false,
+          "score": 0.0,
+          "predicted": null,
+          "expected": {
+            "region": [
+              "EMEA",
+              "APAC"
+            ]
+          }
+        },
+        "time": {
+          "correct": false,
+          "score": 0.0,
+          "predicted": null,
+          "expected": {
+            "period": "current",
+            "granularity": "quarter"
+          }
+        }
+      },
+      "confidence": 0.36117113997896405,
+      "should_refuse": false,
+      "did_refuse": true
+    },
+    {
+      "question_id": "gold_003",
+      "question": "Why did customer churn increase last month?",
+      "all_correct": false,
+      "component_results": {
+        "intent": {
+          "correct": false,
+          "score": 0.0,
+          "predicted": "what",
+          "expected": "why"
+        },
+        "subject": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "customers",
+          "expected": "customers"
+        },
+        "measure": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "churn_rate",
+          "expected": "churn_rate"
+        },
+        "dimension": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": {},
+          "expected": {}
+        },
+        "time": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": {
+            "period": "last_month",
+            "comparison": "mom",
+            "granularity": "month"
+          },
+          "expected": {
+            "period": "last_month",
+            "comparison": "mom",
+            "granularity": "month"
+          }
+        }
+      },
+      "confidence": 0.867569391632641,
+      "should_refuse": false,
+      "did_refuse": false
+    },
+    {
+      "question_id": "gold_004",
+      "question": "What's our gross margin percentage this quarter?",
+      "all_correct": false,
+      "component_results": {
+        "intent": {
+          "correct": false,
+          "score": 0.0,
+          "predicted": "compare",
+          "expected": "what"
+        },
+        "subject": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "margin",
+          "expected": "margin"
+        },
+        "measure": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "gm_pct",
+          "expected": "gm_pct"
+        },
+        "dimension": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": {},
+          "expected": {}
+        },
+        "time": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": {
+            "period": "this_quarter",
+            "granularity": "quarter"
+          },
+          "expected": {
+            "period": "this_quarter",
+            "granularity": "quarter"
+          }
+        }
+      },
+      "confidence": 0.9486706152315142,
+      "should_refuse": false,
+      "did_refuse": false
+    },
+    {
+      "question_id": "gold_005",
+      "question": "Show me revenue trending over the last 12 months",
+      "all_correct": true,
+      "component_results": {
+        "intent": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "trend",
+          "expected": "trend"
+        },
+        "subject": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "revenue",
+          "expected": "revenue"
+        },
+        "measure": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "revenue",
+          "expected": "revenue"
+        },
+        "dimension": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": {},
+          "expected": {}
+        },
+        "time": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": {
+            "window": "l12m",
+            "granularity": "month"
+          },
+          "expected": {
+            "window": "l12m",
+            "granularity": "month"
+          }
+        }
+      },
+      "confidence": 0.7524373936088828,
+      "should_refuse": false,
+      "did_refuse": false
+    },
+    {
+      "question_id": "gold_006",
+      "question": "Top 5 products by revenue",
+      "all_correct": true,
+      "component_results": {
+        "intent": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "rank",
+          "expected": "rank"
+        },
+        "subject": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "products",
+          "expected": "products"
+        },
+        "measure": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "revenue",
+          "expected": "revenue"
+        },
+        "dimension": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": {
+            "product": "all",
+            "limit": 5
+          },
+          "expected": {
+            "product": "all",
+            "limit": 5
+          }
+        },
+        "time": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": {
+            "period": "current",
+            "granularity": "quarter"
+          },
+          "expected": {
+            "period": "current",
+            "granularity": "quarter"
+          }
+        }
+      },
+      "confidence": 0.8239543647795778,
+      "should_refuse": false,
+      "did_refuse": false
+    },
+    {
+      "question_id": "gold_007",
+      "question": "Break down revenue by region for Q2",
+      "all_correct": false,
+      "component_results": {
+        "intent": {
+          "correct": false,
+          "score": 0.0,
+          "predicted": "what",
+          "expected": "drill"
+        },
+        "subject": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "revenue",
+          "expected": "revenue"
+        },
+        "measure": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "revenue",
+          "expected": "revenue"
+        },
+        "dimension": {
+          "correct": false,
+          "score": 0.0,
+          "predicted": "unknown",
+          "expected": {
+            "region": "all"
+          }
+        },
+        "time": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": {
+            "period": "Q2",
+            "granularity": "quarter"
+          },
+          "expected": {
+            "period": "Q2",
+            "granularity": "quarter"
+          }
+        }
+      },
+      "confidence": 0.7103932743368058,
+      "should_refuse": false,
+      "did_refuse": false
+    },
+    {
+      "question_id": "gold_008",
+      "question": "Are we on track to hit our Q4 revenue target?",
+      "all_correct": true,
+      "component_results": {
+        "intent": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "target",
+          "expected": "target"
+        },
+        "subject": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "revenue",
+          "expected": "revenue"
+        },
+        "measure": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "revenue",
+          "expected": "revenue"
+        },
+        "dimension": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": {},
+          "expected": {}
+        },
+        "time": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": {
+            "period": "Q4",
+            "granularity": "quarter"
+          },
+          "expected": {
+            "period": "Q4",
+            "granularity": "quarter"
+          }
+        }
+      },
+      "confidence": 0.5047087843822551,
+      "should_refuse": false,
+      "did_refuse": false
+    },
+    {
+      "question_id": "gold_009",
+      "question": "What is the average order value this month?",
+      "all_correct": true,
+      "component_results": {
+        "intent": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "what",
+          "expected": "what"
+        },
+        "subject": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "orders",
+          "expected": "orders"
+        },
+        "measure": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "aov",
+          "expected": "aov"
+        },
+        "dimension": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": {},
+          "expected": {}
+        },
+        "time": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": {
+            "period": "this_month",
+            "granularity": "month"
+          },
+          "expected": {
+            "period": "this_month",
+            "granularity": "month"
+          }
+        }
+      },
+      "confidence": 0.7949427624948593,
+      "should_refuse": false,
+      "did_refuse": false
+    },
+    {
+      "question_id": "gold_010",
+      "question": "How many new customers did we acquire last quarter?",
+      "all_correct": true,
+      "component_results": {
+        "intent": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "what",
+          "expected": "what"
+        },
+        "subject": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "customers",
+          "expected": "customers"
+        },
+        "measure": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "new_customers",
+          "expected": "new_customers"
+        },
+        "dimension": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": {},
+          "expected": {}
+        },
+        "time": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": {
+            "period": "last_quarter",
+            "granularity": "quarter"
+          },
+          "expected": {
+            "period": "last_quarter",
+            "granularity": "quarter"
+          }
+        }
+      },
+      "confidence": 0.7950626163077157,
+      "should_refuse": false,
+      "did_refuse": false
+    },
+    {
+      "question_id": "gold_011",
+      "question": "Compare this quarter's revenue to last year same quarter",
+      "all_correct": true,
+      "component_results": {
+        "intent": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "compare",
+          "expected": "compare"
+        },
+        "subject": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "revenue",
+          "expected": "revenue"
+        },
+        "measure": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "revenue",
+          "expected": "revenue"
+        },
+        "dimension": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": {},
+          "expected": {}
+        },
+        "time": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": {
+            "period": "this_quarter",
+            "comparison": "yoy",
+            "granularity": "quarter"
+          },
+          "expected": {
+            "period": "this_quarter",
+            "comparison": "yoy",
+            "granularity": "quarter"
+          }
+        }
+      },
+      "confidence": 0.6413776645965279,
+      "should_refuse": false,
+      "did_refuse": false
+    },
+    {
+      "question_id": "gold_012",
+      "question": "What's the LTV to CAC ratio?",
+      "all_correct": false,
+      "component_results": {
+        "intent": {
+          "correct": false,
+          "score": 0.0,
+          "predicted": "compare",
+          "expected": "what"
+        },
+        "subject": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "customers",
+          "expected": "customers"
+        },
+        "measure": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "ltv_cac_ratio",
+          "expected": "ltv_cac_ratio"
+        },
+        "dimension": {
+          "correct": false,
+          "score": 0.0,
+          "predicted": "unknown",
+          "expected": {}
+        },
+        "time": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": {
+            "period": "current",
+            "granularity": "quarter"
+          },
+          "expected": {
+            "period": "current",
+            "granularity": "quarter"
+          }
+        }
+      },
+      "confidence": 0.82434087771393,
+      "should_refuse": false,
+      "did_refuse": false
+    },
+    {
+      "question_id": "gold_013",
+      "question": "Which sales rep has the highest win rate?",
+      "all_correct": false,
+      "component_results": {
+        "intent": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "rank",
+          "expected": "rank"
+        },
+        "subject": {
+          "correct": false,
+          "score": 0.0,
+          "predicted": "revenue",
+          "expected": "sales"
+        },
+        "measure": {
+          "correct": false,
+          "score": 0.0,
+          "predicted": "revenue",
+          "expected": "win_rate"
+        },
+        "dimension": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": {
+            "rep": "all",
+            "limit": 1
+          },
+          "expected": {
+            "rep": "all",
+            "limit": 1
+          }
+        },
+        "time": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": {
+            "period": "current",
+            "granularity": "quarter"
+          },
+          "expected": {
+            "period": "current",
+            "granularity": "quarter"
+          }
+        }
+      },
+      "confidence": 0.79418374981192,
+      "should_refuse": false,
+      "did_refuse": false
+    },
+    {
+      "question_id": "gold_014",
+      "question": "What is year-to-date revenue?",
+      "all_correct": true,
+      "component_results": {
+        "intent": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "what",
+          "expected": "what"
+        },
+        "subject": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "revenue",
+          "expected": "revenue"
+        },
+        "measure": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "revenue",
+          "expected": "revenue"
+        },
+        "dimension": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": {},
+          "expected": {}
+        },
+        "time": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": {
+            "period": "ytd",
+            "granularity": "year"
+          },
+          "expected": {
+            "period": "ytd",
+            "granularity": "year"
+          }
+        }
+      },
+      "confidence": 0.7553175228845115,
+      "should_refuse": false,
+      "did_refuse": false
+    },
+    {
+      "question_id": "gold_015",
+      "question": "How is customer retention trending?",
+      "all_correct": true,
+      "component_results": {
+        "intent": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "trend",
+          "expected": "trend"
+        },
+        "subject": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "customers",
+          "expected": "customers"
+        },
+        "measure": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "retention_rate",
+          "expected": "retention_rate"
+        },
+        "dimension": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": {},
+          "expected": {}
+        },
+        "time": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": {
+            "window": "l12m",
+            "granularity": "month"
+          },
+          "expected": {
+            "window": "l12m",
+            "granularity": "month"
+          }
+        }
+      },
+      "confidence": 0.7036392615416398,
+      "should_refuse": false,
+      "did_refuse": false
+    },
+    {
+      "question_id": "gold_016",
+      "question": "Revenue by channel for last 90 days",
+      "all_correct": true,
+      "component_results": {
+        "intent": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "drill",
+          "expected": "drill"
+        },
+        "subject": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "revenue",
+          "expected": "revenue"
+        },
+        "measure": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "revenue",
+          "expected": "revenue"
+        },
+        "dimension": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": {
+            "channel": "all"
+          },
+          "expected": {
+            "channel": "all"
+          }
+        },
+        "time": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": {
+            "window": "last_90d",
+            "granularity": "day"
+          },
+          "expected": {
+            "window": "last_90d",
+            "granularity": "day"
+          }
+        }
+      },
+      "confidence": 0.9320749702640642,
+      "should_refuse": false,
+      "did_refuse": false
+    },
+    {
+      "question_id": "gold_017",
+      "question": "What was September revenue?",
+      "all_correct": false,
+      "component_results": {
+        "intent": {
+          "correct": false,
+          "score": 0.0,
+          "predicted": null,
+          "expected": "what"
+        },
+        "subject": {
+          "correct": false,
+          "score": 0.0,
+          "predicted": null,
+          "expected": "revenue"
+        },
+        "measure": {
+          "correct": false,
+          "score": 0.0,
+          "predicted": null,
+          "expected": "revenue"
+        },
+        "dimension": {
+          "correct": false,
+          "score": 0.0,
+          "predicted": null,
+          "expected": {}
+        },
+        "time": {
+          "correct": false,
+          "score": 0.0,
+          "predicted": null,
+          "expected": {
+            "period": "September",
+            "granularity": "month"
+          }
+        }
+      },
+      "confidence": 0.3093220535260903,
+      "should_refuse": false,
+      "did_refuse": true
+    },
+    {
+      "question_id": "gold_018",
+      "question": "Compare Enterprise vs SMB customer segments by revenue",
+      "all_correct": false,
+      "component_results": {
+        "intent": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "compare",
+          "expected": "compare"
+        },
+        "subject": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "revenue",
+          "expected": "revenue"
+        },
+        "measure": {
+          "correct": false,
+          "score": 0.0,
+          "predicted": "gm_pct",
+          "expected": "revenue"
+        },
+        "dimension": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": {
+            "segment": [
+              "Enterprise",
+              "SMB"
+            ]
+          },
+          "expected": {
+            "segment": [
+              "Enterprise",
+              "SMB"
+            ]
+          }
+        },
+        "time": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": {
+            "period": "current",
+            "granularity": "quarter"
+          },
+          "expected": {
+            "period": "current",
+            "granularity": "quarter"
+          }
+        }
+      },
+      "confidence": 0.7720971609014575,
+      "should_refuse": false,
+      "did_refuse": false
+    },
+    {
+      "question_id": "gold_019",
+      "question": "What's our current MRR?",
+      "all_correct": true,
+      "component_results": {
+        "intent": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "what",
+          "expected": "what"
+        },
+        "subject": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "revenue",
+          "expected": "revenue"
+        },
+        "measure": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "mrr",
+          "expected": "mrr"
+        },
+        "dimension": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": {},
+          "expected": {}
+        },
+        "time": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": {
+            "period": "current",
+            "granularity": "month"
+          },
+          "expected": {
+            "period": "current",
+            "granularity": "month"
+          }
+        }
+      },
+      "confidence": 0.7685836452595863,
+      "should_refuse": false,
+      "did_refuse": false
+    },
+    {
+      "question_id": "gold_020",
+      "question": "How many units did we sell last week?",
+      "all_correct": true,
+      "component_results": {
+        "intent": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "what",
+          "expected": "what"
+        },
+        "subject": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "products",
+          "expected": "products"
+        },
+        "measure": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "units_sold",
+          "expected": "units_sold"
+        },
+        "dimension": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": {},
+          "expected": {}
+        },
+        "time": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": {
+            "period": "last_week",
+            "granularity": "week"
+          },
+          "expected": {
+            "period": "last_week",
+            "granularity": "week"
+          }
+        }
+      },
+      "confidence": 0.9181854648736737,
+      "should_refuse": false,
+      "did_refuse": false
+    },
+    {
+      "question_id": "gold_021",
+      "question": "What is the sales pipeline value?",
+      "all_correct": false,
+      "component_results": {
+        "intent": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "what",
+          "expected": "what"
+        },
+        "subject": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "sales",
+          "expected": "sales"
+        },
+        "measure": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "pipeline_value",
+          "expected": "pipeline_value"
+        },
+        "dimension": {
+          "correct": false,
+          "score": 0.0,
+          "predicted": "unknown",
+          "expected": {}
+        },
+        "time": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": {
+            "period": "current",
+            "granularity": "day"
+          },
+          "expected": {
+            "period": "current",
+            "granularity": "day"
+          }
+        }
+      },
+      "confidence": 0.9448656570179984,
+      "should_refuse": false,
+      "did_refuse": false
+    },
+    {
+      "question_id": "gold_022",
+      "question": "Revenue growth rate year over year",
+      "all_correct": false,
+      "component_results": {
+        "intent": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "compare",
+          "expected": "compare"
+        },
+        "subject": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "revenue",
+          "expected": "revenue"
+        },
+        "measure": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "revenue",
+          "expected": "revenue"
+        },
+        "dimension": {
+          "correct": false,
+          "score": 0.0,
+          "predicted": "unknown",
+          "expected": {}
+        },
+        "time": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": {
+            "period": "current",
+            "comparison": "yoy",
+            "granularity": "year"
+          },
+          "expected": {
+            "period": "current",
+            "comparison": "yoy",
+            "granularity": "year"
+          }
+        }
+      },
+      "confidence": 0.8668933690785248,
+      "should_refuse": false,
+      "did_refuse": false
+    },
+    {
+      "question_id": "gold_023",
+      "question": "What's the average sales cycle time?",
+      "all_correct": false,
+      "component_results": {
+        "intent": {
+          "correct": false,
+          "score": 0.0,
+          "predicted": "compare",
+          "expected": "what"
+        },
+        "subject": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "sales",
+          "expected": "sales"
+        },
+        "measure": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "cycle_time",
+          "expected": "cycle_time"
+        },
+        "dimension": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": {},
+          "expected": {}
+        },
+        "time": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": {
+            "period": "current",
+            "granularity": "quarter"
+          },
+          "expected": {
+            "period": "current",
+            "granularity": "quarter"
+          }
+        }
+      },
+      "confidence": 0.8333841656093137,
+      "should_refuse": false,
+      "did_refuse": false
+    },
+    {
+      "question_id": "gold_024",
+      "question": "Show revenue by product category",
+      "all_correct": true,
+      "component_results": {
+        "intent": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "drill",
+          "expected": "drill"
+        },
+        "subject": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "revenue",
+          "expected": "revenue"
+        },
+        "measure": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "revenue",
+          "expected": "revenue"
+        },
+        "dimension": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": {
+            "category": "all"
+          },
+          "expected": {
+            "category": "all"
+          }
+        },
+        "time": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": {
+            "period": "current",
+            "granularity": "quarter"
+          },
+          "expected": {
+            "period": "current",
+            "granularity": "quarter"
+          }
+        }
+      },
+      "confidence": 0.707369493636063,
+      "should_refuse": false,
+      "did_refuse": false
+    },
+    {
+      "question_id": "gold_025",
+      "question": "What is our EBITDA this year?",
+      "all_correct": false,
+      "component_results": {
+        "intent": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "what",
+          "expected": "what"
+        },
+        "subject": {
+          "correct": false,
+          "score": 0.0,
+          "predicted": "revenue",
+          "expected": "finance"
+        },
+        "measure": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "ebitda",
+          "expected": "ebitda"
+        },
+        "dimension": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": {},
+          "expected": {}
+        },
+        "time": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": {
+            "period": "ytd",
+            "granularity": "year"
+          },
+          "expected": {
+            "period": "ytd",
+            "granularity": "year"
+          }
+        }
+      },
+      "confidence": 0.5009436320637506,
+      "should_refuse": false,
+      "did_refuse": false
+    },
+    {
+      "question_id": "gold_026",
+      "question": "Customer count by segment",
+      "all_correct": true,
+      "component_results": {
+        "intent": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "drill",
+          "expected": "drill"
+        },
+        "subject": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "customers",
+          "expected": "customers"
+        },
+        "measure": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "customer_count",
+          "expected": "customer_count"
+        },
+        "dimension": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": {
+            "segment": "all"
+          },
+          "expected": {
+            "segment": "all"
+          }
+        },
+        "time": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": {
+            "period": "current",
+            "granularity": "month"
+          },
+          "expected": {
+            "period": "current",
+            "granularity": "month"
+          }
+        }
+      },
+      "confidence": 0.7527114943430809,
+      "should_refuse": false,
+      "did_refuse": false
+    },
+    {
+      "question_id": "gold_027",
+      "question": "How much revenue did we make yesterday?",
+      "all_correct": true,
+      "component_results": {
+        "intent": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "what",
+          "expected": "what"
+        },
+        "subject": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "revenue",
+          "expected": "revenue"
+        },
+        "measure": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "revenue",
+          "expected": "revenue"
+        },
+        "dimension": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": {},
+          "expected": {}
+        },
+        "time": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": {
+            "period": "yesterday",
+            "granularity": "day"
+          },
+          "expected": {
+            "period": "yesterday",
+            "granularity": "day"
+          }
+        }
+      },
+      "confidence": 0.9350889196754031,
+      "should_refuse": false,
+      "did_refuse": false
+    },
+    {
+      "question_id": "gold_028",
+      "question": "Compare Q1 vs Q2 vs Q3 revenue",
+      "all_correct": true,
+      "component_results": {
+        "intent": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "compare",
+          "expected": "compare"
+        },
+        "subject": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "revenue",
+          "expected": "revenue"
+        },
+        "measure": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "revenue",
+          "expected": "revenue"
+        },
+        "dimension": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": {},
+          "expected": {}
+        },
+        "time": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": {
+            "period": [
+              "Q1",
+              "Q2",
+              "Q3"
+            ],
+            "granularity": "quarter"
+          },
+          "expected": {
+            "period": [
+              "Q1",
+              "Q2",
+              "Q3"
+            ],
+            "granularity": "quarter"
+          }
+        }
+      },
+      "confidence": 0.8863974562342682,
+      "should_refuse": false,
+      "did_refuse": false
+    },
+    {
+      "question_id": "gold_029",
+      "question": "What percentage of customers churned last quarter?",
+      "all_correct": false,
+      "component_results": {
+        "intent": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "what",
+          "expected": "what"
+        },
+        "subject": {
+          "correct": false,
+          "score": 0.0,
+          "predicted": "revenue",
+          "expected": "customers"
+        },
+        "measure": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "churn_rate",
+          "expected": "churn_rate"
+        },
+        "dimension": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": {},
+          "expected": {}
+        },
+        "time": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": {
+            "period": "last_quarter",
+            "granularity": "quarter"
+          },
+          "expected": {
+            "period": "last_quarter",
+            "granularity": "quarter"
+          }
+        }
+      },
+      "confidence": 0.9402802376810351,
+      "should_refuse": false,
+      "did_refuse": false
+    },
+    {
+      "question_id": "gold_030",
+      "question": "Forecast Q4 revenue based on current trends",
+      "all_correct": true,
+      "component_results": {
+        "intent": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "forecast",
+          "expected": "forecast"
+        },
+        "subject": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "revenue",
+          "expected": "revenue"
+        },
+        "measure": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "revenue",
+          "expected": "revenue"
+        },
+        "dimension": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": {},
+          "expected": {}
+        },
+        "time": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": {
+            "period": "Q4",
+            "granularity": "quarter"
+          },
+          "expected": {
+            "period": "Q4",
+            "granularity": "quarter"
+          }
+        }
+      },
+      "confidence": 0.8437617008001704,
+      "should_refuse": false,
+      "did_refuse": false
+    },
+    {
+      "question_id": "gold_031",
+      "question": "Monthly recurring revenue trend for the past year",
+      "all_correct": true,
+      "component_results": {
+        "intent": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "trend",
+          "expected": "trend"
+        },
+        "subject": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "revenue",
+          "expected": "revenue"
+        },
+        "measure": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "mrr",
+          "expected": "mrr"
+        },
+        "dimension": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": {},
+          "expected": {}
+        },
+        "time": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": {
+            "window": "l12m",
+            "granularity": "month"
+          },
+          "expected": {
+            "window": "l12m",
+            "granularity": "month"
+          }
+        }
+      },
+      "confidence": 0.8668803306205417,
+      "should_refuse": false,
+      "did_refuse": false
+    },
+    {
+      "question_id": "gold_032",
+      "question": "What's the average selling price per unit?",
+      "all_correct": true,
+      "component_results": {
+        "intent": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "what",
+          "expected": "what"
+        },
+        "subject": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "products",
+          "expected": "products"
+        },
+        "measure": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "asp",
+          "expected": "asp"
+        },
+        "dimension": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": {},
+          "expected": {}
+        },
+        "time": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": {
+            "period": "current",
+            "granularity": "quarter"
+          },
+          "expected": {
+            "period": "current",
+            "granularity": "quarter"
+          }
+        }
+      },
+      "confidence": 0.7141161464756122,
+      "should_refuse": false,
+      "did_refuse": false
+    },
+    {
+      "question_id": "gold_033",
+      "question": "Revenue this week vs last week",
+      "all_correct": true,
+      "component_results": {
+        "intent": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "compare",
+          "expected": "compare"
+        },
+        "subject": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "revenue",
+          "expected": "revenue"
+        },
+        "measure": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "revenue",
+          "expected": "revenue"
+        },
+        "dimension": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": {},
+          "expected": {}
+        },
+        "time": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": {
+            "period": "this_week",
+            "comparison": "wow",
+            "granularity": "week"
+          },
+          "expected": {
+            "period": "this_week",
+            "comparison": "wow",
+            "granularity": "week"
+          }
+        }
+      },
+      "confidence": 0.768435344460559,
+      "should_refuse": false,
+      "did_refuse": false
+    },
+    {
+      "question_id": "gold_034",
+      "question": "How many orders were placed today?",
+      "all_correct": true,
+      "component_results": {
+        "intent": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "what",
+          "expected": "what"
+        },
+        "subject": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "orders",
+          "expected": "orders"
+        },
+        "measure": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "order_count",
+          "expected": "order_count"
+        },
+        "dimension": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": {},
+          "expected": {}
+        },
+        "time": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": {
+            "period": "today",
+            "granularity": "day"
+          },
+          "expected": {
+            "period": "today",
+            "granularity": "day"
+          }
+        }
+      },
+      "confidence": 0.7667938973225026,
+      "should_refuse": false,
+      "did_refuse": false
+    },
+    {
+      "question_id": "gold_035",
+      "question": "Total customers as of today",
+      "all_correct": false,
+      "component_results": {
+        "intent": {
+          "correct": false,
+          "score": 0.0,
+          "predicted": "compare",
+          "expected": "what"
+        },
+        "subject": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "customers",
+          "expected": "customers"
+        },
+        "measure": {
+          "correct": false,
+          "score": 0.0,
+          "predicted": "revenue",
+          "expected": "customer_count"
+        },
+        "dimension": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": {},
+          "expected": {}
+        },
+        "time": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": {
+            "period": "today",
+            "granularity": "day"
+          },
+          "expected": {
+            "period": "today",
+            "granularity": "day"
+          }
+        }
+      },
+      "confidence": 0.8835852560782085,
+      "should_refuse": false,
+      "did_refuse": false
+    },
+    {
+      "question_id": "gold_036",
+      "question": "Which region has the lowest gross margin?",
+      "all_correct": false,
+      "component_results": {
+        "intent": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "rank",
+          "expected": "rank"
+        },
+        "subject": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "margin",
+          "expected": "margin"
+        },
+        "measure": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "gm_pct",
+          "expected": "gm_pct"
+        },
+        "dimension": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": {
+            "region": "all",
+            "order": "asc",
+            "limit": 1
+          },
+          "expected": {
+            "region": "all",
+            "order": "asc",
+            "limit": 1
+          }
+        },
+        "time": {
+          "correct": false,
+          "score": 0.0,
+          "predicted": "unknown",
+          "expected": {
+            "period": "current",
+            "granularity": "quarter"
+          }
+        }
+      },
+      "confidence": 0.6396468221729577,
+      "should_refuse": false,
+      "did_refuse": false
+    },
+    {
+      "question_id": "gold_037",
+      "question": "What's our contribution margin for the Enterprise segment?",
+      "all_correct": true,
+      "component_results": {
+        "intent": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "what",
+          "expected": "what"
+        },
+        "subject": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "margin",
+          "expected": "margin"
+        },
+        "measure": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "cm",
+          "expected": "cm"
+        },
+        "dimension": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": {
+            "segment": "Enterprise"
+          },
+          "expected": {
+            "segment": "Enterprise"
+          }
+        },
+        "time": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": {
+            "period": "current",
+            "granularity": "quarter"
+          },
+          "expected": {
+            "period": "current",
+            "granularity": "quarter"
+          }
+        }
+      },
+      "confidence": 0.7592045117778432,
+      "should_refuse": false,
+      "did_refuse": false
+    },
+    {
+      "question_id": "gold_038",
+      "question": "Inventory turnover rate this quarter",
+      "all_correct": false,
+      "component_results": {
+        "intent": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "what",
+          "expected": "what"
+        },
+        "subject": {
+          "correct": false,
+          "score": 0.0,
+          "predicted": "revenue",
+          "expected": "operations"
+        },
+        "measure": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "inventory_turns",
+          "expected": "inventory_turns"
+        },
+        "dimension": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": {},
+          "expected": {}
+        },
+        "time": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": {
+            "period": "this_quarter",
+            "granularity": "quarter"
+          },
+          "expected": {
+            "period": "this_quarter",
+            "granularity": "quarter"
+          }
+        }
+      },
+      "confidence": 0.8682080531262868,
+      "should_refuse": false,
+      "did_refuse": false
+    },
+    {
+      "question_id": "gold_039",
+      "question": "How does online channel revenue compare to retail?",
+      "all_correct": false,
+      "component_results": {
+        "intent": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "compare",
+          "expected": "compare"
+        },
+        "subject": {
+          "correct": false,
+          "score": 0.0,
+          "predicted": "margin",
+          "expected": "revenue"
+        },
+        "measure": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "revenue",
+          "expected": "revenue"
+        },
+        "dimension": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": {
+            "channel": [
+              "online",
+              "retail"
+            ]
+          },
+          "expected": {
+            "channel": [
+              "online",
+              "retail"
+            ]
+          }
+        },
+        "time": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": {
+            "period": "current",
+            "granularity": "quarter"
+          },
+          "expected": {
+            "period": "current",
+            "granularity": "quarter"
+          }
+        }
+      },
+      "confidence": 0.7778732304586955,
+      "should_refuse": false,
+      "did_refuse": false
+    },
+    {
+      "question_id": "gold_040",
+      "question": "Customer acquisition cost this quarter",
+      "all_correct": false,
+      "component_results": {
+        "intent": {
+          "correct": false,
+          "score": 0.0,
+          "predicted": null,
+          "expected": "what"
+        },
+        "subject": {
+          "correct": false,
+          "score": 0.0,
+          "predicted": null,
+          "expected": "customers"
+        },
+        "measure": {
+          "correct": false,
+          "score": 0.0,
+          "predicted": null,
+          "expected": "cac"
+        },
+        "dimension": {
+          "correct": false,
+          "score": 0.0,
+          "predicted": null,
+          "expected": {}
+        },
+        "time": {
+          "correct": false,
+          "score": 0.0,
+          "predicted": null,
+          "expected": {
+            "period": "this_quarter",
+            "granularity": "quarter"
+          }
+        }
+      },
+      "confidence": 0.43410892920517696,
+      "should_refuse": false,
+      "did_refuse": true
+    },
+    {
+      "question_id": "gold_041",
+      "question": "Are there any unusual spikes in refunds this month?",
+      "all_correct": true,
+      "component_results": {
+        "intent": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "anomaly",
+          "expected": "anomaly"
+        },
+        "subject": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "orders",
+          "expected": "orders"
+        },
+        "measure": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "refund_count",
+          "expected": "refund_count"
+        },
+        "dimension": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": {},
+          "expected": {}
+        },
+        "time": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": {
+            "period": "this_month",
+            "granularity": "day"
+          },
+          "expected": {
+            "period": "this_month",
+            "granularity": "day"
+          }
+        }
+      },
+      "confidence": 0.7760880898327547,
+      "should_refuse": false,
+      "did_refuse": false
+    },
+    {
+      "question_id": "gold_042",
+      "question": "Quarter-to-date revenue vs same period last year",
+      "all_correct": false,
+      "component_results": {
+        "intent": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "compare",
+          "expected": "compare"
+        },
+        "subject": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "revenue",
+          "expected": "revenue"
+        },
+        "measure": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "revenue",
+          "expected": "revenue"
+        },
+        "dimension": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": {},
+          "expected": {}
+        },
+        "time": {
+          "correct": false,
+          "score": 0.0,
+          "predicted": "unknown",
+          "expected": {
+            "period": "qtd",
+            "comparison": "yoy",
+            "granularity": "quarter"
+          }
+        }
+      },
+      "confidence": 0.7261458918053949,
+      "should_refuse": false,
+      "did_refuse": false
+    },
+    {
+      "question_id": "gold_043",
+      "question": "What is our headcount by department?",
+      "all_correct": true,
+      "component_results": {
+        "intent": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "drill",
+          "expected": "drill"
+        },
+        "subject": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "people",
+          "expected": "people"
+        },
+        "measure": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "headcount",
+          "expected": "headcount"
+        },
+        "dimension": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": {
+            "department": "all"
+          },
+          "expected": {
+            "department": "all"
+          }
+        },
+        "time": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": {
+            "period": "current",
+            "granularity": "month"
+          },
+          "expected": {
+            "period": "current",
+            "granularity": "month"
+          }
+        }
+      },
+      "confidence": 0.7182439736118882,
+      "should_refuse": false,
+      "did_refuse": false
+    },
+    {
+      "question_id": "gold_044",
+      "question": "Total Annual Recurring Revenue",
+      "all_correct": false,
+      "component_results": {
+        "intent": {
+          "correct": false,
+          "score": 0.0,
+          "predicted": "compare",
+          "expected": "what"
+        },
+        "subject": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "revenue",
+          "expected": "revenue"
+        },
+        "measure": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "arr",
+          "expected": "arr"
+        },
+        "dimension": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": {},
+          "expected": {}
+        },
+        "time": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": {
+            "period": "current",
+            "granularity": "year"
+          },
+          "expected": {
+            "period": "current",
+            "granularity": "year"
+          }
+        }
+      },
+      "confidence": 0.7020497091980006,
+      "should_refuse": false,
+      "did_refuse": false
+    },
+    {
+      "question_id": "gold_045",
+      "question": "Percentage change in revenue month over month",
+      "all_correct": false,
+      "component_results": {
+        "intent": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "compare",
+          "expected": "compare"
+        },
+        "subject": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "revenue",
+          "expected": "revenue"
+        },
+        "measure": {
+          "correct": false,
+          "score": 0.0,
+          "predicted": "gm_pct",
+          "expected": "revenue"
+        },
+        "dimension": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": {},
+          "expected": {}
+        },
+        "time": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": {
+            "period": "this_month",
+            "comparison": "mom",
+            "granularity": "month"
+          },
+          "expected": {
+            "period": "this_month",
+            "comparison": "mom",
+            "granularity": "month"
+          }
+        }
+      },
+      "confidence": 0.7041000793345538,
+      "should_refuse": false,
+      "did_refuse": false
+    },
+    {
+      "question_id": "gold_046",
+      "question": "What was our best revenue month this year?",
+      "all_correct": true,
+      "component_results": {
+        "intent": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "rank",
+          "expected": "rank"
+        },
+        "subject": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "revenue",
+          "expected": "revenue"
+        },
+        "measure": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "revenue",
+          "expected": "revenue"
+        },
+        "dimension": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": {
+            "limit": 1,
+            "order": "desc"
+          },
+          "expected": {
+            "limit": 1,
+            "order": "desc"
+          }
+        },
+        "time": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": {
+            "period": "ytd",
+            "granularity": "month"
+          },
+          "expected": {
+            "period": "ytd",
+            "granularity": "month"
+          }
+        }
+      },
+      "confidence": 0.7062508227542439,
+      "should_refuse": false,
+      "did_refuse": false
+    },
+    {
+      "question_id": "gold_047",
+      "question": "Customer lifetime value for Gold tier accounts",
+      "all_correct": false,
+      "component_results": {
+        "intent": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "what",
+          "expected": "what"
+        },
+        "subject": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "customers",
+          "expected": "customers"
+        },
+        "measure": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "ltv",
+          "expected": "ltv"
+        },
+        "dimension": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": {
+            "account_tier": "Gold"
+          },
+          "expected": {
+            "account_tier": "Gold"
+          }
+        },
+        "time": {
+          "correct": false,
+          "score": 0.0,
+          "predicted": "unknown",
+          "expected": {
+            "period": "current",
+            "granularity": "quarter"
+          }
+        }
+      },
+      "confidence": 0.9195969389034337,
+      "should_refuse": false,
+      "did_refuse": false
+    },
+    {
+      "question_id": "gold_048",
+      "question": "How many net new customers did we add this month?",
+      "all_correct": true,
+      "component_results": {
+        "intent": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "what",
+          "expected": "what"
+        },
+        "subject": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "customers",
+          "expected": "customers"
+        },
+        "measure": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "new_customers",
+          "expected": "new_customers"
+        },
+        "dimension": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": {},
+          "expected": {}
+        },
+        "time": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": {
+            "period": "this_month",
+            "granularity": "month"
+          },
+          "expected": {
+            "period": "this_month",
+            "granularity": "month"
+          }
+        }
+      },
+      "confidence": 0.7886816285352056,
+      "should_refuse": false,
+      "did_refuse": false
+    },
+    {
+      "question_id": "gold_049",
+      "question": "Show me the revenue breakdown by both region and channel",
+      "all_correct": true,
+      "component_results": {
+        "intent": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "drill",
+          "expected": "drill"
+        },
+        "subject": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "revenue",
+          "expected": "revenue"
+        },
+        "measure": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "revenue",
+          "expected": "revenue"
+        },
+        "dimension": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": {
+            "region": "all",
+            "channel": "all"
+          },
+          "expected": {
+            "region": "all",
+            "channel": "all"
+          }
+        },
+        "time": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": {
+            "period": "current",
+            "granularity": "quarter"
+          },
+          "expected": {
+            "period": "current",
+            "granularity": "quarter"
+          }
+        }
+      },
+      "confidence": 0.9438930256097006,
+      "should_refuse": false,
+      "did_refuse": false
+    },
+    {
+      "question_id": "gold_050",
+      "question": "What's the average time to fulfill an order?",
+      "all_correct": false,
+      "component_results": {
+        "intent": {
+          "correct": false,
+          "score": 0.0,
+          "predicted": null,
+          "expected": "what"
+        },
+        "subject": {
+          "correct": false,
+          "score": 0.0,
+          "predicted": null,
+          "expected": "operations"
+        },
+        "measure": {
+          "correct": false,
+          "score": 0.0,
+          "predicted": null,
+          "expected": "fulfillment_time"
+        },
+        "dimension": {
+          "correct": false,
+          "score": 0.0,
+          "predicted": null,
+          "expected": {}
+        },
+        "time": {
+          "correct": false,
+          "score": 0.0,
+          "predicted": null,
+          "expected": {
+            "period": "current",
+            "granularity": "quarter"
+          }
+        }
+      },
+      "confidence": 0.41950072335753985,
+      "should_refuse": false,
+      "did_refuse": true
+    },
+    {
+      "question_id": "gold_051",
+      "question": "Is there a correlation between price and conversion rate?",
+      "all_correct": true,
+      "component_results": {
+        "intent": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "correlation",
+          "expected": "correlation"
+        },
+        "subject": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "sales",
+          "expected": "sales"
+        },
+        "measure": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": [
+            "price",
+            "conversion_rate"
+          ],
+          "expected": [
+            "price",
+            "conversion_rate"
+          ]
+        },
+        "dimension": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": {},
+          "expected": {}
+        },
+        "time": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": {
+            "window": "l12m",
+            "granularity": "month"
+          },
+          "expected": {
+            "window": "l12m",
+            "granularity": "month"
+          }
+        }
+      },
+      "confidence": 0.8741463711384564,
+      "should_refuse": false,
+      "did_refuse": false
+    },
+    {
+      "question_id": "gold_052",
+      "question": "Revenue per employee this year",
+      "all_correct": false,
+      "component_results": {
+        "intent": {
+          "correct": false,
+          "score": 0.0,
+          "predicted": "compare",
+          "expected": "what"
+        },
+        "subject": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "finance",
+          "expected": "finance"
+        },
+        "measure": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "revenue_per_employee",
+          "expected": "revenue_per_employee"
+        },
+        "dimension": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": {},
+          "expected": {}
+        },
+        "time": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": {
+            "period": "ytd",
+            "granularity": "year"
+          },
+          "expected": {
+            "period": "ytd",
+            "granularity": "year"
+          }
+        }
+      },
+      "confidence": 0.828492636313782,
+      "should_refuse": false,
+      "did_refuse": false
+    },
+    {
+      "question_id": "gold_053",
+      "question": "What is our win rate for deals over $100k?",
+      "all_correct": true,
+      "component_results": {
+        "intent": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "what",
+          "expected": "what"
+        },
+        "subject": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "sales",
+          "expected": "sales"
+        },
+        "measure": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "win_rate",
+          "expected": "win_rate"
+        },
+        "dimension": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": {
+            "deal_size": ">100000"
+          },
+          "expected": {
+            "deal_size": ">100000"
+          }
+        },
+        "time": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": {
+            "period": "current",
+            "granularity": "quarter"
+          },
+          "expected": {
+            "period": "current",
+            "granularity": "quarter"
+          }
+        }
+      },
+      "confidence": 0.587103728237422,
+      "should_refuse": false,
+      "did_refuse": false
+    },
+    {
+      "question_id": "gold_054",
+      "question": "How many days of runway do we have?",
+      "all_correct": true,
+      "component_results": {
+        "intent": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "what",
+          "expected": "what"
+        },
+        "subject": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "finance",
+          "expected": "finance"
+        },
+        "measure": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "runway",
+          "expected": "runway"
+        },
+        "dimension": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": {},
+          "expected": {}
+        },
+        "time": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": {
+            "period": "current",
+            "granularity": "day"
+          },
+          "expected": {
+            "period": "current",
+            "granularity": "day"
+          }
+        }
+      },
+      "confidence": 0.8460626347953987,
+      "should_refuse": false,
+      "did_refuse": false
+    },
+    {
+      "question_id": "gold_055",
+      "question": "Month-to-date revenue compared to our monthly target",
+      "all_correct": false,
+      "component_results": {
+        "intent": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "target",
+          "expected": "target"
+        },
+        "subject": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "revenue",
+          "expected": "revenue"
+        },
+        "measure": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": "revenue",
+          "expected": "revenue"
+        },
+        "dimension": {
+          "correct": true,
+          "score": 1.0,
+          "predicted": {},
+          "expected": {}
+        },
+        "time": {
+          "correct": false,
+          "score": 0.0,
+          "predicted": "unknown",
+          "expected": {
+            "period": "mtd",
+            "granularity": "month"
+          }
+        }
+      },
+      "confidence": 0.9092121746236559,
+      "should_refuse": false,
+      "did_refuse": false
+    }
+  ]
+}
