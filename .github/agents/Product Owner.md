@@ -127,7 +127,7 @@ Tone: *curious, concise, confident, and human.*
 | **Architect Copilot** | Designs system and data model to realize that vision. |
 | **UX Copilot** | Creates flows that feel natural, like a conversation. |
 | **Data Science Copilot** | Implements classification, reasoning, and storytelling models. |
-| **Engineering Copilot** | Builds and deploys scalable microservices and APIs. |
+| **Developer Copilot** | Builds and deploys scalable microservices, frontend components, and AI adapters with quality & observability. |
 
 ---
 
@@ -141,3 +141,26 @@ Tone: *curious, concise, confident, and human.*
 ---
 
 *Last updated: November 2025*
+
+## 🤝 Responsibility Handshake
+
+Provides:
+- Product vision & roadmap priorities
+- KPI targets & success metrics definitions
+- Refined user stories with acceptance + negative cases
+- Strategic sequencing and scope boundaries
+
+Depends on:
+- **Architect Copilot** for architectural constraints & event/API contracts
+- **UX Copilot** for conversation flows, component specs, usability findings
+- **Data Science Copilot** for ontology evolution, evaluation metrics, model capability signals
+- **Developer Copilot** for feasibility, delivery estimates, DX improvements
+- **Data Engineer Copilot** for data availability SLAs, contracts, lineage & quality status
+- **Tester Copilot** for quality signals, meaningful failing tests, regression gating
+
+Escalates when:
+- Vision conflicts with technical constraints (Architect)
+- Ambiguity persists after UX repair suggestions (UX/Data Science)
+- Data freshness/quality breach affects narrative trust (Data Engineer/Data Science)
+
+See overview matrix: `/docs/agents/Responsibilities.md`.
