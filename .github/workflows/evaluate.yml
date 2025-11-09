@@ -1,0 +1,128 @@
+name: Classification Evaluation
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:  # Allow manual trigger
+
+jobs:
+  evaluate:
+    name: Evaluate Classification System
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+          cache: 'pip'
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+      
+      - name: Run evaluation on gold dataset
+        run: |
+          python3 scripts/evaluate_classification.py \
+            --dataset evaluation/gold.json \
+            --mode gold \
+            --output evaluation/ci_results.json
+      
+      - name: Run evaluation on adversarial dataset
+        run: |
+          python3 scripts/evaluate_classification.py \
+            --dataset evaluation/adversarial.json \
+            --mode adversarial \
+            --output evaluation/ci_results.json
+      
+      - name: Check MVP gate criteria
+        run: |
+          python3 -c "
+          import json
+          import sys
+          
+          # Load gold dataset results
+          with open('evaluation/ci_results_gold.json') as f:
+              results = json.load(f)
+          
+          # Extract metrics
+          overall_acc = results['overall_accuracy']
+          hall_rate = results['hallucination']['hallucination_rate']
+          ece = results['calibration']['ece']
+          
+          # Gate criteria
+          acc_pass = overall_acc >= 0.75
+          hall_pass = hall_rate < 0.10
+          cal_pass = ece < 0.08
+          
+          # Print results
+          print('='*70)
+          print('MVP GATE CRITERIA CHECK')
+          print('='*70)
+          print(f'Overall Accuracy:    {overall_acc:.1%}  (target: ≥75%)  [{\"✓ PASS\" if acc_pass else \"✗ FAIL\"}]')
+          print(f'Hallucination Rate:  {hall_rate:.1%}  (target: <10%)  [{\"✓ PASS\" if hall_pass else \"✗ FAIL\"}]')
+          print(f'ECE (Calibration):   {ece:.3f}  (target: <0.08) [{\"✓ PASS\" if cal_pass else \"✗ FAIL\"}]')
+          print('='*70)
+          
+          # Determine overall pass/fail
+          all_passed = acc_pass and hall_pass and cal_pass
+          
+          if all_passed:
+              print('✓ ALL GATE CRITERIA MET')
+              sys.exit(0)
+          else:
+              print('✗ SOME CRITERIA NOT MET - BUILD FAILED')
+              sys.exit(1)
+          "
+      
+      - name: Upload evaluation results
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: evaluation-results
+          path: |
+            evaluation/ci_results_*.json
+          retention-days: 30
+      
+      - name: Comment PR with results
+        if: github.event_name == 'pull_request' && always()
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const fs = require('fs');
+            const results = JSON.parse(fs.readFileSync('evaluation/ci_results_gold.json', 'utf8'));
+            
+            const accuracy = (results.overall_accuracy * 100).toFixed(1);
+            const hallucination = (results.hallucination.hallucination_rate * 100).toFixed(1);
+            const ece = results.calibration.ece.toFixed(3);
+            
+            const comment = `## 🧪 Classification Evaluation Results
+            
+            | Metric | Value | Target | Status |
+            |--------|-------|--------|--------|
+            | Overall Accuracy | ${accuracy}% | ≥75% | ${results.overall_accuracy >= 0.75 ? '✅' : '❌'} |
+            | Hallucination Rate | ${hallucination}% | <10% | ${results.hallucination.hallucination_rate < 0.10 ? '✅' : '❌'} |
+            | ECE (Calibration) | ${ece} | <0.08 | ${results.calibration.ece < 0.08 ? '✅' : '❌'} |
+            
+            ### Component Accuracy
+            ${Object.entries(results.component_accuracy).map(([comp, data]) => 
+              `- **${comp}**: ${(data.accuracy * 100).toFixed(1)}%`
+            ).join('\n')}
+            
+            ---
+            
+            📊 Full results available in workflow artifacts.
+            `;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
