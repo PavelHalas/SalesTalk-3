@@ -21,16 +21,16 @@ This directory contains utility scripts for SalesTalk development, testing, and 
 **Usage:**
 ```bash
 # Evaluate gold dataset
-python3 scripts/evaluate_classification.py --dataset evaluation/gold.json --mode gold
+python3 backend/src/evaluate_classification.py --dataset evaluation/gold.json --mode gold
 
 # Evaluate adversarial dataset
-python3 scripts/evaluate_classification.py --dataset evaluation/adversarial.json --mode adversarial
+python3 backend/src/evaluate_classification.py --dataset backend/evaluation/adversarial.json --mode adversarial
 
 # Evaluate all datasets
-python3 scripts/evaluate_classification.py --all
+python3 backend/src/evaluate_classification.py --all
 
 # Save detailed results
-python3 scripts/evaluate_classification.py --all --output evaluation/results.json
+python3 backend/src/evaluate_classification.py --all --output evaluation/results.json
 ```
 
 **Options:**
@@ -84,7 +84,7 @@ Deep-dive analysis of classification failures and error patterns.
 
 For detailed information on evaluation:
 - See `evaluation/README.md` for dataset documentation
-- See `ontology/ONTOLOGY_v0.md` for classification schema
+- See `backend/ontology/ONTOLOGY_v0.md` for classification schema
 - See `docs/KPI_BASELINE.md` for success criteria
 
 ---

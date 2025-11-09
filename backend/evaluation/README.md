@@ -12,7 +12,7 @@ This directory contains the evaluation framework for SalesTalk's classification 
 
 - **Gold dataset** (`gold.json`): 55 carefully labeled business questions for accuracy measurement
 - **Adversarial dataset** (`adversarial.json`): 35 edge cases and ambiguous queries for robustness testing
-- **Evaluation script** (`../scripts/evaluate_classification.py`): Automated evaluation with accuracy, calibration, and hallucination metrics
+- **Evaluation script** (`../backend/src/evaluate_classification.py`): Automated evaluation with accuracy, calibration, and hallucination metrics
 
 ---
 
@@ -111,24 +111,24 @@ The evaluation framework measures:
 ```bash
 # Evaluate gold dataset only
 cd /path/to/SalesTalk-3
-python3 scripts/evaluate_classification.py --dataset evaluation/gold.json --mode gold
+python3 backend/src/evaluate_classification.py --dataset evaluation/gold.json --mode gold
 
 # Evaluate adversarial dataset only
-python3 scripts/evaluate_classification.py --dataset evaluation/adversarial.json --mode adversarial
+python3 backend/src/evaluate_classification.py --dataset backend/evaluation/adversarial.json --mode adversarial
 
 # Evaluate all datasets
-python3 scripts/evaluate_classification.py --all
+python3 backend/src/evaluate_classification.py --all
 ```
 
 ### Save Results
 
 ```bash
 # Save detailed results to JSON
-python3 scripts/evaluate_classification.py --all --output evaluation/results.json
+python3 backend/src/evaluate_classification.py --all --output backend/evaluation/results.json
 
 # Results are saved as:
-# - evaluation/results_gold.json
-# - evaluation/results_adversarial.json
+# - backend/evaluation/results_gold.json
+# - backend/evaluation/results_adversarial.json
 ```
 
 ### Example Output
@@ -250,7 +250,7 @@ To enforce gate criteria and fail the build when criteria aren't met:
   env:
     ENFORCE_GATES: 'true'  # Set to 'true' to enforce criteria
   run: |
-    python3 scripts/evaluate_classification.py --all --output evaluation/ci_results.json
+    python3 backend/src/evaluate_classification.py --all --output backend/evaluation/ci_results.json
     # ... gate checking code ...
 ```
 
@@ -291,11 +291,11 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          pip install -r backend/requirements.txt
       
       - name: Run evaluation
         run: |
-          python3 scripts/evaluate_classification.py --all --output evaluation/ci_results.json
+          python3 backend/src/evaluate_classification.py --all --output backend/evaluation/ci_results.json
       
       - name: Check gate criteria
         run: |
@@ -303,7 +303,7 @@ jobs:
           import json
           import sys
           
-          with open('evaluation/ci_results_gold.json') as f:
+          with open('backend/evaluation/ci_results_gold.json') as f:
               results = json.load(f)
           
           overall_acc = results['overall_accuracy']
@@ -328,7 +328,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: evaluation-results
-          path: evaluation/ci_results_*.json
+          path: backend/evaluation/ci_results_*.json
 ```
 
 ### Pre-commit Hook
@@ -339,7 +339,7 @@ Add to `.git/hooks/pre-commit`:
 #!/bin/bash
 # Run evaluation before commit (optional - may be slow)
 
-python3 scripts/evaluate_classification.py --dataset evaluation/gold.json --mode gold
+python3 backend/src/evaluate_classification.py --dataset evaluation/gold.json --mode gold
 
 if [ $? -ne 0 ]; then
     echo "Evaluation failed. Commit aborted."
@@ -363,7 +363,7 @@ python3 scripts/sample_production_questions.py --output evaluation/prod_sample.j
 # (Use labeling tool or human review)
 
 # Evaluate
-python3 scripts/evaluate_classification.py --dataset evaluation/prod_sample.json --mode gold
+python3 backend/src/evaluate_classification.py --dataset evaluation/prod_sample.json --mode gold
 ```
 
 ### Drift Detection

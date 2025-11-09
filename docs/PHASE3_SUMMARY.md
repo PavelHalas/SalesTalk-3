@@ -12,7 +12,7 @@
 ### Data Science Deliverables ✅
 
 - [x] **Draft ontology** with intent, subject, measure, dimension, time enumerations
-  - File: `ontology/ONTOLOGY_v0.md`
+  - File: `backend/ontology/ONTOLOGY_v0.md`
   - Size: 20KB, 500+ lines
   - Coverage: 10 intents, 10+ subjects, 30+ measures, complete taxonomies
 
@@ -27,12 +27,12 @@
   - Coverage: Edge cases, typos, refusal tests, security tests
 
 - [x] **Implement classification evaluator**
-  - File: `scripts/evaluate_classification.py`
+  - File: `backend/src/evaluate_classification.py`
   - Features: Component accuracy + calibration + hallucination detection
   - Lines: 400+ lines of Python
 
 - [x] **Define narrative factuality rules**
-  - Documented in: `ontology/ONTOLOGY_v0.md` (Quality Standards section)
+  - Documented in: `backend/ontology/ONTOLOGY_v0.md` (Quality Standards section)
   - Includes: Reference coverage, hallucination detection, refusal policy
 
 ### Tester Deliverables ✅
@@ -46,12 +46,12 @@
 
 All required artifacts delivered:
 
-1. ✅ `ontology/ONTOLOGY_v0.md` - Comprehensive semantic layer ontology
+1. ✅ `backend/ontology/ONTOLOGY_v0.md` - Comprehensive semantic layer ontology
 2. ✅ `evaluation/gold.json` - 55 gold questions
 3. ✅ `evaluation/adversarial.json` - 35 adversarial cases
-4. ✅ `scripts/evaluate_classification.py` - Complete evaluator
+4. ✅ `backend/src/evaluate_classification.py` - Complete evaluator
 5. ✅ `evaluation/README.md` - Documentation
-6. ✅ `scripts/README.md` - Script documentation
+6. ✅ `backend/src/README.md` - Script documentation
 7. ✅ `.github/workflows/evaluate.yml` - CI workflow
 8. ✅ `requirements.txt` - Dependencies
 
@@ -250,7 +250,7 @@ def classify_question(question: str) -> Dict[str, Any]:
 **Analyze Results:**
 ```bash
 # Run evaluation and save detailed results
-python3 scripts/evaluate_classification.py --all --output evaluation/results.json
+python3 backend/src/evaluate_classification.py --all --output evaluation/results.json
 
 # Analyze per-question failures
 python3 -c "
@@ -313,8 +313,8 @@ for fail in failures[:5]:  # Show first 5
 
 **Support:**
 - See `evaluation/README.md` for usage guide
-- See `scripts/README.md` for script documentation
-- See `ontology/ONTOLOGY_v0.md` for classification reference
+- See `backend/src/README.md` for script documentation
+- See `backend/ontology/ONTOLOGY_v0.md` for classification reference
 
 ---
 
