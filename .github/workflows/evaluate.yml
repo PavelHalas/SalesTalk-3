@@ -11,6 +11,9 @@ jobs:
   evaluate:
     name: Evaluate Classification System
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write  # For PR comments
     
     steps:
       - name: Checkout code
