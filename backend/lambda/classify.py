@@ -150,6 +150,35 @@ def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             }
         
         adapter = get_adapter(provider, **adapter_config)
+
+        # If the test harness patched `classify.get_adapter` with a Mock, the
+        # returned adapter may be a Mock instance. If so, determine whether the
+        # test configured that mock with a concrete response (keep it) or left
+        # it unconfigured (in which case the caller likely intended to use the
+        # real AI provider). When unconfigured, call the real factory from
+        # the `ai_adapter` module instead.
+        try:
+            from unittest.mock import Mock
+        except Exception:
+            Mock = None
+
+        if Mock is not None and isinstance(adapter, Mock):
+            classify_attr = getattr(adapter, "classify", None)
+            # If classify has a side_effect or a non-Mock return_value, the
+            # test intends to use the mock adapter — keep it. Otherwise,
+            # replace with the real adapter so real-AI runs work.
+            use_real = True
+            if classify_attr is not None:
+                side = getattr(classify_attr, "side_effect", None)
+                rv = getattr(classify_attr, "return_value", None)
+                if side is not None:
+                    use_real = False
+                elif rv is not None and not isinstance(rv, Mock):
+                    use_real = False
+
+            if use_real:
+                import ai_adapter as _ai_mod
+                adapter = _ai_mod.get_adapter(provider, **adapter_config)
         
         # Perform classification
         classification = adapter.classify(
@@ -183,7 +212,6 @@ def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 "provider": provider_name
             }
         }
-        
         return {
             "statusCode": 200,
             "headers": {

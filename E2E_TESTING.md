@@ -52,7 +52,7 @@ The setup script will:
 
 ```bash
 # From repository root
-docker-compose -f docker-compose.localstack.yml up -d
+docker compose -f docker-compose.localstack.yml up -d
 ```
 
 **Option B: Using Docker directly**

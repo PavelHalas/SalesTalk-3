@@ -17,6 +17,7 @@ import json
 import sys
 from pathlib import Path
 from typing import Any, Dict, List
+from decimal import Decimal
 
 import boto3
 from botocore.exceptions import ClientError
@@ -193,7 +194,8 @@ class LocalStackSeeder:
         
         print(f"Seeding tenant metadata for {tenant_id}...")
         try:
-            table.put_item(Item=tenant_data)
+            # DynamoDB (boto3) requires Decimal instead of float for number types
+            table.put_item(Item=self._convert_numbers(tenant_data))
             print(f"✓ Seeded tenant metadata for {tenant_id}")
         except Exception as e:
             print(f"✗ Error seeding tenant metadata: {e}")
@@ -207,7 +209,7 @@ class LocalStackSeeder:
         print(f"Seeding {len(messages)} messages for {tenant_id}...")
         for message in messages:
             try:
-                table.put_item(Item=message)
+                table.put_item(Item=self._convert_numbers(message))
             except Exception as e:
                 print(f"✗ Error seeding message {message.get('messageId')}: {e}")
                 raise
@@ -221,7 +223,7 @@ class LocalStackSeeder:
         print(f"Seeding {len(metrics)} metrics for {tenant_id}...")
         for metric in metrics:
             try:
-                table.put_item(Item=metric)
+                table.put_item(Item=self._convert_numbers(metric))
             except Exception as e:
                 print(f"✗ Error seeding metric {metric.get('metricId')}: {e}")
                 raise
@@ -262,7 +264,7 @@ class LocalStackSeeder:
         
         # Create global tables
         self.create_tenants_metadata_table()
-        
+
         # Seed ACME Corporation
         print("\n--- Seeding ACME Corporation ---")
         self.seed_tenant(
@@ -291,6 +293,17 @@ class LocalStackSeeder:
         print("  - tenant-acme-corp-001-metrics")
         print("  - tenant-techstart-inc-002-messages")
         print("  - tenant-techstart-inc-002-metrics")
+
+    def _convert_numbers(self, obj: Any) -> Any:
+        """Recursively convert float numbers to Decimal for DynamoDB compatibility."""
+        if isinstance(obj, dict):
+            return {k: self._convert_numbers(v) for k, v in obj.items()}
+        if isinstance(obj, list):
+            return [self._convert_numbers(v) for v in obj]
+        if isinstance(obj, float):
+            # Use Decimal(str(...)) to avoid binary float issues
+            return Decimal(str(obj))
+        return obj
 
 
 def main():
