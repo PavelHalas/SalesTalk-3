@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  # LocalStack for local AWS service simulation
+  localstack:
+    image: localstack/localstack:latest
+    container_name: salestalk-localstack
+    ports:
+      - "4566:4566"  # LocalStack gateway
+      - "4571:4571"  # LocalStack UI (optional)
+    environment:
+      - SERVICES=dynamodb
+      - DEBUG=1
+      - DATA_DIR=/tmp/localstack/data
+      - LAMBDA_EXECUTOR=docker
+      - DOCKER_HOST=unix:///var/run/docker.sock
+    volumes:
+      - "${PWD}/backend/.localstack:/tmp/localstack"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    networks:
+      - salestalk-network
+
+networks:
+  salestalk-network:
+    driver: bridge
