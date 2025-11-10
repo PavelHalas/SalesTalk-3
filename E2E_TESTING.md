@@ -1,10 +1,22 @@
 # Running E2E Tests Locally
 
-This guide helps you run end-to-end tests for SalesTalk using LocalStack.
+This guide helps you run end-to-end tests for SalesTalk using LocalStack with support for both mock and real AI providers.
+
+## Test Modes
+
+### Mock AI Mode (Default - Fast)
+
+Tests use mock AI adapters for fast, deterministic results. Perfect for development and CI/CD.
+
+### Real AI Mode (Integration Testing)
+
+Tests use real AI providers (Ollama or Bedrock) for true end-to-end validation. Perfect for validating actual AI model behavior.
 
 ## Quick Start
 
-The fastest way to run E2E tests:
+### Mock AI Mode (Default)
+
+The fastest way to run E2E tests with mocks:
 
 ```bash
 # From the repository root
@@ -12,7 +24,20 @@ cd backend/tests/e2e
 ./setup_and_run.sh
 ```
 
-This script will:
+### Real AI Mode
+
+Run tests with real Ollama:
+
+```bash
+# Start Ollama first
+ollama serve &
+
+# Run tests with real AI
+cd backend
+USE_REAL_AI=true AI_PROVIDER=ollama pytest tests/e2e/ -v
+```
+
+The setup script will:
 1. ✅ Check for Docker and Python
 2. ✅ Install Python dependencies
 3. ✅ Start LocalStack (if not running)
@@ -40,7 +65,29 @@ docker run -d \
   localstack/localstack:latest
 ```
 
-### 2. Verify LocalStack is Running
+### 2. (Optional) Start Real AI Provider
+
+#### For Ollama:
+```bash
+# Install Ollama
+curl https://ollama.ai/install.sh | sh
+
+# Pull a model
+ollama pull llama2
+
+# Start Ollama server
+ollama serve
+```
+
+#### For Bedrock:
+```bash
+# Configure AWS credentials
+aws configure
+
+# Ensure you have Bedrock access
+```
+
+### 3. Verify LocalStack is Running
 
 ```bash
 # Check health
@@ -50,7 +97,7 @@ curl http://localhost:4566/_localstack/health
 aws --endpoint-url=http://localhost:4566 dynamodb list-tables
 ```
 
-### 3. Seed Test Data
+### 4. Seed Test Data
 
 ```bash
 cd backend
@@ -64,12 +111,72 @@ This creates and populates:
 - `tenant-techstart-inc-002-messages` - Messages for TechStart
 - `tenant-techstart-inc-002-metrics` - Metrics for TechStart
 
-### 4. Run E2E Tests
+### 5. Run E2E Tests
+
+**Mock AI Mode (Default):**
+```bash
+cd backend
+pytest tests/e2e/ -v
+```
+
+**Real AI Mode with Ollama:**
+```bash
+cd backend
+USE_REAL_AI=true AI_PROVIDER=ollama pytest tests/e2e/ -v
+```
+
+**Real AI Mode with Bedrock:**
+```bash
+cd backend
+USE_REAL_AI=true AI_PROVIDER=bedrock pytest tests/e2e/ -v
+```
+
+## Running Tests
+
+### Run with Mock AI (Fast, Deterministic)
 
 ```bash
 cd backend
 pytest tests/e2e/ -v
 ```
+
+Benefits:
+- ⚡ Fast execution (no external AI calls)
+- 🎯 Deterministic results
+- 🚀 No external dependencies
+- ✅ Ideal for CI/CD
+
+### Run with Real AI (Integration Testing)
+
+**Using Ollama:**
+```bash
+# Ensure Ollama is running
+ollama serve &
+
+# Run tests
+USE_REAL_AI=true AI_PROVIDER=ollama pytest tests/e2e/ -v
+
+# With custom Ollama URL
+USE_REAL_AI=true AI_PROVIDER=ollama OLLAMA_BASE_URL=http://localhost:11434 pytest tests/e2e/ -v
+```
+
+**Using Bedrock:**
+```bash
+# Ensure AWS credentials are configured
+aws configure
+
+# Run tests
+USE_REAL_AI=true AI_PROVIDER=bedrock pytest tests/e2e/ -v
+
+# With specific model
+USE_REAL_AI=true AI_PROVIDER=bedrock BEDROCK_MODEL_ID=anthropic.claude-3-sonnet-20240229-v1:0 pytest tests/e2e/ -v
+```
+
+Benefits:
+- 🔍 True end-to-end validation
+- 🤖 Real AI model testing
+- 📊 Actual response quality validation
+- 🎯 Model behavior verification
 
 ## Test Coverage
 
@@ -92,6 +199,7 @@ The E2E test suite includes **28 comprehensive test cases**:
 - ✅ Multi-tenant isolation
 - ✅ Data provenance (table/pk/sk references)
 - ✅ Error handling (400, 502 status codes)
+- ✅ **Works with both mock and real AI providers**
 
 ### Test Categories
 

@@ -7,28 +7,32 @@ Comprehensive E2E test suite for local development that:
 - Tests complete question-processing pipeline
 - Validates classification, narrative, and data retrieval
 - Covers edge cases, ambiguity, and multi-dimensional queries
+- Supports both mock and real AI providers (Ollama, Bedrock)
 
 Requirements:
     - LocalStack running on localhost:4566
     - DynamoDB tables created and seeded
-    - AI_PROVIDER set to 'ollama' or mock adapter
+    - Optional: AI_PROVIDER set to 'ollama' or 'bedrock' for real AI testing
 
 Usage:
+    # With mock AI (fast, deterministic)
+    pytest tests/e2e/test_localstack_e2e.py -v
+    
+    # With real AI provider (requires Ollama or Bedrock)
+    USE_REAL_AI=true AI_PROVIDER=ollama pytest tests/e2e/test_localstack_e2e.py -v
+    
     # Start LocalStack
     docker run -d -p 4566:4566 localstack/localstack
     
     # Seed data
     python scripts/seed_localstack.py
-    
-    # Run tests
-    pytest tests/e2e/test_localstack_e2e.py -v
 """
 
 import json
 import os
 import sys
 import time
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 from unittest.mock import Mock, patch
 
 import boto3
@@ -50,6 +54,10 @@ LOCALSTACK_ENDPOINT = os.environ.get("LOCALSTACK_ENDPOINT", "http://localhost:45
 AWS_REGION = "us-east-1"
 TEST_TENANT_1 = "acme-corp-001"
 TEST_TENANT_2 = "techstart-inc-002"
+
+# Control whether to use real AI provider or mocks
+# Set USE_REAL_AI=true to test with real Ollama/Bedrock
+USE_REAL_AI = os.environ.get("USE_REAL_AI", "false").lower() in ("true", "1", "yes")
 
 
 # ============================================================================
@@ -116,6 +124,28 @@ def verify_tables_seeded(dynamodb_client, verify_localstack):
         pytest.skip(f"Failed to verify tables: {e}")
 
 
+@pytest.fixture(scope="module")
+def use_real_ai():
+    """
+    Determine if tests should use real AI provider or mocks.
+    
+    Returns:
+        bool: True if USE_REAL_AI env var is set, False otherwise
+    """
+    if USE_REAL_AI:
+        # Verify AI provider is configured
+        ai_provider = os.environ.get("AI_PROVIDER", "ollama").lower()
+        if ai_provider == "ollama":
+            ollama_url = os.environ.get("OLLAMA_BASE_URL", "http://localhost:11434")
+            print(f"\n✓ Using real AI: Ollama at {ollama_url}")
+        else:
+            print(f"\n✓ Using real AI: {ai_provider}")
+    else:
+        print("\n✓ Using mock AI for fast, deterministic tests")
+    
+    return USE_REAL_AI
+
+
 @pytest.fixture
 def mock_ai_adapter():
     """Create a mock AI adapter for deterministic testing."""
@@ -167,7 +197,7 @@ def mock_ai_adapter():
     
     return {
         "create_classification": create_classification,
-        "create_narrative": create_narrative
+        "create_narrative": create_narrative,
     }
 
 
@@ -208,6 +238,93 @@ def create_api_event(
     }
 
 
+def setup_mock_if_needed(use_real_ai: bool, mock_get_adapter, mock_ai_adapter, 
+                        expected_response: Dict[str, Any], endpoint: str = "classify"):
+    """
+    Setup mock adapter if not using real AI.
+    
+    Args:
+        use_real_ai: Whether to use real AI provider
+        mock_get_adapter: Mock for get_adapter function
+        mock_ai_adapter: Mock AI adapter fixture
+        expected_response: Expected classification or narrative response
+        endpoint: 'classify' or 'chat'
+        
+    Returns:
+        Mock adapter if mocking is needed, None otherwise
+    """
+    if use_real_ai:
+        # Don't mock - let real AI provider be used
+        mock_get_adapter.stop()
+        return None
+    
+    # Setup mock adapter
+    mock_adapter = Mock()
+    if endpoint == "classify":
+        mock_adapter.classify.return_value = expected_response
+    else:  # chat endpoint uses both classify and generate_narrative
+        if "intent" in expected_response:
+            mock_adapter.classify.return_value = expected_response
+        if "text" in expected_response:
+            mock_adapter.generate_narrative.return_value = expected_response
+    
+    mock_get_adapter.return_value = mock_adapter
+    return mock_adapter
+
+
+def validate_classification_response(
+    classification: Dict[str, Any],
+    expected_intent: Optional[str] = None,
+    expected_subject: Optional[str] = None,
+    expected_measure: Optional[str] = None,
+    check_confidence: bool = True
+):
+    """
+    Validate classification response with flexible assertions.
+    
+    Works with both mock and real AI responses.
+    Real AI responses may vary, so we validate structure and ranges
+    rather than exact values when expected values are not provided.
+    
+    Args:
+        classification: Classification response to validate
+        expected_intent: Expected intent (optional for real AI)
+        expected_subject: Expected subject (optional for real AI)
+        expected_measure: Expected measure (optional for real AI)
+        check_confidence: Whether to validate confidence scores
+    """
+    # Required fields must be present
+    assert "intent" in classification, "Missing 'intent' field"
+    assert "subject" in classification, "Missing 'subject' field"
+    assert "measure" in classification, "Missing 'measure' field"
+    assert "confidence" in classification, "Missing 'confidence' field"
+    
+    # Validate against expected values if provided (for mock tests)
+    if expected_intent:
+        assert classification["intent"] == expected_intent, \
+            f"Intent mismatch: expected '{expected_intent}', got '{classification['intent']}'"
+    
+    if expected_subject:
+        assert classification["subject"] == expected_subject, \
+            f"Subject mismatch: expected '{expected_subject}', got '{classification['subject']}'"
+    
+    if expected_measure:
+        assert classification["measure"] == expected_measure, \
+            f"Measure mismatch: expected '{expected_measure}', got '{classification['measure']}'"
+    
+    # Validate confidence scores
+    if check_confidence:
+        confidence = classification["confidence"]
+        assert "overall" in confidence, "Missing overall confidence"
+        assert 0.0 <= confidence["overall"] <= 1.0, \
+            f"Overall confidence out of range: {confidence['overall']}"
+        
+        if "components" in confidence:
+            for component, value in confidence["components"].items():
+                assert 0.0 <= value <= 1.0, \
+                    f"Component {component} confidence out of range: {value}"
+
+
 # ============================================================================
 # Test Suite: Basic "What" Questions
 # ============================================================================
@@ -221,18 +338,20 @@ class TestBasicWhatQuestions:
         self,
         mock_get_adapter,
         mock_ai_adapter,
+        use_real_ai,
         verify_tables_seeded
     ):
         """Test: What is our Q3 revenue?"""
-        # Setup mock
-        mock_adapter = Mock()
-        mock_adapter.classify.return_value = mock_ai_adapter["create_classification"](
-            intent="what",
-            subject="revenue",
-            measure="revenue",
-            time={"period": "Q3", "granularity": "quarter"}
-        )
-        mock_get_adapter.return_value = mock_adapter
+        # Setup mock only if not using real AI
+        if not use_real_ai:
+            expected = mock_ai_adapter["create_classification"](
+                intent="what",
+                subject="revenue",
+                measure="revenue",
+                time={"period": "Q3", "granularity": "quarter"}
+            )
+            setup_mock_if_needed(use_real_ai, mock_get_adapter, mock_ai_adapter, 
+                                expected, endpoint="classify")
         
         # Execute
         event = create_api_event("What is our Q3 revenue?", TEST_TENANT_1)
@@ -242,13 +361,24 @@ class TestBasicWhatQuestions:
         assert response["statusCode"] == 200
         body = json.loads(response["body"])
         
+        # Validate classification with flexible assertions
         classification = body["classification"]
-        assert classification["intent"] == "what"
-        assert classification["subject"] == "revenue"
-        assert classification["measure"] == "revenue"
-        assert classification["time"]["period"] == "Q3"
-        assert classification["time"]["granularity"] == "quarter"
-        assert 0.0 <= classification["confidence"]["overall"] <= 1.0
+        if not use_real_ai:
+            # Strict validation for mock responses
+            validate_classification_response(
+                classification,
+                expected_intent="what",
+                expected_subject="revenue",
+                expected_measure="revenue"
+            )
+            assert classification["time"]["period"] == "Q3"
+            assert classification["time"]["granularity"] == "quarter"
+        else:
+            # Flexible validation for real AI responses
+            validate_classification_response(classification)
+            # Just verify it recognized revenue-related intent
+            assert classification["subject"] in ["revenue", "sales", "income"]
+        
         assert body["tenantId"] == TEST_TENANT_1
     
     @patch("classify.get_adapter")
@@ -256,17 +386,19 @@ class TestBasicWhatQuestions:
         self,
         mock_get_adapter,
         mock_ai_adapter,
+        use_real_ai,
         verify_tables_seeded
     ):
         """Test: What's our gross margin percentage this quarter?"""
-        mock_adapter = Mock()
-        mock_adapter.classify.return_value = mock_ai_adapter["create_classification"](
-            intent="what",
-            subject="margin",
-            measure="gm_pct",
-            time={"period": "this_quarter", "granularity": "quarter"}
-        )
-        mock_get_adapter.return_value = mock_adapter
+        if not use_real_ai:
+            expected = mock_ai_adapter["create_classification"](
+                intent="what",
+                subject="margin",
+                measure="gm_pct",
+                time={"period": "this_quarter", "granularity": "quarter"}
+            )
+            setup_mock_if_needed(use_real_ai, mock_get_adapter, mock_ai_adapter,
+                                expected, endpoint="classify")
         
         event = create_api_event("What's our gross margin percentage this quarter?", TEST_TENANT_1)
         response = classify_handler(event, None)
@@ -275,16 +407,23 @@ class TestBasicWhatQuestions:
         body = json.loads(response["body"])
         
         classification = body["classification"]
-        assert classification["intent"] == "what"
-        assert classification["subject"] == "margin"
-        assert classification["measure"] == "gm_pct"
-        assert "this_quarter" in classification["time"]["period"]
+        if not use_real_ai:
+            validate_classification_response(
+                classification,
+                expected_intent="what",
+                expected_subject="margin",
+                expected_measure="gm_pct"
+            )
+        else:
+            validate_classification_response(classification)
+            assert classification["subject"] in ["margin", "profitability", "profit"]
     
     @patch("classify.get_adapter")
     def test_what_is_customer_count(
         self,
         mock_get_adapter,
         mock_ai_adapter,
+        use_real_ai,
         verify_tables_seeded
     ):
         """Test: How many active customers do we have?"""

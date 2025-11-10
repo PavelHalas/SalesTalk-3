@@ -11,6 +11,46 @@ This test suite validates the complete question-processing pipeline:
 - Narrative generation
 - Data provenance and references
 - Error handling and robustness
+- **Supports both mock and real AI providers** (Ollama, Bedrock)
+
+## Test Modes
+
+### Mock AI Mode (Default - Fast & Deterministic)
+
+By default, tests use mock AI adapters for fast, deterministic results:
+
+```bash
+cd backend
+pytest tests/e2e/ -v
+```
+
+**Benefits:**
+- ✅ Fast execution (no real AI calls)
+- ✅ Deterministic results
+- ✅ No external dependencies
+- ✅ Ideal for CI/CD pipelines
+
+### Real AI Mode (Integration Testing)
+
+Test with real AI providers (Ollama or Bedrock) for true end-to-end validation:
+
+```bash
+# With Ollama (requires Ollama running locally)
+USE_REAL_AI=true AI_PROVIDER=ollama pytest tests/e2e/ -v
+
+# With Bedrock (requires AWS credentials)
+USE_REAL_AI=true AI_PROVIDER=bedrock pytest tests/e2e/ -v
+```
+
+**Benefits:**
+- ✅ True end-to-end validation
+- ✅ Real AI model testing
+- ✅ Actual response quality validation
+- ✅ Model behavior verification
+
+**Prerequisites for Real AI Mode:**
+- **Ollama**: Start Ollama locally (`ollama serve` on port 11434)
+- **Bedrock**: Configure AWS credentials with Bedrock access
 
 ## Prerequisites
 
@@ -61,13 +101,48 @@ cd backend
 pip install -r requirements.txt
 ```
 
+### 4. (Optional) Setup Real AI Provider
+
+#### For Ollama:
+```bash
+# Install Ollama
+curl https://ollama.ai/install.sh | sh
+
+# Pull a model
+ollama pull llama2
+
+# Start Ollama server
+ollama serve
+```
+
+#### For Bedrock:
+```bash
+# Configure AWS credentials
+aws configure
+
+# Ensure you have Bedrock access in your AWS account
+```
+
 ## Running Tests
 
-### Run All E2E Tests
+### Mock AI Mode (Default)
 
 ```bash
 cd backend
 pytest tests/e2e/ -v
+```
+
+### Real AI Mode
+
+```bash
+# With Ollama
+USE_REAL_AI=true AI_PROVIDER=ollama pytest tests/e2e/ -v
+
+# With Ollama on custom URL
+USE_REAL_AI=true AI_PROVIDER=ollama OLLAMA_BASE_URL=http://localhost:11434 pytest tests/e2e/ -v
+
+# With Bedrock
+USE_REAL_AI=true AI_PROVIDER=bedrock pytest tests/e2e/ -v
 ```
 
 ### Run with E2E Marker
