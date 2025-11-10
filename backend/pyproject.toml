@@ -9,4 +9,5 @@ markers = [
     "integration: marks tests as integration tests (deselect with '-m \"not integration\"')",
     "unit: marks tests as unit tests",
     "performance: marks tests as performance tests (may be slow)",
+    "e2e: marks tests as end-to-end tests using LocalStack (deselect with '-m \"not e2e\"')",
 ]
