@@ -78,6 +78,8 @@ Acceptance:
 - Dimension extraction (rank limit/channel/status/region/segment) >40% interim.
 
 ## 6. Hierarchical Multi-Pass (Phase 1)
+**Status**: Implemented (`classification/hierarchy.py`, enabled via `USE_HIER_PASSES=true`)
+
 Design:
 - Pass 1 (Subject + Intent): restrict output to taxonomy subject list.
 - Pass 2 (Measure): allowed list = measures of chosen subject.

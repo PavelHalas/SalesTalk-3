@@ -6,4 +6,5 @@ __all__ = [
 	"dimension_extractor",
 	"json_parser",
 	"config_loader",
+	"hierarchy",
 ]

@@ -187,6 +187,13 @@ class BedrockAdapter(AIAdapter):
                 tenant_id=tenant_id
             )
 
+            classification = _apply_phase_1_hierarchy(
+                question=question,
+                classification=classification,
+                tenant_id=tenant_id,
+                request_id=request_id,
+            )
+
             # Optional TRM-inspired self-repair pass to fix common misses (dimension/time/subject-family)
             if _should_self_repair():
                 classification = self._recursive_repair(
@@ -292,9 +299,9 @@ class BedrockAdapter(AIAdapter):
             )
             raise AIProviderError(f"Bedrock narrative generation failed: {e}")
     
-    def _build_classification_prompt(self, question: str) -> str:
-          """Build classification prompt for Bedrock (improved separation of subject vs measure)."""
-          return f"""You are a strict business-intelligence classifier. Produce ONLY a JSON object.
+        def _build_classification_prompt(self, question: str) -> str:
+            """Build classification prompt for Bedrock (improved separation of subject vs measure + clearer intents and new dimensions)."""
+            return f"""You are a strict business-intelligence classifier. Produce ONLY a JSON object.
 
 Question: {question}
 
@@ -302,12 +309,13 @@ Question: {question}
     Intent cues (default to what unless explicit cues for others):
     - what: what|how many|how much|show|list (no words about trend/next/forecast)
     - compare: vs|versus|compare|than
-    - breakdown: by <dimension> (by region/segment/product/channel/status)
+    - breakdown: by <dimension> (by region/segment/product/channel/status/product line)
     - rank: top|bottom|best|worst|highest|lowest|top N|bottom N
     - trend: trend|trending|increase|decrease|over time (must mention trend/time behavior)
     - anomaly: spike|drop|outlier|unusual|sudden
     - target: on track|target|goal|hit|miss|ahead|behind
     - forecast: will|projected|expected next|next quarter/month/year (future terms required)
+    - correlation: correlate|correlation|impact|affect|related to
 
 2) subject: the BUSINESS ENTITY (lowercase, singular). MUST be one of:
     [revenue, margin, profit, customers, orders, sales, marketing, products, regions, segments, reps, productLines, timePeriods]
@@ -331,13 +339,16 @@ Question: {question}
         MUST map common adjectives to keys:
             - active/inactive → {{"status":"active|inactive"}}
             - online/offline/email/web/mobile → {{"channel":"online|offline|email|web|mobile"}}
+    For correlation intent, include the other metric as {{"related_metric":"<metric>"}} when stated (e.g., "correlate with ad spend").
+    For product lines, use {{"productLine":"Software|Hardware|Services|Platform"}}.
+    For weekday/weekend comparisons, use {{"timeOfWeek":"weekday|weekend"}}.
         Examples: {{"segment":"Enterprise"}}, {{"region":"EMEA"}}, {{"channel":"email"}}, {{"status":"active"}}, {{"limit":5,"direction":"top"}}
 
 5) time: ALWAYS include BOTH period and granularity if any time is mentioned. Use these CANONICAL tokens:
     period: [today, yesterday, this_week, last_week, this_month, last_month, this_quarter, last_quarter, this_year, last_year, Q1, Q2, Q3, Q4]
     window: [ytd, qtd, mtd, l3m, l6m, l12m]  (use when phrases like "year-to-date", "YTD", "last 12 months" appear)
     granularity: [day, week, month, quarter, year]
-    examples: {{"period":"Q3","granularity":"quarter"}}, {{"period":"last_month","granularity":"month"}}, {{"period":"this_quarter","granularity":"quarter"}}, {{"window":"ytd","granularity":"month"}}, {{"window":"l12m","granularity":"month"}}
+    examples: {{"period":"Q3","granularity":"quarter"}}, {{"period":"last_month","granularity":"month"}}, {{"period":"this_quarter","granularity":"quarter"}}, {{"window":"ytd","granularity":"month"}}, {{"window":"l12m","granularity":"month"}}, {{"window":"l6m","granularity":"month"}}, {{"window":"l8q","granularity":"quarter"}}
     Do NOT output free text like "this month"; always use snake_case canonical tokens.
 
 Disambiguation (RIGHT vs WRONG):
@@ -353,6 +364,10 @@ Disambiguation (RIGHT vs WRONG):
  - RIGHT: "How many active customers" → dimension={{"status":"active"}}
  - RIGHT: "online sales" → dimension={{"channel":"online"}}
  - RIGHT: "year to date" → time={{"window":"ytd","granularity":"month"}}
+ - RIGHT: "last 6 months" → time={{"window":"l6m","granularity":"month"}}
+ - RIGHT: "over last 8 quarters" → time={{"window":"l8q","granularity":"quarter"}}
+ - RIGHT: "correlate conversion rate with ad spend" → intent=correlation, dimension={{"related_metric":"ad_spend"}}
+ - RIGHT: "compare by product line" → intent=breakdown, dimension may include breakdown fields but JSON stays in the fixed schema
 
 ALWAYS include ALL keys below (even if dimension/time are empty). Return ONLY this JSON structure (no prose):
 {{
@@ -664,6 +679,12 @@ class OllamaAdapter(AIAdapter):
                 request_id=request_id,
                 tenant_id=tenant_id
             )
+            classification = _apply_phase_1_hierarchy(
+                question=question,
+                classification=classification,
+                tenant_id=tenant_id,
+                request_id=request_id,
+            )
 
             # Optional TRM-inspired self-repair pass
             if _should_self_repair():
@@ -774,7 +795,7 @@ class OllamaAdapter(AIAdapter):
             raise AIProviderError(f"Ollama narrative generation failed: {e}")
     
     def _build_classification_prompt(self, question: str) -> str:
-        """Build classification prompt for Ollama (improved separation of subject vs measure)."""
+        """Build classification prompt for Ollama (clearer intents + new dimensions)."""
         return f"""You are a strict business-intelligence classifier. Produce ONLY a JSON object.
 
 Question: {question}
@@ -783,12 +804,13 @@ Question: {question}
     Intent cues (default to what unless explicit cues for others):
     - what: what|how many|how much|show|list (no words about trend/next/forecast)
     - compare: vs|versus|compare|than
-    - breakdown: by <dimension> (by region/segment/product/channel/status)
+    - breakdown: by <dimension> (by region/segment/product/channel/status/product line)
     - rank: top|bottom|best|worst|highest|lowest|top N|bottom N
     - trend: trend|trending|increase|decrease|over time (must mention trend/time behavior)
     - anomaly: spike|drop|outlier|unusual|sudden
     - target: on track|target|goal|hit|miss|ahead|behind
     - forecast: will|projected|expected next|next quarter/month/year (future terms required)
+    - correlation: correlate|correlation|impact|affect|related to
 
 2) subject: the BUSINESS ENTITY (lowercase, singular). MUST be one of:
     [revenue, margin, profit, customers, orders, sales, marketing, products, regions, segments, reps, productLines, timePeriods]
@@ -812,13 +834,16 @@ Question: {question}
         MUST map common adjectives to keys:
             - active/inactive → {{"status":"active|inactive"}}
             - online/offline/email/web/mobile → {{"channel":"online|offline|email|web|mobile"}}
+    For correlation intent, include the other metric as {{"related_metric":"<metric>"}} when stated (e.g., "correlate with ad spend").
+    For product lines, use {{"productLine":"Software|Hardware|Services|Platform"}}.
+    For weekday/weekend comparisons, use {{"timeOfWeek":"weekday|weekend"}}.
         Examples: {{"segment":"Enterprise"}}, {{"region":"EMEA"}}, {{"channel":"email"}}, {{"status":"active"}}, {{"limit":5,"direction":"top"}}
 
 5) time: ALWAYS include BOTH period and granularity if any time is mentioned. Use these CANONICAL tokens:
     period: [today, yesterday, this_week, last_week, this_month, last_month, this_quarter, last_quarter, this_year, last_year, Q1, Q2, Q3, Q4]
     window: [ytd, qtd, mtd, l3m, l6m, l12m]  (use when phrases like "year-to-date", "YTD", "last 12 months" appear)
     granularity: [day, week, month, quarter, year]
-    examples: {{"period":"Q3","granularity":"quarter"}}, {{"period":"last_month","granularity":"month"}}, {{"period":"this_quarter","granularity":"quarter"}}, {{"window":"ytd","granularity":"month"}}, {{"window":"l12m","granularity":"month"}}
+    examples: {{"period":"Q3","granularity":"quarter"}}, {{"period":"last_month","granularity":"month"}}, {{"period":"this_quarter","granularity":"quarter"}}, {{"window":"ytd","granularity":"month"}}, {{"window":"l12m","granularity":"month"}}, {{"window":"l6m","granularity":"month"}}, {{"window":"l8q","granularity":"quarter"}}
     Do NOT output free text like "this month"; always use snake_case canonical tokens.
 
 Disambiguation (RIGHT vs WRONG):
@@ -833,6 +858,10 @@ Disambiguation (RIGHT vs WRONG):
  - RIGHT: "How many active customers" → dimension={{"status":"active"}}
  - RIGHT: "online sales" → dimension={{"channel":"online"}}
  - RIGHT: "year to date" → time={{"window":"ytd","granularity":"month"}}
+ - RIGHT: "last 6 months" → time={{"window":"l6m","granularity":"month"}}
+ - RIGHT: "over last 8 quarters" → time={{"window":"l8q","granularity":"quarter"}}
+ - RIGHT: "correlate conversion rate with ad spend" → intent=correlation, dimension={{"related_metric":"ad_spend"}}
+ - RIGHT: "compare by product line" → intent=breakdown, dimension may include breakdown fields but JSON stays in the fixed schema
 
 ALWAYS include ALL keys below (even if dimension/time are empty). Return ONLY this JSON structure (no prose):
 {{
@@ -1098,6 +1127,62 @@ def _self_repair_steps() -> int:
         return 1
 
 
+def _should_use_hierarchical_passes() -> bool:
+    return os.getenv("USE_HIER_PASSES", "false").lower() in {"1", "true", "yes"}
+
+
+def _apply_phase_1_hierarchy(
+    question: str,
+    classification: Dict[str, Any],
+    tenant_id: str,
+    request_id: str,
+) -> Dict[str, Any]:
+    if not _should_use_hierarchical_passes():
+        return classification
+
+    try:
+        hierarchy_module = __import__(
+            "classification.hierarchy",
+            fromlist=["PhaseOneClassificationError", "run_hierarchical_pipeline"],
+        )
+        run_hierarchical_pipeline = getattr(hierarchy_module, "run_hierarchical_pipeline")
+        phase_one_error = getattr(hierarchy_module, "PhaseOneClassificationError")
+    except ImportError:
+        logger.warning("Phase 1 hierarchy module not available; skipping")
+        return classification
+
+    try:
+        updated = run_hierarchical_pipeline(question, classification)
+        logger.info(
+            "Phase 1 hierarchical passes applied",
+            extra={
+                "tenant_id": tenant_id,
+                "request_id": request_id,
+                "phase1_status": updated.get("metadata", {}).get("phase1", {}).get("status"),
+            },
+        )
+        return updated
+    except phase_one_error as exc:  # type: ignore[misc]
+        refused = dict(classification)
+        refused["refused"] = True
+        refused["refusal_reason"] = str(exc)
+        metadata = refused.setdefault("metadata", {})
+        phase_meta = metadata.setdefault("phase1", {})
+        phase_meta["status"] = "error"
+        phase_meta["error"] = str(exc)
+        logger.warning(
+            "Phase 1 hierarchical pass failed; refusing classification",
+            extra={"tenant_id": tenant_id, "request_id": request_id, "error": str(exc)},
+        )
+        return refused
+    except Exception as exc:
+        logger.warning(
+            "Phase 1 hierarchy pipeline errored; ignoring",
+            extra={"tenant_id": tenant_id, "request_id": request_id, "error": str(exc)},
+        )
+        return classification
+
+
 def _detect_issues(question: str, classification: Dict[str, Any]) -> List[str]:
     """Lightweight heuristics to trigger repair for known problem patterns."""
     q = (question or "").lower()
@@ -1105,8 +1190,10 @@ def _detect_issues(question: str, classification: Dict[str, Any]) -> List[str]:
 
     subject = classification.get("subject", "")
     measure = classification.get("measure", "")
-    dimension = classification.get("dimension", {}) or {}
-    time = classification.get("time", {}) or {}
+    dimension_data = classification.get("dimension")
+    dimension = dimension_data if isinstance(dimension_data, dict) else {}
+    time_data = classification.get("time")
+    time = time_data if isinstance(time_data, dict) else {}
 
     # Dimension cues
     if ("active" in q or "inactive" in q) and "status" not in dimension:

@@ -88,33 +88,51 @@ def extract_time_tokens(question: str, existing_time: Optional[Dict[str, Any]] =
     # Start with existing time if provided
     time_obj = dict(existing_time) if existing_time else {}
     
-    # If already has both window/period and granularity, return as-is
-    if time_obj.get("granularity") and (time_obj.get("window") or time_obj.get("period")):
-        return time_obj
-    
     q = question.lower()
-    
-    # Apply phrase patterns in order
+
+    # Detect candidates without early stopping to allow precedence logic
+    detected: Dict[str, Any] = {}
     for pattern in TIME_PHRASE_PATTERNS:
         if isinstance(pattern, tuple) and len(pattern) == 2:
             regex, time_dict = pattern
             match = regex.search(q)
             if match:
-                # Handle callable time_dict (for dynamic patterns)
-                if callable(time_dict):
-                    extracted = time_dict(match)
-                else:
-                    extracted = time_dict
-                
-                # Merge with existing, preferring pattern match if conflict
-                for key, value in extracted.items():
-                    if key not in time_obj or not time_obj[key]:
-                        time_obj[key] = value
-                
-                # If we now have complete time info, stop
-                if time_obj.get("granularity") and (time_obj.get("window") or time_obj.get("period")):
-                    break
-    
+                curr = time_dict(match) if callable(time_dict) else dict(time_dict)
+                # Prefer most specific (windows override periods later)
+                # Accumulate latest detection; last match wins for same key
+                for k, v in curr.items():
+                    detected[k] = v
+
+    # Precedence: window > period when both present or when existing has period but query conveys a window
+    window = detected.get("window")
+    period = detected.get("period")
+    gran = detected.get("granularity")
+
+    # If query indicates a window and existing has only period, switch to window
+    if window:
+        time_obj["window"] = window
+        # Drop period to avoid conflicts
+        if "period" in time_obj:
+            time_obj.pop("period", None)
+        # Ensure granularity present
+        if gran:
+            time_obj["granularity"] = gran
+        elif not time_obj.get("granularity"):
+            # Default granularities for windows
+            if window in {"l30d", "l90d"}:
+                time_obj["granularity"] = "day"
+            elif window in {"l8q"}:
+                time_obj["granularity"] = "quarter"
+            else:
+                time_obj["granularity"] = "month"
+        return time_obj
+
+    # If no window, consider period detection and fill missing pieces
+    if period and not time_obj.get("period"):
+        time_obj["period"] = period
+    if gran and not time_obj.get("granularity"):
+        time_obj["granularity"] = gran
+
     return time_obj
 
 

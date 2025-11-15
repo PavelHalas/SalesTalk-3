@@ -107,6 +107,28 @@ class TestDimensionExtraction:
         
         assert result["status"] == "churned"
 
+    def test_related_metric_extraction(self):
+        """Extract related_metric for correlation phrasing."""
+        question = "Is conversion rate correlated with ad spend?"
+        result, extractions = extract_dimensions(question)
+
+        assert result.get("related_metric") == "ad_spend"
+        assert any("related_metric" in e for e in extractions)
+
+    def test_product_line_detection(self):
+        """Detect product line mentions using taxonomy values."""
+        question = "Show pipeline value trend for Software product line"
+        result, extractions = extract_dimensions(question)
+
+        assert result.get("productLine") == "Software"
+
+    def test_time_of_week_detection(self):
+        """Detect weekday/weekend dimension."""
+        question = "Compare average order value weekends vs weekdays"
+        result, extractions = extract_dimensions(question)
+
+        assert result.get("timeOfWeek") in {"weekday", "weekend"}
+
 
 class TestDimensionValidation:
     """Tests for dimension validation."""

@@ -32,7 +32,41 @@
     "trial",
     "paying"
   ],
+  "timeOfWeek": [
+    "weekday",
+    "weekend"
+  ],
+  "productLines": [
+    "Software",
+    "Hardware",
+    "Services",
+    "Platform"
+  ],
+  "related_metrics": [
+    "ad_spend",
+    "discount_rate",
+    "nps",
+    "cac",
+    "page_load_time",
+    "seasonality_index",
+    "email_frequency",
+    "sales_headcount",
+    "product_rating",
+    "demo_completion_rate"
+  ],
   "rank": {
     "max_limit": 1000
+  },
+  "passthrough_keys": [
+    "breakdown_by"
+  ],
+  "dimension_keys": {
+    "regions": "region",
+    "segments": "segment",
+    "channels": "channel",
+    "status": "status",
+    "timeOfWeek": "timeOfWeek",
+    "productLines": "productLine",
+    "related_metrics": "related_metric"
   }
 }

@@ -10,13 +10,19 @@ from __future__ import annotations
 
 from copy import deepcopy
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional, Tuple, cast
+from typing import Any, Dict, List, Optional, Tuple, Union, cast
 
 from classification.config_loader import get_classification_config
 
 
 class PhaseOneClassificationError(RuntimeError):
     """Raised when the hierarchical pipeline cannot produce a valid result."""
+
+
+@dataclass(frozen=True)
+class _DynamicPeriodRule:
+    prefix: str
+    style: str = "canonical"
 
 
 @dataclass
@@ -30,10 +36,12 @@ class _PipelineState:
     time_config: Dict[str, Any]
     subject_alias_map: Dict[str, str]
     dimension_value_maps: Dict[str, Dict[str, str]]
+    dimension_passthrough_keys: List[str]
     time_period_map: Dict[str, str]
     time_window_map: Dict[str, str]
     time_granularity_map: Dict[str, str]
-    dynamic_period_prefixes: List[str]
+    dynamic_period_rules: List[_DynamicPeriodRule]
+    time_passthrough_keys: List[str]
 
     @classmethod
     def from_taxonomy(cls, taxonomy: Dict[str, Any]) -> "_PipelineState":
@@ -49,17 +57,40 @@ class _PipelineState:
             for alias in payload.get("meta", {}).get("aliases", []):
                 subject_alias_map[alias.lower()] = slug
 
-        dimension_value_maps: Dict[str, Dict[str, str]] = {
-            "region": _build_lookup(dimensions.get("regions", [])),
-            "segment": _build_lookup(dimensions.get("segments", [])),
-            "channel": _build_lookup(dimensions.get("channels", [])),
-            "status": _build_lookup(dimensions.get("status", [])),
+        base_dimension_key_map = {
+            "regions": "region",
+            "segments": "segment",
+            "channels": "channel",
+            "status": "status",
         }
+        base_dimension_key_map.update(dimensions.get("dimension_keys", {}))
+
+        dimension_value_maps: Dict[str, Dict[str, str]] = {}
+        for config_key, values in dimensions.items():
+            if config_key in {"rank", "dimension_keys", "passthrough_keys"}:
+                continue
+            if not isinstance(values, list):
+                continue
+            dim_key = str(base_dimension_key_map.get(config_key, config_key)).strip()
+            if not dim_key:
+                continue
+            dimension_value_maps[dim_key] = _build_lookup(values)
+
+        dimension_passthrough_keys: List[str] = [
+            str(key)
+            for key in dimensions.get("passthrough_keys", [])
+            if isinstance(key, str) and key
+        ]
 
         time_period_map = _build_lookup(time_config.get("periods", []))
         time_window_map = _build_lookup(time_config.get("windows", []))
         time_granularity_map = _build_lookup(time_config.get("granularity", []))
-        dynamic_prefixes = [p.lower() for p in time_config.get("dynamic_period_prefixes", [])]
+        dynamic_rules = _parse_dynamic_period_rules(time_config.get("dynamic_period_prefixes", []))
+        time_passthrough_keys: List[str] = [
+            str(key)
+            for key in time_config.get("passthrough_keys", [])
+            if isinstance(key, str) and key
+        ]
 
         return cls(
             subjects=subjects,
@@ -69,10 +100,12 @@ class _PipelineState:
             time_config=time_config,
             subject_alias_map=subject_alias_map,
             dimension_value_maps=dimension_value_maps,
+            dimension_passthrough_keys=dimension_passthrough_keys,
             time_period_map=time_period_map,
             time_window_map=time_window_map,
             time_granularity_map=time_granularity_map,
-            dynamic_period_prefixes=dynamic_prefixes,
+            dynamic_period_rules=dynamic_rules,
+            time_passthrough_keys=time_passthrough_keys,
         )
 
     def resolve_subject_slug(self, raw_subject: Optional[str]) -> Optional[str]:
@@ -221,13 +254,27 @@ def _context_pass(
         value = dimension.get(dim_key)
         if not value:
             continue
-        canonical = _canonical_from_lookup(lookup, value)
+        canonical = _canonical_dimension_value(lookup, value)
         if canonical:
             sanitized_dimension[dim_key] = canonical
             if canonical != value:
                 corrections.append(f"phase1.dimension_value_canonicalized:{dim_key}={value}->{canonical}")
         else:
             corrections.append(f"phase1.dimension_value_dropped:{dim_key}={value}")
+
+    for passthrough_key in state.dimension_passthrough_keys:
+        value = dimension.get(passthrough_key)
+        if value is None:
+            continue
+        sanitized_value = _sanitize_passthrough_dimension_list(value)
+        if sanitized_value:
+            sanitized_dimension[passthrough_key] = sanitized_value
+            if sanitized_value != value:
+                corrections.append(
+                    f"phase1.dimension_passthrough_canonicalized:{passthrough_key}={value}->{sanitized_value}"
+                )
+        elif value:
+            corrections.append(f"phase1.dimension_passthrough_dropped:{passthrough_key}={value}")
 
     rank_cfg = state.dimensions.get("rank", {})
     max_limit = int(rank_cfg.get("max_limit", 1000))
@@ -260,7 +307,7 @@ def _context_pass(
     sanitized_time: Dict[str, Any] = {}
 
     period = time_payload.get("period")
-    canonical_period = _canonical_time_token(period, state.time_period_map, state.dynamic_period_prefixes)
+    canonical_period = _canonical_time_token(period, state.time_period_map, state.dynamic_period_rules)
     if canonical_period:
         sanitized_time["period"] = canonical_period
         if canonical_period != period:
@@ -278,13 +325,38 @@ def _context_pass(
         corrections.append(f"phase1.time_window_dropped:{window}")
 
     granularity = time_payload.get("granularity")
-    canonical_granularity = _canonical_time_token(granularity, state.time_granularity_map, [])
+    canonical_granularity = _canonical_time_token(
+        granularity,
+        state.time_granularity_map,
+        [],
+        allow_plural_trim=True,
+    )
     if canonical_granularity:
         sanitized_time["granularity"] = canonical_granularity
         if canonical_granularity != granularity:
             corrections.append(f"phase1.time_granularity_canonicalized:{granularity}->{canonical_granularity}")
     elif granularity:
         corrections.append(f"phase1.time_granularity_dropped:{granularity}")
+
+    periods_list = time_payload.get("periods")
+    canonical_periods, periods_changed = _canonical_period_list(periods_list, state)
+    if canonical_periods:
+        sanitized_time["periods"] = canonical_periods
+        if periods_changed:
+            corrections.append(f"phase1.time_periods_canonicalized:{periods_list}->{canonical_periods}")
+    elif periods_list:
+        corrections.append(f"phase1.time_periods_dropped:{periods_list}")
+
+    for passthrough_key in state.time_passthrough_keys:
+        if passthrough_key == "periods":
+            continue
+        value = time_payload.get(passthrough_key)
+        if value is None:
+            continue
+        if isinstance(value, (str, int, float)):
+            sanitized_time[passthrough_key] = value
+        else:
+            corrections.append(f"phase1.time_passthrough_dropped:{passthrough_key}={value}")
 
     payload["time"] = sanitized_time
 
@@ -298,17 +370,75 @@ def _build_lookup(values: List[str]) -> Dict[str, str]:
     return lookup
 
 
-def _canonical_from_lookup(lookup: Dict[str, str], raw_value: Any) -> Optional[str]:
+def _canonical_dimension_value(lookup: Dict[str, str], raw_value: Any) -> Optional[Union[str, List[str]]]:
     if raw_value is None:
         return None
+    if isinstance(raw_value, list):
+        canonical_list: List[str] = []
+        changed = False
+        for entry in raw_value:
+            canonical_entry = lookup.get(_normalize_token(str(entry)))
+            if canonical_entry:
+                canonical_list.append(canonical_entry)
+                if canonical_entry != entry:
+                    changed = True
+            else:
+                changed = True
+        if canonical_list:
+            return canonical_list if changed or len(canonical_list) != len(raw_value) else raw_value
+        return None
+
     canonical = lookup.get(_normalize_token(str(raw_value)))
     return canonical
+
+
+def _sanitize_passthrough_dimension_list(value: Any) -> Optional[List[str]]:
+    items: List[str] = []
+    if isinstance(value, list):
+        source = value
+    elif isinstance(value, str):
+        source = [value]
+    else:
+        return None
+
+    for entry in source:
+        if not isinstance(entry, str):
+            continue
+        token = entry.strip()
+        if token:
+            items.append(token)
+
+    return items or None
+
+
+def _canonical_period_list(
+    value: Any,
+    state: _PipelineState,
+) -> Tuple[Optional[List[str]], bool]:
+    if value is None:
+        return None, False
+    if not isinstance(value, list):
+        return None, True
+    canonical_values: List[str] = []
+    changed = False
+    for entry in value:
+        canonical_entry = _canonical_time_token(entry, state.time_period_map, state.dynamic_period_rules)
+        if canonical_entry:
+            canonical_values.append(canonical_entry)
+            if canonical_entry != entry:
+                changed = True
+        else:
+            changed = True
+    if not canonical_values:
+        return None, True
+    return canonical_values, changed
 
 
 def _canonical_time_token(
     raw_value: Optional[str],
     lookup: Dict[str, str],
-    dynamic_prefixes: List[str],
+    dynamic_rules: List[_DynamicPeriodRule],
+    allow_plural_trim: bool = False,
 ) -> Optional[str]:
     if not raw_value:
         return None
@@ -316,10 +446,92 @@ def _canonical_time_token(
     canonical = lookup.get(normalized)
     if canonical:
         return canonical
-    for prefix in dynamic_prefixes:
+    if allow_plural_trim and normalized.endswith("s"):
+        canonical = lookup.get(normalized[:-1])
+        if canonical:
+            return canonical
+    for rule in dynamic_rules:
+        prefix = rule.prefix
         if normalized.startswith(prefix):
-            return f"{prefix}{normalized[len(prefix):]}"
+            suffix = normalized[len(prefix) :]
+            formatted = _format_dynamic_period(rule, suffix)
+            if formatted:
+                return formatted
+    quarter_with_year = _maybe_format_quarter_year(normalized)
+    if quarter_with_year:
+        return quarter_with_year
     return None
+
+
+def _parse_dynamic_period_rules(entries: Any) -> List[_DynamicPeriodRule]:
+    rules: List[_DynamicPeriodRule] = []
+    if not isinstance(entries, list):
+        return rules
+    for entry in entries:
+        if isinstance(entry, str):
+            rules.append(_DynamicPeriodRule(prefix=entry.lower(), style="canonical"))
+            continue
+        if isinstance(entry, dict):
+            prefix = entry.get("prefix")
+            if not prefix:
+                continue
+            style = str(entry.get("style", "canonical")).lower()
+            rules.append(_DynamicPeriodRule(prefix=str(prefix).lower(), style=style))
+    return rules
+
+
+def _format_dynamic_period(rule: _DynamicPeriodRule, suffix: str) -> Optional[str]:
+    if rule.style == "canonical":
+        return f"{rule.prefix}{suffix}"
+
+    trimmed_suffix = suffix.lstrip("_")
+    if rule.style == "upper":
+        label = rule.prefix.rstrip("_").upper()
+        suffix_label = _format_dynamic_suffix(trimmed_suffix, mode="upper")
+        return f"{label} {suffix_label}".strip()
+    if rule.style == "title":
+        label = _title_case_prefix(rule.prefix)
+        suffix_label = _format_dynamic_suffix(trimmed_suffix, mode="title")
+        return f"{label} {suffix_label}".strip()
+    return f"{rule.prefix}{suffix}"
+
+
+def _format_dynamic_suffix(value: str, mode: str) -> str:
+    if not value:
+        return ""
+    tokens = value.split("_")
+    formatted_tokens: List[str] = []
+    for token in tokens:
+        if not token:
+            continue
+        if token.isdigit():
+            formatted_tokens.append(token)
+        elif mode == "upper":
+            formatted_tokens.append(token.upper())
+        elif mode == "title":
+            formatted_tokens.append(token.title())
+        else:
+            formatted_tokens.append(token)
+    return " ".join(formatted_tokens)
+
+
+def _title_case_prefix(prefix: str) -> str:
+    tokens = prefix.rstrip("_").split("_")
+    return " ".join(token.title() for token in tokens if token)
+
+
+def _maybe_format_quarter_year(normalized: str) -> Optional[str]:
+    if "_" not in normalized:
+        return None
+    quarter, suffix = normalized.split("_", 1)
+    if len(quarter) != 2 or not quarter.startswith("q"):
+        return None
+    quarter_num = quarter[1]
+    if quarter_num not in {"1", "2", "3", "4"}:
+        return None
+    if not suffix.isdigit() or len(suffix) != 4:
+        return None
+    return f"Q{quarter_num} {suffix}"
 
 
 def _normalize_token(value: str) -> str:

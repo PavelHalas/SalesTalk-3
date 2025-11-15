@@ -1,6 +1,11 @@
+import os
+import sys
+
 import pytest
 
-from classification.hierarchy import (
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../../src"))
+
+from classification.hierarchy import (  # noqa: E402
     PhaseOneClassificationError,
     run_hierarchical_pipeline,
 )
@@ -75,3 +80,56 @@ def test_unknown_metric_raises():
 
     with pytest.raises(PhaseOneClassificationError):
         run_hierarchical_pipeline("Unknown metric", classification)
+
+
+def test_product_line_and_related_metric_dimension_preserved():
+    classification = _base_classification(
+        dimension={
+            "productLine": ["hardware", "Software"],
+            "related_metric": "page_load_time",
+        }
+    )
+
+    result = run_hierarchical_pipeline("Compare product lines", classification)
+
+    assert result["dimension"]["productLine"] == ["Hardware", "Software"]
+    assert result["dimension"]["related_metric"] == "page_load_time"
+    corrections = result["metadata"].get("corrections_applied", [])
+    assert any(c.startswith("phase1.dimension_value_canonicalized:productLine") for c in corrections)
+
+
+def test_breakdown_by_passthrough_and_time_periods_preserved():
+    classification = _base_classification(
+        dimension={"breakdown_by": ["productLine", "region", ""]},
+        time={"periods": ["Q3", "Q4"], "comparison": "sequential"},
+    )
+
+    result = run_hierarchical_pipeline("Compare periods", classification)
+
+    assert result["dimension"]["breakdown_by"] == ["productLine", "region"]
+    assert result["time"]["periods"] == ["Q3", "Q4"]
+    assert result["time"]["comparison"] == "sequential"
+
+
+@pytest.mark.parametrize(
+    "raw_period,expected",
+    [
+        ("black friday 2025", "Black Friday 2025"),
+        ("eoy_2025", "EOY 2025"),
+        ("q1 2026", "Q1 2026"),
+    ],
+)
+def test_dynamic_period_formatting(raw_period, expected):
+    classification = _base_classification(time={"period": raw_period})
+
+    result = run_hierarchical_pipeline("Event period question", classification)
+
+    assert result["time"]["period"] == expected
+
+
+def test_time_of_week_dimension_list_canonicalized():
+    classification = _base_classification(dimension={"timeOfWeek": ["Weekend", "weekday"]})
+
+    result = run_hierarchical_pipeline("Weekend vs weekday", classification)
+
+    assert result["dimension"]["timeOfWeek"] == ["weekend", "weekday"]

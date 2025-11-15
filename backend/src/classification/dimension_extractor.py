@@ -32,6 +32,10 @@ def _build_lookup(values: List[str], transform=None) -> Dict[str, str]:
         if "-" in value:
             variant = value.replace("-", " ").lower()
             lookup.setdefault(variant, canonical)
+        # Allow underscore vs space variants automatically
+        if "_" in value:
+            variant2 = value.replace("_", " ").lower()
+            lookup.setdefault(variant2, canonical)
     return lookup
 
 
@@ -41,11 +45,22 @@ REGION_LOOKUP = _build_lookup(DIM_CONFIG.get("regions", []), lambda val: val.upp
 SEGMENT_LOOKUP = _build_lookup(DIM_CONFIG.get("segments", []))
 CHANNEL_LOOKUP = _build_lookup(DIM_CONFIG.get("channels", []), lambda val: val.lower())
 STATUS_LOOKUP = _build_lookup(DIM_CONFIG.get("status", []), lambda val: val.lower())
+TIME_OF_WEEK_LOOKUP = _build_lookup(DIM_CONFIG.get("timeOfWeek", []), lambda val: val.lower())
+PRODUCT_LINE_LOOKUP = _build_lookup(DIM_CONFIG.get("productLines", []), lambda val: val)
+RELATED_METRIC_LOOKUP = _build_lookup(DIM_CONFIG.get("related_metrics", []), lambda val: val)
 
 REGION_CANONICAL_VALUES = set(REGION_LOOKUP.values())
 SEGMENT_CANONICAL_VALUES = set(SEGMENT_LOOKUP.values())
 CHANNEL_CANONICAL_VALUES = set(CHANNEL_LOOKUP.values())
 STATUS_CANONICAL_VALUES = set(STATUS_LOOKUP.values())
+TIME_OF_WEEK_CANONICAL_VALUES = set(TIME_OF_WEEK_LOOKUP.values())
+PRODUCT_LINE_CANONICAL_VALUES = set(PRODUCT_LINE_LOOKUP.values())
+RELATED_METRIC_CANONICAL_VALUES = set(RELATED_METRIC_LOOKUP.values())
+
+# Backwards-compatible exports consumed by existing tests
+KNOWN_REGIONS = sorted(REGION_CANONICAL_VALUES)
+KNOWN_CHANNELS = sorted(CHANNEL_CANONICAL_VALUES)
+KNOWN_STATUS = sorted(STATUS_CANONICAL_VALUES)
 
 if not REGION_LOOKUP or not SEGMENT_LOOKUP or not CHANNEL_LOOKUP or not STATUS_LOOKUP:
     raise ClassificationConfigError("Incomplete dimension configuration; ensure regions, segments, channels, and status are defined")
@@ -54,6 +69,9 @@ REGION_PATTERN = _choice_pattern(list(REGION_LOOKUP.keys()))
 SEGMENT_PATTERN = _choice_pattern(list(SEGMENT_LOOKUP.keys()))
 CHANNEL_PATTERN = _choice_pattern(list(CHANNEL_LOOKUP.keys()))
 STATUS_PATTERN = _choice_pattern(list(STATUS_LOOKUP.keys()))
+TIME_OF_WEEK_PATTERN = _choice_pattern(list(TIME_OF_WEEK_LOOKUP.keys())) if TIME_OF_WEEK_LOOKUP else r""
+PRODUCT_LINE_PATTERN = _choice_pattern(list(PRODUCT_LINE_LOOKUP.keys())) if PRODUCT_LINE_LOOKUP else r""
+RELATED_METRIC_PATTERN = _choice_pattern(list(RELATED_METRIC_LOOKUP.keys())) if RELATED_METRIC_LOOKUP else r""
 
 MAX_RANK_LIMIT = int(DIM_CONFIG.get("rank", {}).get("max_limit", 1000))
 
@@ -85,9 +103,29 @@ DIMENSION_PATTERNS = [
     (re.compile(rf'\b(customers?|users?|accounts?)\s+(who\s+are\s+)?({STATUS_PATTERN})\b', re.I),
      lambda m: {"status": STATUS_LOOKUP[m.group(3).lower()]}),
 
-    # Product line patterns (remain regex-based; canonical output is lowercase)
-    (re.compile(r'\bproduct\s+line\s+["\']?(\w+)["\']?\b', re.I), lambda m: {"product_line": m.group(1).lower()}),
-    (re.compile(r'\bfor\s+["\']?(\w+\s+\w+)["\']?\s+product', re.I), lambda m: {"product_line": m.group(1).lower()}),
+    # Time-of-week patterns (weekday/weekend, allow optional plural "s")
+    (
+        re.compile(r"\b(weekday|weekend)s?\b", re.I),
+        lambda m: {"timeOfWeek": TIME_OF_WEEK_LOOKUP.get(m.group(1).lower(), m.group(1).lower())},
+    ),
+
+    # Product line patterns — prefer taxonomy-backed canonicalization
+    *([] if not PRODUCT_LINE_PATTERN else [
+        (re.compile(rf'\b(product\s+line|product\s+lines?)\s+(?:of\s+)?({PRODUCT_LINE_PATTERN})\b', re.I),
+         lambda m: {"productLine": PRODUCT_LINE_LOOKUP[m.group(2).lower()]}),
+        (re.compile(rf'\b({PRODUCT_LINE_PATTERN})\b\s+(?:product|product\s+line)', re.I),
+         lambda m: {"productLine": PRODUCT_LINE_LOOKUP[m.group(1).lower()]}),
+    ]),
+
+    # Related metric correlation phrasing
+    *([] if not RELATED_METRIC_PATTERN else [
+        (re.compile(rf'\bcorrelat(?:e|ion)\b.*?\b({RELATED_METRIC_PATTERN})\b', re.I),
+         lambda m: {"related_metric": RELATED_METRIC_LOOKUP[m.group(1).lower()]}),
+        (re.compile(rf'\bimpact(?:s)?\b.*?\b({RELATED_METRIC_PATTERN})\b', re.I),
+         lambda m: {"related_metric": RELATED_METRIC_LOOKUP[m.group(1).lower()]}),
+        (re.compile(rf'\b({RELATED_METRIC_PATTERN})\b\s+(?:vs|and|with)\b', re.I),
+         lambda m: {"related_metric": RELATED_METRIC_LOOKUP[m.group(1).lower()]}),
+    ]),
 ]
 
 
@@ -139,6 +177,24 @@ def extract_dimensions(question: str, existing_dimension: Optional[Dict[str, Any
                 canonical = CHANNEL_LOOKUP[channel_word]
                 dimension["channel"] = canonical
                 extractions.append(f"dimension_channel_extracted_heuristic:{canonical}")
+                break
+
+    # Heuristic for simple related metric mentions
+    if not dimension.get("related_metric") and RELATED_METRIC_LOOKUP:
+        for rm_word in RELATED_METRIC_LOOKUP.keys():
+            if re.search(rf'\b{re.escape(rm_word)}\b', q_lower):
+                canonical = RELATED_METRIC_LOOKUP[rm_word]
+                dimension["related_metric"] = canonical
+                extractions.append(f"dimension_related_metric_extracted_heuristic:{canonical}")
+                break
+
+    # Heuristic for product line single-token mentions
+    if not dimension.get("productLine") and PRODUCT_LINE_LOOKUP:
+        for pl_word in PRODUCT_LINE_LOOKUP.keys():
+            if re.search(rf'\b{re.escape(pl_word)}\b', q_lower):
+                canonical = PRODUCT_LINE_LOOKUP[pl_word]
+                dimension["productLine"] = canonical
+                extractions.append(f"dimension_productLine_extracted_heuristic:{canonical}")
                 break
     
     return dimension, extractions
@@ -197,5 +253,20 @@ def validate_dimensions(dimension: Dict[str, Any]) -> List[str]:
         status_value = str(dimension.get("status", "")).lower()
         if status_value not in STATUS_CANONICAL_VALUES:
             issues.append(f"unknown_status:{status_value}")
+
+    if "timeOfWeek" in dimension:
+        tow_value = str(dimension.get("timeOfWeek", "")).lower()
+        if tow_value not in TIME_OF_WEEK_CANONICAL_VALUES:
+            issues.append(f"unknown_timeOfWeek:{tow_value}")
+
+    if "productLine" in dimension:
+        pl_value = str(dimension.get("productLine", ""))
+        if pl_value not in PRODUCT_LINE_CANONICAL_VALUES:
+            issues.append(f"unknown_productLine:{pl_value}")
+
+    if "related_metric" in dimension:
+        rm_value = str(dimension.get("related_metric", ""))
+        if rm_value not in RELATED_METRIC_CANONICAL_VALUES:
+            issues.append(f"unknown_related_metric:{rm_value}")
     
     return issues

@@ -2,6 +2,7 @@
   "periods": [
     "today",
     "yesterday",
+    "current",
     "this_week",
     "last_week",
     "this_month",
@@ -13,6 +14,21 @@
     "this_year",
     "last_year",
     "next_year",
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+    "Black Friday 2025",
+    "EOY 2025",
+    "Q1 2026",
     "Q1",
     "Q2",
     "Q3",
@@ -36,8 +52,19 @@
     "quarter",
     "year"
   ],
+  "passthrough_keys": [
+    "comparison",
+    "periods"
+  ],
   "dynamic_period_prefixes": [
     "holiday_",
-    "eoy_"
+    {
+      "prefix": "eoy_",
+      "style": "upper"
+    },
+    {
+      "prefix": "black_friday_",
+      "style": "title"
+    }
   ]
 }

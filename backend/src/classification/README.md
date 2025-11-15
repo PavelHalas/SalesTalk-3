@@ -157,6 +157,20 @@ Phase 0 establishes the baseline hardening layer. Proceed to:
 - **Phase 2**: Retrieval exemplars (RAG-based improvements)
 - **Phase 3**: Synthetic data + active learning
 
+## Phase 1: Hierarchical Multi-Pass
+
+**Status**: ✅ Available behind `USE_HIER_PASSES=true`
+
+Phase 1 lives in `classification/hierarchy.py` and adds a deterministic multi-pass sanitizer that runs immediately after Phase 0:
+
+1. **Pass 1 — Subject + Intent**: Restricts the subject to taxonomy-defined entities (including aliases) and snaps the intent to the per-subject allow list.
+2. **Pass 2 — Measure**: Resolves metric aliases, enforces that the metric belongs to the selected subject, and reassigns the subject when the metric family disagrees.
+3. **Pass 3 — Context (Dimension + Time)**: Drops out-of-vocabulary dimension values, canonicalizes valid tokens, caps rank limits using `shared/dimensions.json`, and forces time tokens to the canonical vocab defined in `shared/time.json`.
+
+Corrections applied during these passes append `phase1.*` entries to `metadata.corrections_applied`, and a structured trace is stored under `metadata.phase1`. If the pipeline cannot reconcile the inputs (e.g., unknown metric), it raises `PhaseOneClassificationError`; the adapters catch this and mark the request as `refused` with a descriptive reason.
+
+**Testing**: `backend/tests/classification/test_hierarchy.py` exercises subject inference, intent restriction, measure realignment, dimension/time sanitization, and refusal paths for unknown metrics.
+
 ## Performance Impact
 
 - **Latency**: Negligible (<10ms per classification for all Phase 0 enhancements)

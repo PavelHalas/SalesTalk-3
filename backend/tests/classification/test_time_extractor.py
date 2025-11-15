@@ -103,6 +103,17 @@ class TestTimeExtraction:
         assert result["window"] == "ytd"
         assert result["granularity"] == "month"
 
+    def test_window_precedence_over_existing_period(self):
+        """If LLM outputs period but question indicates a window, prefer window and drop period."""
+        question = "Revenue year to date"
+        existing = {"period": "this_year", "granularity": "year"}
+
+        result = extract_time_tokens(question, existing)
+
+        assert "period" not in result
+        assert result["window"] == "ytd"
+        assert result["granularity"] == "month"
+
 
 class TestTimeValidation:
     """Tests for time token validation."""
