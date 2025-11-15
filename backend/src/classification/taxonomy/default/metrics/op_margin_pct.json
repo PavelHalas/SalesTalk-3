@@ -1,0 +1,15 @@
+{
+  "id": "op_margin_pct",
+  "subject": "margin",
+  "aliases": [
+    "op_margin_pct",
+    "operating_margin_pct",
+    "operating_margin",
+    "operating_margin_percent",
+    "operating_margin_percentage",
+    "op_margin",
+    "op%",
+    "ebitda_margin"
+  ],
+  "description": "Operating margin percentage."
+}

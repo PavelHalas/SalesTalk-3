@@ -3,7 +3,12 @@
   "subject": "customers",
   "aliases": [
     "nps",
-    "nps_score"
+    "nps_score",
+    "net_promoter_score",
+    "net_promoter",
+    "promoter_score",
+    "customer_satisfaction",
+    "csat"
   ],
   "description": "Net Promoter Score."
 }

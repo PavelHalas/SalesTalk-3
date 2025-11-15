@@ -2,7 +2,13 @@
   "id": "mrr",
   "subject": "revenue",
   "aliases": [
-    "mrr"
+    "mrr",
+    "monthly_recurring_revenue",
+    "monthly_revenue",
+    "monthly_recurring",
+    "monthly_recurring_sales",
+    "monthly_bookings",
+    "recurring_monthly_revenue"
   ],
   "description": "Monthly recurring revenue."
 }

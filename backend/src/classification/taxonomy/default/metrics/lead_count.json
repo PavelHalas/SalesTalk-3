@@ -2,7 +2,15 @@
   "id": "lead_count",
   "subject": "marketing",
   "aliases": [
-    "lead_count"
+    "lead_count",
+    "leads",
+    "leads_count",
+    "total_leads",
+    "number_of_leads",
+    "mql",
+    "mql_count",
+    "mqls",
+    "marketing_qualified_leads"
   ],
   "description": "Number of marketing qualified leads."
 }

@@ -1,10 +1,12 @@
 {
   "id": "gm",
-  "subject": "revenue",
+  "subject": "margin",
   "aliases": [
     "gm",
-    "gross_margin",
-    "gross_profit_margin"
+    "gross_margin_dollars",
+    "margin_dollars",
+    "gross_margin_amount",
+    "margin_amount"
   ],
   "description": "Gross margin dollars."
 }

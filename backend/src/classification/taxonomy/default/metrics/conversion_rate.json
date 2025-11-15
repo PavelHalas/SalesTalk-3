@@ -2,7 +2,14 @@
   "id": "conversion_rate",
   "subject": "marketing",
   "aliases": [
-    "conversion_rate"
+    "conversion_rate",
+    "cr",
+    "conv_rate",
+    "cvr",
+    "conversion%",
+    "conversion_pct",
+    "conversion_percent",
+    "conversions_rate"
   ],
   "description": "Conversion rate for the specified stage or timeframe."
 }

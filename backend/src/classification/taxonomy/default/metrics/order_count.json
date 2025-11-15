@@ -3,7 +3,11 @@
   "subject": "orders",
   "aliases": [
     "order_count",
-    "orders_count"
+    "orders_count",
+    "orders",
+    "total_orders",
+    "number_of_orders",
+    "order_volume"
   ],
   "description": "Number of orders placed."
 }

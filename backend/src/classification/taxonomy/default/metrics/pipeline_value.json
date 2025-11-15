@@ -3,7 +3,14 @@
   "subject": "sales",
   "aliases": [
     "pipeline",
-    "pipeline_value"
+    "pipeline_value",
+    "pipeline_amount",
+    "total_pipeline",
+    "pipeline_dollars",
+    "open_pipeline",
+    "open_pipeline_value",
+    "opportunities_value",
+    "opps_value"
   ],
   "description": "Total value of open pipeline opportunities."
 }

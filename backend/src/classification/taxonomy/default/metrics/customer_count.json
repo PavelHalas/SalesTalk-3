@@ -2,7 +2,16 @@
   "id": "customer_count",
   "subject": "customers",
   "aliases": [
-    "customer_count"
+    "customer_count",
+    "customers",
+    "customers_count",
+    "total_customers",
+    "number_of_customers",
+    "customer_base",
+    "users",
+    "user_count",
+    "accounts",
+    "account_count"
   ],
   "description": "Total number of active customers."
 }

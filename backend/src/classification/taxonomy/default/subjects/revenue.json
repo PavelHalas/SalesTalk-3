@@ -1,7 +1,14 @@
 {
   "subject": "revenue",
   "description": "Revenue and recurring revenue KPIs including margin totals and percentages.",
-  "aliases": [],
+  "aliases": [
+    "sales",
+    "sales_revenue",
+    "topline",
+    "top_line",
+    "bookings",
+    "recurring_revenue"
+  ],
   "intents": [
     "what",
     "trend",
@@ -11,10 +18,11 @@
   ],
   "metrics": [
     "arr",
-    "gm",
-    "gm_pct",
     "mrr",
-    "revenue"
+    "revenue",
+    "arpu",
+    "mrr_growth_rate",
+    "performance"
   ],
   "dimensions": {}
 }

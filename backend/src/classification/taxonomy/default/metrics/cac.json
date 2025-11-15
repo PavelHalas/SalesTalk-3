@@ -2,7 +2,13 @@
   "id": "cac",
   "subject": "customers",
   "aliases": [
-    "cac"
+    "cac",
+    "customer_acquisition_cost",
+    "acquisition_cost",
+    "cost_per_customer",
+    "cost_per_acquisition",
+    "cpa",
+    "user_acquisition_cost"
   ],
   "description": "Customer acquisition cost."
 }

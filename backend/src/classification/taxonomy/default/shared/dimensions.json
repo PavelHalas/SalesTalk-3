@@ -7,13 +7,20 @@
     "EU",
     "US",
     "UK",
-    "CANADA"
+    "CANADA",
+    "North_America",
+    "Europe",
+    "Asia_Pacific",
+    "Latin_America"
   ],
   "segments": [
     "SMB",
     "Enterprise",
     "Mid-Market",
-    "Startup"
+    "Startup",
+    "Small_Business",
+    "MidMarket",
+    "ENT"
   ],
   "channels": [
     "online",
@@ -23,24 +30,41 @@
     "mobile",
     "phone",
     "direct",
-    "partner"
+    "partner",
+    "paid_social",
+    "organic_social",
+    "social",
+    "paid_search",
+    "organic_search",
+    "search",
+    "display",
+    "retail",
+    "store"
   ],
   "status": [
     "active",
     "inactive",
     "churned",
     "trial",
-    "paying"
+    "paying",
+    "free",
+    "paid",
+    "expired"
   ],
   "timeOfWeek": [
     "weekday",
-    "weekend"
+    "weekend",
+    "weekdays",
+    "weekends"
   ],
   "productLines": [
     "Software",
     "Hardware",
     "Services",
-    "Platform"
+    "Platform",
+    "SaaS",
+    "PaaS",
+    "IaaS"
   ],
   "related_metrics": [
     "ad_spend",
@@ -49,10 +73,16 @@
     "cac",
     "page_load_time",
     "seasonality_index",
+    "seasonality",
     "email_frequency",
     "sales_headcount",
     "product_rating",
-    "demo_completion_rate"
+    "demo_completion_rate",
+    "ad_clicks",
+    "impressions",
+    "ctr",
+    "bounce_rate",
+    "avg_session_duration"
   ],
   "rank": {
     "max_limit": 1000

@@ -2,7 +2,14 @@
   "id": "arr",
   "subject": "revenue",
   "aliases": [
-    "arr"
+    "arr",
+    "annual_recurring_revenue",
+    "annual_revenue",
+    "annual_recurring",
+    "annual_recurring_sales",
+    "yearly_recurring_revenue",
+    "yearly_revenue",
+    "recurring_annual_revenue"
   ],
   "description": "Annual recurring revenue."
 }

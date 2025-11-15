@@ -1,0 +1,12 @@
+{
+  "id": "mrr_growth_rate",
+  "subject": "revenue",
+  "aliases": [
+    "mrr_growth_rate",
+    "mrr_growth",
+    "monthly_recurring_revenue_growth",
+    "mrr_growth_pct",
+    "mrr_growth_percent"
+  ],
+  "description": "Monthly recurring revenue growth rate."
+}

@@ -1,0 +1,11 @@
+{
+  "id": "margin_pct",
+  "subject": "margin",
+  "aliases": [
+    "margin_pct",
+    "margin",
+    "profit_margin_pct",
+    "profit_margin"
+  ],
+  "description": "General margin percentage (context-dependent)."
+}

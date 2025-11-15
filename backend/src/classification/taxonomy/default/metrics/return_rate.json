@@ -3,7 +3,14 @@
   "subject": "orders",
   "aliases": [
     "refund_rate",
-    "return_rate"
+    "return_rate",
+    "returns_rate",
+    "refund_pct",
+    "return_pct",
+    "returns_pct",
+    "returns_percent",
+    "refund_percent",
+    "chargeback_rate"
   ],
   "description": "Rate of returned or refunded orders."
 }

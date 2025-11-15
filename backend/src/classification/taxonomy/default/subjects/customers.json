@@ -1,7 +1,12 @@
 {
   "subject": "customers",
   "description": "Customer health, loyalty, and monetization metrics.",
-  "aliases": [],
+  "aliases": [
+    "users",
+    "accounts",
+    "customer_base",
+    "user_base"
+  ],
   "intents": [
     "what",
     "trend",

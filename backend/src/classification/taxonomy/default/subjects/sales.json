@@ -1,7 +1,13 @@
 {
   "subject": "sales",
   "description": "Pipeline and deal progression metrics.",
-  "aliases": [],
+  "aliases": [
+    "pipeline",
+    "deals",
+    "opportunities",
+    "opps",
+    "sales_pipeline"
+  ],
   "intents": [
     "what",
     "trend",

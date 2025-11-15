@@ -1,7 +1,12 @@
 {
   "subject": "orders",
   "description": "Order volume and commerce efficiency metrics.",
-  "aliases": [],
+  "aliases": [
+    "purchases",
+    "transactions",
+    "commerce",
+    "ecommerce"
+  ],
   "intents": [
     "what",
     "trend",

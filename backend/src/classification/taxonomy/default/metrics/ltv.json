@@ -2,7 +2,13 @@
   "id": "ltv",
   "subject": "customers",
   "aliases": [
-    "ltv"
+    "ltv",
+    "lifetime_value",
+    "customer_lifetime_value",
+    "clv",
+    "cltv",
+    "customer_ltv",
+    "user_lifetime_value"
   ],
   "description": "Customer lifetime value."
 }

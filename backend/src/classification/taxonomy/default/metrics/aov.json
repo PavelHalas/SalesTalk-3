@@ -2,7 +2,14 @@
   "id": "aov",
   "subject": "orders",
   "aliases": [
-    "aov"
+    "aov",
+    "average_order_value",
+    "avg_order_value",
+    "average_transaction_value",
+    "avg_transaction_value",
+    "basket_size",
+    "avg_basket_size",
+    "average_basket_size"
   ],
   "description": "Average order value."
 }

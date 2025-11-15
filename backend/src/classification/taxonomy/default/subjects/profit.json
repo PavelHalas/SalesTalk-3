@@ -1,7 +1,12 @@
 {
   "subject": "profit",
   "description": "Profitability metrics not captured in revenue subject.",
-  "aliases": [],
+  "aliases": [
+    "profitability",
+    "gross_margin",
+    "margin",
+    "earnings"
+  ],
   "intents": [
     "what",
     "trend",

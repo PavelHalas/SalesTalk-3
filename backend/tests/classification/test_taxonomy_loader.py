@@ -41,12 +41,18 @@ def test_metrics_subject_map_includes_aliases():
 def test_subject_structure_exposes_metrics():
     taxonomy = config_loader.get_classification_config()
     revenue = taxonomy["subjects"]["revenue"]
+    margin = taxonomy["subjects"]["margin"]
 
     assert revenue["meta"]["subject"] == "revenue"
-    assert "gm" in revenue["metrics"]
-    assert "gross_margin" in revenue["metrics"]["gm"]["aliases"]
+    assert "mrr" in revenue["metrics"]
+    assert "monthly_recurring_revenue" in revenue["metrics"]["mrr"]["aliases"]
     assert revenue["intents"], "Expected resolved intents list"
     assert revenue["intents"][0]["id"] == "what"
+    
+    # Verify margin subject has gm metrics
+    assert margin["meta"]["subject"] == "margin"
+    assert "gm_pct" in margin["metrics"]
+    assert "gross_margin_pct" in margin["metrics"]["gm_pct"]["aliases"]
 
 
 def test_intents_registry_loaded():

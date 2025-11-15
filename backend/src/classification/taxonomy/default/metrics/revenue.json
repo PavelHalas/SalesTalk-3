@@ -2,7 +2,16 @@
   "id": "revenue",
   "subject": "revenue",
   "aliases": [
-    "revenue"
+    "revenue",
+    "sales",
+    "total_revenue",
+    "total_sales",
+    "topline",
+    "top_line",
+    "top_line_revenue",
+    "sales_revenue",
+    "total_bookings",
+    "bookings"
   ],
   "description": "Total revenue regardless of channel or geography."
 }

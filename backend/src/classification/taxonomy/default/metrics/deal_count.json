@@ -2,7 +2,15 @@
   "id": "deal_count",
   "subject": "sales",
   "aliases": [
-    "deal_count"
+    "deal_count",
+    "deals",
+    "deals_count",
+    "total_deals",
+    "number_of_deals",
+    "opportunities",
+    "opportunities_count",
+    "opps",
+    "opps_count"
   ],
   "description": "Number of deals in the selected scope."
 }

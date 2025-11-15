@@ -3,7 +3,13 @@
   "subject": "marketing",
   "aliases": [
     "signup_count",
-    "signups"
+    "signups",
+    "signups_count",
+    "total_signups",
+    "new_signups",
+    "registrations",
+    "registration_count",
+    "new_registrations"
   ],
   "description": "Number of new signups."
 }

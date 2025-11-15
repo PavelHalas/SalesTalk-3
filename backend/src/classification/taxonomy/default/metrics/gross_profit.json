@@ -2,7 +2,13 @@
   "id": "gross_profit",
   "subject": "profit",
   "aliases": [
-    "gross_profit"
+    "gross_profit",
+    "gp",
+    "gross_profit_amount",
+    "gross_profit_dollars",
+    "profit",
+    "gross_profit_after_cogs",
+    "gross_earnings"
   ],
   "description": "Gross profit after cost of goods sold."
 }

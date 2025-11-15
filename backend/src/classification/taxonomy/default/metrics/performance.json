@@ -1,0 +1,10 @@
+{
+  "id": "performance",
+  "subject": "revenue",
+  "aliases": [
+    "performance",
+    "overall_performance",
+    "kpi_score"
+  ],
+  "description": "Composite performance metric (typically revenue-based)."
+}

@@ -2,7 +2,16 @@
   "id": "churn_rate",
   "subject": "customers",
   "aliases": [
-    "churn_rate"
+    "churn_rate",
+    "churn",
+    "customer_churn",
+    "customer_churn_rate",
+    "churn%",
+    "churn_pct",
+    "churn_percent",
+    "attrition",
+    "attrition_rate",
+    "user_churn"
   ],
   "description": "Customer churn rate for the selected window."
 }

@@ -2,7 +2,16 @@
   "id": "win_rate",
   "subject": "sales",
   "aliases": [
-    "win_rate"
+    "win_rate",
+    "close_rate",
+    "win%",
+    "win_pct",
+    "win_percent",
+    "win_percentage",
+    "close%",
+    "close_pct",
+    "close_percent",
+    "deal_close_rate"
   ],
   "description": "Ratio of won deals to total closed deals."
 }

@@ -44,20 +44,23 @@ def apply_subject_metric_rules(classification: Dict[str, Any]) -> Tuple[Dict[str
     if subject in METRIC_SUBJECT_MAP:
         # Subject is actually a metric name
         correct_subject = METRIC_SUBJECT_MAP[subject]
-        original_subject = subject  # Save original before correction
-        corrections.append(f"metric_leak_fixed:subject={subject}→{correct_subject}")
-        result["subject"] = correct_subject
-        subject = correct_subject
         
-        # If measure is empty or generic, use the leaked subject (which was the metric) as the measure
-        if not measure or measure in {"value", "total", "amount"}:
-            # Normalize the measure in case it's an alias
-            normalized_measure = METRIC_ALIASES.get(original_subject, original_subject)
-            corrections.append(f"measure_inferred:{original_subject}")
-            if normalized_measure != original_subject:
-                corrections.append(f"metric_alias_normalized:{original_subject}→{normalized_measure}")
-            result["measure"] = normalized_measure
-            measure = normalized_measure
+        # Only apply correction if subject is wrong
+        if subject != correct_subject:
+            original_subject = subject  # Save original before correction
+            corrections.append(f"metric_leak_fixed:subject={subject}→{correct_subject}")
+            result["subject"] = correct_subject
+            subject = correct_subject
+            
+            # If measure is empty or generic, use the leaked subject (which was the metric) as the measure
+            if not measure or measure in {"value", "total", "amount"}:
+                # Normalize the measure in case it's an alias
+                normalized_measure = METRIC_ALIASES.get(original_subject, original_subject)
+                corrections.append(f"measure_inferred:{original_subject}")
+                if normalized_measure != original_subject:
+                    corrections.append(f"metric_alias_normalized:{original_subject}→{normalized_measure}")
+                result["measure"] = normalized_measure
+                measure = normalized_measure
     
     # Rule 3: Enforce metric-subject family constraints
     if measure in METRIC_SUBJECT_MAP:

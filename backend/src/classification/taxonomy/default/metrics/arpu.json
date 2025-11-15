@@ -3,7 +3,12 @@
   "subject": "customers",
   "aliases": [
     "arpu",
-    "average_revenue_per_user"
+    "average_revenue_per_user",
+    "avg_revenue_per_user",
+    "arpc",
+    "average_revenue_per_customer",
+    "avg_revenue_per_customer",
+    "revenue_per_user"
   ],
   "description": "Average revenue per user."
 }

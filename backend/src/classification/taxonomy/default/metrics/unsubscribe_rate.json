@@ -1,0 +1,13 @@
+{
+  "id": "unsubscribe_rate",
+  "subject": "marketing",
+  "aliases": [
+    "unsubscribe_rate",
+    "unsub_rate",
+    "unsubscribe_pct",
+    "unsubscribe_percent",
+    "opt_out_rate",
+    "optout_rate"
+  ],
+  "description": "Email unsubscribe rate."
+}

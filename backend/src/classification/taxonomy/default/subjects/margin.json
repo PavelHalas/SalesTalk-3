@@ -1,0 +1,25 @@
+{
+  "subject": "margin",
+  "description": "Margin and profitability percentage metrics.",
+  "aliases": [
+    "margins",
+    "profitability",
+    "profit_margin"
+  ],
+  "intents": [
+    "what",
+    "trend",
+    "why",
+    "breakdown",
+    "rank",
+    "compare",
+    "target",
+    "forecast"
+  ],
+  "metrics": [
+    "gm_pct",
+    "op_margin_pct",
+    "margin_pct"
+  ],
+  "dimensions": {}
+}
