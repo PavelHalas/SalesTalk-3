@@ -1,0 +1,13 @@
+{
+  "id": "forecast",
+  "description": "Forward-looking question",
+  "keywords": [
+    "forecast",
+    "expected",
+    "projected"
+  ],
+  "required_fields": [],
+  "prompt_hints": [
+    "Provide projected values"
+  ]
+}

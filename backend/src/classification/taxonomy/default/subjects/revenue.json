@@ -1,0 +1,20 @@
+{
+  "subject": "revenue",
+  "description": "Revenue and recurring revenue KPIs including margin totals and percentages.",
+  "aliases": [],
+  "intents": [
+    "what",
+    "trend",
+    "why",
+    "breakdown",
+    "rank"
+  ],
+  "metrics": [
+    "arr",
+    "gm",
+    "gm_pct",
+    "mrr",
+    "revenue"
+  ],
+  "dimensions": {}
+}

@@ -200,5 +200,64 @@ Week 8: Optimization of repair + final calibration + acceptance metrics publicat
 - [ ] Add DIM_EXT regex + mapping
 - [ ] Add metadata instrumentation & delta report
 
+## 21. Taxonomy Service Architecture (File-Based Source of Truth)
+Problem: `classification_config.json` cannot scale past prototype use—there is no versioning, per-tenant overrides, or governance workflow, and every taxonomy tweak forces a code deploy. We explicitly decided **not** to introduce a DynamoDB-backed taxonomy; the classification vocabularies stay in version-controlled files so changes remain auditable, reviewable, and easily testable offline.
+
+Target Architecture:
+- **Authoring Layer**: Canonical YAML/JSON definitions per environment stored in `taxonomy/<env>/<version>/`. Each file includes subjects, measure families, metrics, dimension vocabularies (channel, region, segment, product line), time tokens, synonyms, and validation rules. Changes go through PR + contract tests before publish. Git history (and optional tags) provides the version record.
+- **Publishing Pipeline**: CI job validates the taxonomy tree, stamps it with metadata (`schema_version`, `git_sha`, `prompt_hash`), and packages it into a gzipped artifact that ships with the Lambda layer/release bundle. There is no DynamoDB table; the artifact remains file-based (checked into the repo or attached to the release asset/S3 object alongside the deployable code) so LocalStack and production share the exact same bytes.
+- **Runtime Loader (TAXO)**: Lambda/classification layer reads from the co-located artifact or filesystem path (env override for local dev). Loader caches results in-memory with TTL + hash (ties to CACHE task) and exposes structured accessors (e.g., `get_subject_branch("growth")`).
+- **Override Story**: Per-tenant overrides stay as patch files in `taxonomy/tenants/<tenant_id>/...` (or an S3 prefix fetched at deploy time). Loader merges overrides deterministically and logs provenance for telemetry. Because everything is file-based, overrides can be simulated locally without additional infrastructure.
+- **Validation Contracts**: Schema enforced via JSON Schema; CI compares taxonomy diff and runs regression tests (CZ/EN contract suites) before publishing. Rollback is a pointer flip to a previous artifact (or git revert) rather than flipping a DynamoDB pointer.
+
+Implementation Path for Developer Agent:
+1. Scaffold `taxonomy/` repo folder with seed YAML files + schema.
+2. Build validator + packager script (run in CI) that enforces schemas, bundles artifacts, and injects metadata tags.
+3. Replace direct JSON load in runtime with `taxonomy_loader` module that supports env overrides, per-tenant selection, and TTL caching.
+4. Update classifiers/rule engine to consume loader APIs rather than raw dicts; add metrics for taxonomy version + hash in responses.
+5. Extend deployment packaging (Lambda layer, Docker image, etc.) to include the latest artifact so no runtime network fetch is required.
+
+### Per-Subject JSON Layout (Simplified)
+- **Directory Layout**: `taxonomy/<env>/<version>/subjects/<subject_slug>.json` (one JSON per subject) plus optional overrides under `tenants/<id>/subjects/<subject_slug>.json`. No nested metric folders.
+- **File Schema**:
+	```json
+	{
+		"subject": "revenue",
+		"aliases": ["topline", "sales"],
+		"intents": {
+			"default": ["trend", "growth"],
+			"rank": { "keywords": ["top", "bottom"], "prompt_hints": ["return rank"] }
+		},
+		"metrics": [
+			{
+				"id": "mrr",
+				"aliases": ["monthly_recurring_revenue"],
+				"translations": {"cs": {"aliases": ["mesicni opakujici se trzby"]}},
+				"units": "usd",
+				"related_dimensions": {"channel": ["online", "offline"]}
+			}
+		],
+		"dimensions": {
+			"channel": {"allowed": ["online", "offline"], "aliases": {"digital": "online"}},
+			"region": {"inherit": "shared.dimensions.regions"}
+		}
+	}
+	```
+- **Common Resources**: `shared/dimensions.json` and `shared/time.json` stay global; subjects reference them via lightweight `inherit` pointers to avoid duplication.
+- **Assembly Tooling**: Loader ingests each subject JSON directly (no more `metrics/*.json` walks). It merges `metrics` arrays into canonical indexes, deduplicates aliases, and applies tenant override patches by subject ID.
+- **Localization & Aliases**: Each subject/metric record allows `aliases`, `translations` (map of locale code → alias list), and optional `prompts` fields for language-specific instructions.
+- **Developer Workflow**: Adding or editing a subject means touching a single JSON file, running `make validate-taxonomy`, and opening a PR. Schema validation ensures arrays/keys remain consistent.
+
+### Intent & Metric Granularity
+- **Intent Files**: Store subject-agnostic intent definitions under `taxonomy/<env>/<version>/intents/<intent_slug>.json`. Each file declares canonical metadata, allowed prompt scaffolds, language variants, and validation schema for fields the intent expects (e.g., rank intent enforces `dimension.limit`). Subjects reference intents by slug, enabling reuse and independent evolution.
+- **Metric Files**: Mirror the intent pattern with `taxonomy/<env>/<version>/metrics/<metric_slug>.json`. Each file includes canonical ID, aliases, unit metadata, translations, and constraint hints (e.g., measure requires subject family, compatible dimensions). Subject JSONs simply list metric slugs instead of embedding full definitions, so adding a new metric is just dropping a file plus referencing it.
+- **Assembly Flow**: Loader first ingests global intent/metric registries, then hydrates subject files by resolving referenced slugs. Tenant overrides can drop smaller patch files (only overriding aliases/translations) without copying entire subject trees.
+- **Benefits**: Encourages distributed ownership—teams can safely add metrics/intents without touching other subjects, diffs stay small, and caching/publishing pipelines can detect which components changed to limit redeploy scope.
+
+Success Criteria:
+- Taxonomy edits deploy independently of code; loader switches versions via config/env var pointing to a tagged artifact.
+- Tenants can ship bespoke vocabularies without branching code.
+- Cache hit rate ≥95% with TTL refresh under 5 ms, and cold load ≤50 ms via local artifact read or S3 object fetch (no DynamoDB dependency).
+
 ---
 This plan file will evolve—update `Last Updated` and commit deltas with prompt hash changes.

@@ -1,0 +1,9 @@
+{
+  "id": "arpu",
+  "subject": "customers",
+  "aliases": [
+    "arpu",
+    "average_revenue_per_user"
+  ],
+  "description": "Average revenue per user."
+}

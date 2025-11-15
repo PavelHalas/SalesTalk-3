@@ -1,0 +1,8 @@
+{
+  "id": "gross_profit",
+  "subject": "profit",
+  "aliases": [
+    "gross_profit"
+  ],
+  "description": "Gross profit after cost of goods sold."
+}

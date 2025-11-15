@@ -1,0 +1,43 @@
+{
+  "periods": [
+    "today",
+    "yesterday",
+    "this_week",
+    "last_week",
+    "this_month",
+    "last_month",
+    "next_month",
+    "this_quarter",
+    "last_quarter",
+    "next_quarter",
+    "this_year",
+    "last_year",
+    "next_year",
+    "Q1",
+    "Q2",
+    "Q3",
+    "Q4"
+  ],
+  "windows": [
+    "ytd",
+    "qtd",
+    "mtd",
+    "l3m",
+    "l6m",
+    "l12m",
+    "l8q",
+    "l30d",
+    "l90d"
+  ],
+  "granularity": [
+    "day",
+    "week",
+    "month",
+    "quarter",
+    "year"
+  ],
+  "dynamic_period_prefixes": [
+    "holiday_",
+    "eoy_"
+  ]
+}

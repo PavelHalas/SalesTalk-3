@@ -1,0 +1,12 @@
+{
+  "id": "target",
+  "description": "Target vs actual",
+  "keywords": [
+    "target",
+    "goal"
+  ],
+  "required_fields": [],
+  "prompt_hints": [
+    "Compare actual to goal"
+  ]
+}

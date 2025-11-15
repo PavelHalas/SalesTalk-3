@@ -11,6 +11,12 @@ from enum import Enum
 import json
 import logging
 import os
+import sys
+
+# Add src to path for Phase 0 modules
+_src_path = os.path.join(os.path.dirname(__file__), "..", "src")
+if _src_path not in sys.path:
+    sys.path.insert(0, _src_path)
 
 logger = logging.getLogger(__name__)
 
@@ -173,6 +179,14 @@ class BedrockAdapter(AIAdapter):
             # Validate classification
             self._validate_classification(classification)
 
+            # Phase 0 enhancements
+            classification = self._apply_phase_0_enhancements(
+                question=question,
+                classification=classification,
+                request_id=request_id,
+                tenant_id=tenant_id
+            )
+
             # Optional TRM-inspired self-repair pass to fix common misses (dimension/time/subject-family)
             if _should_self_repair():
                 classification = self._recursive_repair(
@@ -187,7 +201,9 @@ class BedrockAdapter(AIAdapter):
                 extra={
                     "tenant_id": tenant_id,
                     "request_id": request_id,
-                    "confidence": classification.get("confidence", {}).get("overall", 0)
+                    "confidence": classification.get("confidence", {}).get("overall", 0),
+                    "corrections_applied": classification.get("metadata", {}).get("corrections_applied", []),
+                    "parse_attempts": classification.get("metadata", {}).get("parse_attempts", 1)
                 }
             )
             
@@ -419,6 +435,88 @@ ALWAYS include ALL keys below (even if dimension/time are empty). Return ONLY th
                 break
         return current
     
+    def _apply_phase_0_enhancements(
+        self,
+        question: str,
+        classification: Dict[str, Any],
+        request_id: str,
+        tenant_id: str
+    ) -> Dict[str, Any]:
+        """
+        Apply Phase 0 enhancements: RULES, TIME_EXT, DIM_EXT.
+        
+        Tracks corrections and extractions in metadata.
+        """
+        result = dict(classification)
+        all_corrections = []
+        
+        # Initialize metadata if not present
+        if "metadata" not in result:
+            result["metadata"] = {}
+        
+        # Track parse attempts (simplified - would be set by json_parser)
+        if "parse_attempts" not in result["metadata"]:
+            result["metadata"]["parse_attempts"] = 1
+        
+        try:
+            # Phase 0.1: Apply RULES (subject-metric corrections)
+            from classification.rules import apply_subject_metric_rules
+            
+            result, rules_corrections = apply_subject_metric_rules(result)
+            all_corrections.extend(rules_corrections)
+            
+        except ImportError:
+            logger.warning("Phase 0 rules module not available")
+        except Exception as e:
+            logger.warning(f"Phase 0 rules failed: {e}")
+        
+        try:
+            # Phase 0.2: Apply TIME_EXT (time token extraction)
+            from classification.time_extractor import extract_time_tokens
+            
+            existing_time = result.get("time", {})
+            enhanced_time = extract_time_tokens(question, existing_time)
+            
+            if enhanced_time != existing_time:
+                result["time"] = enhanced_time
+                all_corrections.append("time_tokens_enhanced")
+            
+        except ImportError:
+            logger.warning("Phase 0 time_extractor module not available")
+        except Exception as e:
+            logger.warning(f"Phase 0 time extraction failed: {e}")
+        
+        try:
+            # Phase 0.3: Apply DIM_EXT (dimension extraction)
+            from classification.dimension_extractor import extract_dimensions
+            
+            existing_dim = result.get("dimension", {})
+            enhanced_dim, dim_corrections = extract_dimensions(question, existing_dim)
+            
+            if enhanced_dim != existing_dim:
+                result["dimension"] = enhanced_dim
+                all_corrections.extend(dim_corrections)
+            
+        except ImportError:
+            logger.warning("Phase 0 dimension_extractor module not available")
+        except Exception as e:
+            logger.warning(f"Phase 0 dimension extraction failed: {e}")
+        
+        # Store all corrections in metadata
+        if all_corrections:
+            result["metadata"]["corrections_applied"] = all_corrections
+        
+        logger.info(
+            "Phase 0 enhancements applied",
+            extra={
+                "tenant_id": tenant_id,
+                "request_id": request_id,
+                "corrections_count": len(all_corrections)
+            }
+        )
+        
+        return result
+    
     def _build_narrative_prompt(
         self,
         classification: Dict[str, Any],
@@ -441,24 +539,35 @@ Requirements:
 Return only the narrative text, nothing else."""
     
     def _extract_json(self, text: str) -> Dict[str, Any]:
-        """Extract JSON from model response."""
-        # Try to find JSON in response
-        text = text.strip()
-        
-        # Handle markdown code blocks
-        if "```json" in text:
-            start = text.find("```json") + 7
-            end = text.find("```", start)
-            text = text[start:end].strip()
-        elif "```" in text:
-            start = text.find("```") + 3
-            end = text.find("```", start)
-            text = text[start:end].strip()
-        
+        """Extract JSON from model response using Phase 0 strict parser."""
+        # Use Phase 0 JSON_STRICT parser
         try:
-            return json.loads(text)
-        except json.JSONDecodeError as e:
-            raise ValidationError(f"Failed to parse JSON response: {e}")
+            from classification.json_parser import extract_json_strict
+            
+            parsed, error = extract_json_strict(text)
+            if parsed is not None:
+                return parsed
+            else:
+                raise ValidationError(f"Failed to parse JSON response: {error}")
+        except ImportError:
+            # Fallback to original parsing if Phase 0 module not available
+            logger.warning("Phase 0 json_parser not available, using fallback")
+            text = text.strip()
+            
+            # Handle markdown code blocks
+            if "```json" in text:
+                start = text.find("```json") + 7
+                end = text.find("```", start)
+                text = text[start:end].strip()
+            elif "```" in text:
+                start = text.find("```") + 3
+                end = text.find("```", start)
+                text = text[start:end].strip()
+            
+            try:
+                return json.loads(text)
+            except json.JSONDecodeError as e:
+                raise ValidationError(f"Failed to parse JSON response: {e}")
     
     def _validate_classification(self, classification: Dict[str, Any]) -> None:
         """Validate classification response."""
@@ -548,6 +657,14 @@ class OllamaAdapter(AIAdapter):
             # Validate classification
             self._validate_classification(classification)
 
+            # Phase 0 enhancements
+            classification = self._apply_phase_0_enhancements(
+                question=question,
+                classification=classification,
+                request_id=request_id,
+                tenant_id=tenant_id
+            )
+
             # Optional TRM-inspired self-repair pass
             if _should_self_repair():
                 classification = self._recursive_repair(
@@ -562,7 +679,9 @@ class OllamaAdapter(AIAdapter):
                 extra={
                     "tenant_id": tenant_id,
                     "request_id": request_id,
-                    "confidence": classification.get("confidence", {}).get("overall", 0)
+                    "confidence": classification.get("confidence", {}).get("overall", 0),
+                    "corrections_applied": classification.get("metadata", {}).get("corrections_applied", []),
+                    "parse_attempts": classification.get("metadata", {}).get("parse_attempts", 1)
                 }
             )
             
@@ -791,6 +910,88 @@ ALWAYS include ALL keys below (even if dimension/time are empty). Return ONLY th
                 break
         return current
     
+    def _apply_phase_0_enhancements(
+        self,
+        question: str,
+        classification: Dict[str, Any],
+        request_id: str,
+        tenant_id: str
+    ) -> Dict[str, Any]:
+        """
+        Apply Phase 0 enhancements: RULES, TIME_EXT, DIM_EXT.
+        
+        Tracks corrections and extractions in metadata.
+        """
+        result = dict(classification)
+        all_corrections = []
+        
+        # Initialize metadata if not present
+        if "metadata" not in result:
+            result["metadata"] = {}
+        
+        # Track parse attempts (simplified - would be set by json_parser)
+        if "parse_attempts" not in result["metadata"]:
+            result["metadata"]["parse_attempts"] = 1
+        
+        try:
+            # Phase 0.1: Apply RULES (subject-metric corrections)
+            from classification.rules import apply_subject_metric_rules
+            
+            result, rules_corrections = apply_subject_metric_rules(result)
+            all_corrections.extend(rules_corrections)
+            
+        except ImportError:
+            logger.warning("Phase 0 rules module not available")
+        except Exception as e:
+            logger.warning(f"Phase 0 rules failed: {e}")
+        
+        try:
+            # Phase 0.2: Apply TIME_EXT (time token extraction)
+            from classification.time_extractor import extract_time_tokens
+            
+            existing_time = result.get("time", {})
+            enhanced_time = extract_time_tokens(question, existing_time)
+            
+            if enhanced_time != existing_time:
+                result["time"] = enhanced_time
+                all_corrections.append("time_tokens_enhanced")
+            
+        except ImportError:
+            logger.warning("Phase 0 time_extractor module not available")
+        except Exception as e:
+            logger.warning(f"Phase 0 time extraction failed: {e}")
+        
+        try:
+            # Phase 0.3: Apply DIM_EXT (dimension extraction)
+            from classification.dimension_extractor import extract_dimensions
+            
+            existing_dim = result.get("dimension", {})
+            enhanced_dim, dim_corrections = extract_dimensions(question, existing_dim)
+            
+            if enhanced_dim != existing_dim:
+                result["dimension"] = enhanced_dim
+                all_corrections.extend(dim_corrections)
+            
+        except ImportError:
+            logger.warning("Phase 0 dimension_extractor module not available")
+        except Exception as e:
+            logger.warning(f"Phase 0 dimension extraction failed: {e}")
+        
+        # Store all corrections in metadata
+        if all_corrections:
+            result["metadata"]["corrections_applied"] = all_corrections
+        
+        logger.info(
+            "Phase 0 enhancements applied",
+            extra={
+                "tenant_id": tenant_id,
+                "request_id": request_id,
+                "corrections_count": len(all_corrections)
+            }
+        )
+        
+        return result
+    
     def _build_narrative_prompt(
         self,
         classification: Dict[str, Any],
@@ -809,23 +1010,35 @@ Requirements:
 Return only the narrative text, nothing else."""
     
     def _extract_json(self, text: str) -> Dict[str, Any]:
-        """Extract JSON from model response."""
-        text = text.strip()
-        
-        # Handle markdown code blocks
-        if "```json" in text:
-            start = text.find("```json") + 7
-            end = text.find("```", start)
-            text = text[start:end].strip()
-        elif "```" in text:
-            start = text.find("```") + 3
-            end = text.find("```", start)
-            text = text[start:end].strip()
-        
+        """Extract JSON from model response using Phase 0 strict parser."""
+        # Use Phase 0 JSON_STRICT parser
         try:
-            return json.loads(text)
-        except json.JSONDecodeError as e:
-            raise ValidationError(f"Failed to parse JSON response: {e}")
+            from classification.json_parser import extract_json_strict
+            
+            parsed, error = extract_json_strict(text)
+            if parsed is not None:
+                return parsed
+            else:
+                raise ValidationError(f"Failed to parse JSON response: {error}")
+        except ImportError:
+            # Fallback to original parsing if Phase 0 module not available
+            logger.warning("Phase 0 json_parser not available, using fallback")
+            text = text.strip()
+            
+            # Handle markdown code blocks
+            if "```json" in text:
+                start = text.find("```json") + 7
+                end = text.find("```", start)
+                text = text[start:end].strip()
+            elif "```" in text:
+                start = text.find("```") + 3
+                end = text.find("```", start)
+                text = text[start:end].strip()
+            
+            try:
+                return json.loads(text)
+            except json.JSONDecodeError as e:
+                raise ValidationError(f"Failed to parse JSON response: {e}")
     
     def _validate_classification(self, classification: Dict[str, Any]) -> None:
         """Validate classification response."""

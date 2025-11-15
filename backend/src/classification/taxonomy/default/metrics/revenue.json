@@ -1,0 +1,8 @@
+{
+  "id": "revenue",
+  "subject": "revenue",
+  "aliases": [
+    "revenue"
+  ],
+  "description": "Total revenue regardless of channel or geography."
+}

@@ -1,0 +1,8 @@
+{
+  "id": "mrr",
+  "subject": "revenue",
+  "aliases": [
+    "mrr"
+  ],
+  "description": "Monthly recurring revenue."
+}

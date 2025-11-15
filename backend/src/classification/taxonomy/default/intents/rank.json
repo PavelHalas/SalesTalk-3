@@ -1,0 +1,15 @@
+{
+  "id": "rank",
+  "description": "Ranking requests",
+  "keywords": [
+    "top",
+    "bottom",
+    "rank"
+  ],
+  "required_fields": [
+    "dimension.limit"
+  ],
+  "prompt_hints": [
+    "Sort results according to rank"
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "id": "win_rate",
+  "subject": "sales",
+  "aliases": [
+    "win_rate"
+  ],
+  "description": "Ratio of won deals to total closed deals."
+}

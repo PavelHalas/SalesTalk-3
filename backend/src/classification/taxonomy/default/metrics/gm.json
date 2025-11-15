@@ -1,0 +1,10 @@
+{
+  "id": "gm",
+  "subject": "revenue",
+  "aliases": [
+    "gm",
+    "gross_margin",
+    "gross_profit_margin"
+  ],
+  "description": "Gross margin dollars."
+}

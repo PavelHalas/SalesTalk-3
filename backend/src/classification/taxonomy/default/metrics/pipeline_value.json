@@ -1,0 +1,9 @@
+{
+  "id": "pipeline_value",
+  "subject": "sales",
+  "aliases": [
+    "pipeline",
+    "pipeline_value"
+  ],
+  "description": "Total value of open pipeline opportunities."
+}

@@ -1,0 +1,21 @@
+{
+  "subject": "customers",
+  "description": "Customer health, loyalty, and monetization metrics.",
+  "aliases": [],
+  "intents": [
+    "what",
+    "trend",
+    "why",
+    "breakdown",
+    "rank"
+  ],
+  "metrics": [
+    "arpu",
+    "cac",
+    "churn_rate",
+    "customer_count",
+    "ltv",
+    "nps"
+  ],
+  "dimensions": {}
+}

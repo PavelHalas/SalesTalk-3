@@ -1,0 +1,9 @@
+{
+  "id": "signup_count",
+  "subject": "marketing",
+  "aliases": [
+    "signup_count",
+    "signups"
+  ],
+  "description": "Number of new signups."
+}

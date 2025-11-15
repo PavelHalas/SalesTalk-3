@@ -1,0 +1,8 @@
+{
+  "id": "cac",
+  "subject": "customers",
+  "aliases": [
+    "cac"
+  ],
+  "description": "Customer acquisition cost."
+}

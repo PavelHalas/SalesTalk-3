@@ -1,0 +1,15 @@
+{
+  "id": "trend",
+  "description": "Trend or comparison over time",
+  "keywords": [
+    "trend",
+    "over time",
+    "vs"
+  ],
+  "required_fields": [
+    "time"
+  ],
+  "prompt_hints": [
+    "Highlight change over the specified period"
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "regions": [
+    "EMEA",
+    "APAC",
+    "NA",
+    "LATAM",
+    "EU",
+    "US",
+    "UK",
+    "CANADA"
+  ],
+  "segments": [
+    "SMB",
+    "Enterprise",
+    "Mid-Market",
+    "Startup"
+  ],
+  "channels": [
+    "online",
+    "offline",
+    "email",
+    "web",
+    "mobile",
+    "phone",
+    "direct",
+    "partner"
+  ],
+  "status": [
+    "active",
+    "inactive",
+    "churned",
+    "trial",
+    "paying"
+  ],
+  "rank": {
+    "max_limit": 1000
+  }
+}

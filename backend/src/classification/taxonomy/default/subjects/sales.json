@@ -1,0 +1,18 @@
+{
+  "subject": "sales",
+  "description": "Pipeline and deal progression metrics.",
+  "aliases": [],
+  "intents": [
+    "what",
+    "trend",
+    "why",
+    "breakdown",
+    "rank"
+  ],
+  "metrics": [
+    "deal_count",
+    "pipeline_value",
+    "win_rate"
+  ],
+  "dimensions": {}
+}

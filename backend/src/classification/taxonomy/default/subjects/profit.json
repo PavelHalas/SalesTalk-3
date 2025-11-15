@@ -1,0 +1,16 @@
+{
+  "subject": "profit",
+  "description": "Profitability metrics not captured in revenue subject.",
+  "aliases": [],
+  "intents": [
+    "what",
+    "trend",
+    "why",
+    "breakdown",
+    "rank"
+  ],
+  "metrics": [
+    "gross_profit"
+  ],
+  "dimensions": {}
+}

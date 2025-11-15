@@ -1,0 +1,9 @@
+{
+  "id": "return_rate",
+  "subject": "orders",
+  "aliases": [
+    "refund_rate",
+    "return_rate"
+  ],
+  "description": "Rate of returned or refunded orders."
+}

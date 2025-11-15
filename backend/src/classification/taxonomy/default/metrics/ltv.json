@@ -1,0 +1,8 @@
+{
+  "id": "ltv",
+  "subject": "customers",
+  "aliases": [
+    "ltv"
+  ],
+  "description": "Customer lifetime value."
+}

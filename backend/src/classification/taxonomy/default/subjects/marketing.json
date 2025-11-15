@@ -1,0 +1,18 @@
+{
+  "subject": "marketing",
+  "description": "Acquisition funnel and lead generation metrics.",
+  "aliases": [],
+  "intents": [
+    "what",
+    "trend",
+    "why",
+    "breakdown",
+    "rank"
+  ],
+  "metrics": [
+    "conversion_rate",
+    "lead_count",
+    "signup_count"
+  ],
+  "dimensions": {}
+}

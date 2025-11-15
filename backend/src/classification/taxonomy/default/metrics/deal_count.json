@@ -1,0 +1,8 @@
+{
+  "id": "deal_count",
+  "subject": "sales",
+  "aliases": [
+    "deal_count"
+  ],
+  "description": "Number of deals in the selected scope."
+}

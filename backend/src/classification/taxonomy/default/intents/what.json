@@ -1,0 +1,17 @@
+{
+  "id": "what",
+  "description": "Direct fact or KPI lookup",
+  "keywords": [
+    "what",
+    "show",
+    "give"
+  ],
+  "required_fields": [
+    "intent",
+    "subject",
+    "measure"
+  ],
+  "prompt_hints": [
+    "Answer with the requested KPI value"
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "id": "why",
+  "description": "Explain drivers or anomalies",
+  "keywords": [
+    "why",
+    "drivers",
+    "cause"
+  ],
+  "required_fields": [
+    "intent"
+  ],
+  "prompt_hints": [
+    "Call out top contributing factors"
+  ]
+}

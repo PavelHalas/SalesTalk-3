@@ -1,0 +1,8 @@
+{
+  "id": "customer_count",
+  "subject": "customers",
+  "aliases": [
+    "customer_count"
+  ],
+  "description": "Total number of active customers."
+}

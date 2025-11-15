@@ -1,0 +1,9 @@
+{
+  "id": "order_count",
+  "subject": "orders",
+  "aliases": [
+    "order_count",
+    "orders_count"
+  ],
+  "description": "Number of orders placed."
+}

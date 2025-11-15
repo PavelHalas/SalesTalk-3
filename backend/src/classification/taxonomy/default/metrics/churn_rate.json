@@ -1,0 +1,8 @@
+{
+  "id": "churn_rate",
+  "subject": "customers",
+  "aliases": [
+    "churn_rate"
+  ],
+  "description": "Customer churn rate for the selected window."
+}

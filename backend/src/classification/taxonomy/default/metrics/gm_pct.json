@@ -1,0 +1,9 @@
+{
+  "id": "gm_pct",
+  "subject": "revenue",
+  "aliases": [
+    "gm_pct",
+    "margin_pct"
+  ],
+  "description": "Gross margin percentage."
+}

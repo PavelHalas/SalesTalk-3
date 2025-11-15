@@ -1,0 +1,8 @@
+{
+  "id": "conversion_rate",
+  "subject": "marketing",
+  "aliases": [
+    "conversion_rate"
+  ],
+  "description": "Conversion rate for the specified stage or timeframe."
+}

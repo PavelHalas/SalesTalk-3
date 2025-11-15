@@ -1,0 +1,18 @@
+{
+  "subject": "orders",
+  "description": "Order volume and commerce efficiency metrics.",
+  "aliases": [],
+  "intents": [
+    "what",
+    "trend",
+    "why",
+    "breakdown",
+    "rank"
+  ],
+  "metrics": [
+    "aov",
+    "order_count",
+    "return_rate"
+  ],
+  "dimensions": {}
+}

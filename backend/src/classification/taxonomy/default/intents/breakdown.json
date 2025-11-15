@@ -1,0 +1,15 @@
+{
+  "id": "breakdown",
+  "description": "Category split",
+  "keywords": [
+    "breakdown",
+    "by",
+    "split"
+  ],
+  "required_fields": [
+    "dimension"
+  ],
+  "prompt_hints": [
+    "Return per-dimension values"
+  ]
+}

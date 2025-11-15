@@ -1,0 +1,8 @@
+{
+  "id": "lead_count",
+  "subject": "marketing",
+  "aliases": [
+    "lead_count"
+  ],
+  "description": "Number of marketing qualified leads."
+}

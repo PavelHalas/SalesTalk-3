@@ -1,0 +1,9 @@
+{
+  "id": "nps",
+  "subject": "customers",
+  "aliases": [
+    "nps",
+    "nps_score"
+  ],
+  "description": "Net Promoter Score."
+}

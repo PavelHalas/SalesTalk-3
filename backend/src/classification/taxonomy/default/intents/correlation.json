@@ -1,0 +1,13 @@
+{
+  "id": "correlation",
+  "description": "Relationship questions",
+  "keywords": [
+    "correlation",
+    "relationship",
+    "impact"
+  ],
+  "required_fields": [],
+  "prompt_hints": [
+    "Discuss directional impact"
+  ]
+}

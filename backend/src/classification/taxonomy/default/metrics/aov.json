@@ -1,0 +1,8 @@
+{
+  "id": "aov",
+  "subject": "orders",
+  "aliases": [
+    "aov"
+  ],
+  "description": "Average order value."
+}
