@@ -1,0 +1,23 @@
+{
+  "subject": "segments",
+  "description": "Customer segment performance metrics for ranking and analysis.",
+  "aliases": [
+    "segment",
+    "tiers",
+    "customer_segments"
+  ],
+  "intents": [
+    "what",
+    "rank",
+    "breakdown",
+    "compare",
+    "trend"
+  ],
+  "metrics": [
+    "revenue",
+    "margin_pct",
+    "customer_count",
+    "churn_rate"
+  ],
+  "dimensions": {}
+}

@@ -1,0 +1,23 @@
+{
+  "subject": "productLines",
+  "description": "Product line performance metrics for ranking and analysis.",
+  "aliases": [
+    "product_lines",
+    "product_line",
+    "lines"
+  ],
+  "intents": [
+    "what",
+    "rank",
+    "breakdown",
+    "compare",
+    "trend"
+  ],
+  "metrics": [
+    "revenue",
+    "arr",
+    "margin_pct",
+    "gross_profit"
+  ],
+  "dimensions": {}
+}

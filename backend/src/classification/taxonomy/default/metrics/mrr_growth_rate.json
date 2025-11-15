@@ -6,7 +6,10 @@
     "mrr_growth",
     "monthly_recurring_revenue_growth",
     "mrr_growth_pct",
-    "mrr_growth_percent"
+    "mrr_growth_percent",
+    "mrr_growth_percentage",
+    "growth_rate",
+    "growth"
   ],
   "description": "Monthly recurring revenue growth rate."
 }

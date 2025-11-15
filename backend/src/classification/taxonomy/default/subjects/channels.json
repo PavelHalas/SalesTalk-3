@@ -1,0 +1,23 @@
+{
+  "subject": "channels",
+  "description": "Sales/marketing channel performance metrics for ranking and analysis.",
+  "aliases": [
+    "channel",
+    "marketing_channels",
+    "sales_channels"
+  ],
+  "intents": [
+    "what",
+    "rank",
+    "breakdown",
+    "compare",
+    "trend"
+  ],
+  "metrics": [
+    "revenue",
+    "conversion_rate",
+    "cac",
+    "performance"
+  ],
+  "dimensions": {}
+}

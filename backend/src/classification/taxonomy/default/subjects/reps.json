@@ -1,0 +1,24 @@
+{
+  "subject": "reps",
+  "description": "Sales representative performance metrics for ranking and analysis.",
+  "aliases": [
+    "rep",
+    "sales_reps",
+    "sales_representatives",
+    "salespeople"
+  ],
+  "intents": [
+    "what",
+    "rank",
+    "breakdown",
+    "compare",
+    "trend"
+  ],
+  "metrics": [
+    "revenue",
+    "win_rate",
+    "deal_count",
+    "pipeline_value"
+  ],
+  "dimensions": {}
+}

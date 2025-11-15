@@ -1,0 +1,25 @@
+{
+  "subject": "timePeriods",
+  "description": "Time period performance metrics for ranking and trend analysis.",
+  "aliases": [
+    "time_periods",
+    "periods",
+    "months",
+    "quarters",
+    "time"
+  ],
+  "intents": [
+    "what",
+    "rank",
+    "breakdown",
+    "compare",
+    "trend"
+  ],
+  "metrics": [
+    "revenue",
+    "customer_count",
+    "order_count",
+    "performance"
+  ],
+  "dimensions": {}
+}

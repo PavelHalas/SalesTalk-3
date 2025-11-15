@@ -1,0 +1,24 @@
+{
+  "subject": "regions",
+  "description": "Regional performance metrics for ranking and comparison.",
+  "aliases": [
+    "region",
+    "geographies",
+    "geos",
+    "territories"
+  ],
+  "intents": [
+    "what",
+    "rank",
+    "breakdown",
+    "compare",
+    "trend"
+  ],
+  "metrics": [
+    "revenue",
+    "churn_rate",
+    "customer_count",
+    "performance"
+  ],
+  "dimensions": {}
+}

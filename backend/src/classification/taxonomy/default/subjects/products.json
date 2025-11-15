@@ -1,0 +1,23 @@
+{
+  "subject": "products",
+  "description": "Product-level performance metrics for ranking and analysis.",
+  "aliases": [
+    "product",
+    "items",
+    "skus"
+  ],
+  "intents": [
+    "what",
+    "rank",
+    "breakdown",
+    "compare",
+    "trend"
+  ],
+  "metrics": [
+    "revenue",
+    "gross_profit",
+    "order_count",
+    "return_rate"
+  ],
+  "dimensions": {}
+}
