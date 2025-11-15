@@ -57,6 +57,8 @@ lambda/
 - `AWS_REGION`: AWS region (default: `us-east-1`)
 - `OLLAMA_BASE_URL`: Ollama API URL (default: `http://localhost:11434`)
 - `OLLAMA_MODEL`: Ollama model name (default: `llama2`)
+ - `USE_SELF_REPAIR`: `true|false` (default: `false`) — enable a tiny TRM-inspired recursive repair pass that fixes common misses (dimension cues like active/online, YTD window vs period, subject/measure family).
+ - `SELF_REPAIR_STEPS`: integer (default: `1`) — max number of repair iterations.
 
 **Features:**
 - ✅ Tenant isolation via JWT claims
@@ -64,6 +66,7 @@ lambda/
 - ✅ Input validation (max 10,000 chars)
 - ✅ Confidence range validation [0.0, 1.0]
 - ✅ Error handling (400, 502, 500)
+ - ✅ Optional TRM-inspired self-repair loop (off by default)
 
 ---
 

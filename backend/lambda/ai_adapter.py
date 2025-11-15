@@ -6,10 +6,11 @@ Normalizes responses and handles provider-specific details.
 """
 
 from abc import ABC, abstractmethod
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, List
 from enum import Enum
 import json
 import logging
+import os
 
 logger = logging.getLogger(__name__)
 
@@ -56,7 +57,7 @@ class AIAdapter(ABC):
     def generate_narrative(
         self,
         classification: Dict[str, Any],
-        data_references: list,
+        data_references: List[Dict[str, Any]],
         tenant_id: str,
         request_id: str
     ) -> Dict[str, Any]:
@@ -168,9 +169,18 @@ class BedrockAdapter(AIAdapter):
             
             # Extract JSON from response
             classification = self._extract_json(content)
-            
+
             # Validate classification
             self._validate_classification(classification)
+
+            # Optional TRM-inspired self-repair pass to fix common misses (dimension/time/subject-family)
+            if _should_self_repair():
+                classification = self._recursive_repair(
+                    question=question,
+                    initial=classification,
+                    request_id=request_id,
+                    tenant_id=tenant_id,
+                )
             
             logger.info(
                 "Classification successful",
@@ -198,7 +208,7 @@ class BedrockAdapter(AIAdapter):
     def generate_narrative(
         self,
         classification: Dict[str, Any],
-        data_references: list,
+        data_references: List[Dict[str, Any]],
         tenant_id: str,
         request_id: str
     ) -> Dict[str, Any]:
@@ -267,40 +277,152 @@ class BedrockAdapter(AIAdapter):
             raise AIProviderError(f"Bedrock narrative generation failed: {e}")
     
     def _build_classification_prompt(self, question: str) -> str:
-        """Build classification prompt for Bedrock."""
-        return f"""You are a business intelligence classifier. Classify the following question into structured components.
+          """Build classification prompt for Bedrock (improved separation of subject vs measure)."""
+          return f"""You are a strict business-intelligence classifier. Produce ONLY a JSON object.
 
 Question: {question}
 
-Return a JSON object with the following structure:
+1) intent: choose ONE from [what, why, compare, trend, forecast, rank, breakdown, target, correlation, anomaly]
+    Intent cues (default to what unless explicit cues for others):
+    - what: what|how many|how much|show|list (no words about trend/next/forecast)
+    - compare: vs|versus|compare|than
+    - breakdown: by <dimension> (by region/segment/product/channel/status)
+    - rank: top|bottom|best|worst|highest|lowest|top N|bottom N
+    - trend: trend|trending|increase|decrease|over time (must mention trend/time behavior)
+    - anomaly: spike|drop|outlier|unusual|sudden
+    - target: on track|target|goal|hit|miss|ahead|behind
+    - forecast: will|projected|expected next|next quarter/month/year (future terms required)
+
+2) subject: the BUSINESS ENTITY (lowercase, singular). MUST be one of:
+    [revenue, margin, profit, customers, orders, sales, marketing, products, regions, segments, reps, productLines, timePeriods]
+    - Never put a METRIC name here.
+    - If the question explicitly mentions an entity (e.g., customers/orders/marketing), USE THAT as subject even if the metric belongs to another family (e.g., MRR for active customers → subject=customers).
+    - If the measure is from the customers set (e.g., churn_rate, ltv, cac, nps, arpu), subject MUST be customers.
+    - If the measure is from the marketing set (e.g., conversion_rate, signup_count, lead_count), subject is typically marketing.
+    - If the measure is from the orders set (e.g., aov, order_count, return_rate), subject MUST be orders.
+
+3) measure: the SPECIFIC METRIC (lowercase, snake_case). Use canonical names:
+    revenue: [revenue, mrr, arr, gm, gm_pct, gross_profit]
+    customers: [customer_count, churn_rate, ltv, nps, cac, arpu]
+    orders: [order_count, aov, return_rate]
+    sales: [pipeline_value, win_rate, deal_count]
+    marketing: [conversion_rate, signup_count, lead_count]
+    aliases → canonical: gross_margin→gm, margin_pct→gm_pct, refund_rate→return_rate, nps_score→nps,
+                             pipeline→pipeline_value, signups→signup_count, orders_count→order_count,
+                             average_revenue_per_user→arpu, gross_profit_margin→gm
+
+4) dimension: include filters/breakdowns ONLY if explicit words like by/for/in or known values appear.
+        MUST map common adjectives to keys:
+            - active/inactive → {{"status":"active|inactive"}}
+            - online/offline/email/web/mobile → {{"channel":"online|offline|email|web|mobile"}}
+        Examples: {{"segment":"Enterprise"}}, {{"region":"EMEA"}}, {{"channel":"email"}}, {{"status":"active"}}, {{"limit":5,"direction":"top"}}
+
+5) time: ALWAYS include BOTH period and granularity if any time is mentioned. Use these CANONICAL tokens:
+    period: [today, yesterday, this_week, last_week, this_month, last_month, this_quarter, last_quarter, this_year, last_year, Q1, Q2, Q3, Q4]
+    window: [ytd, qtd, mtd, l3m, l6m, l12m]  (use when phrases like "year-to-date", "YTD", "last 12 months" appear)
+    granularity: [day, week, month, quarter, year]
+    examples: {{"period":"Q3","granularity":"quarter"}}, {{"period":"last_month","granularity":"month"}}, {{"period":"this_quarter","granularity":"quarter"}}, {{"window":"ytd","granularity":"month"}}, {{"window":"l12m","granularity":"month"}}
+    Do NOT output free text like "this month"; always use snake_case canonical tokens.
+
+Disambiguation (RIGHT vs WRONG):
+ - RIGHT: subject=marketing, measure=conversion_rate   | WRONG: subject=conversion_rate
+ - RIGHT: subject=customers, measure=churn_rate        | WRONG: subject=churn_rate
+ - RIGHT: subject=sales,     measure=pipeline_value    | WRONG: subject=pipeline_value
+ - RIGHT: subject=orders,    measure=aov               | WRONG: subject=aov
+ - RIGHT: subject=revenue,   measure=mrr/arr/revenue   | WRONG: subject=mrr/arr
+ - RIGHT: subject=revenue,   measure=revenue (generic "revenue" asked) | WRONG: measure=mrr/arr when not asked
+ - RIGHT: subject=customers, measure=arpu              | WRONG: subject=revenue, measure=arpu
+ - RIGHT: subject=profit,    measure=gross_profit      | WRONG: subject=margin,  measure=gross_margin
+ - RIGHT: include dimension channel/status when words like online/email/active appear | WRONG: missing dimension
+ - RIGHT: "How many active customers" → dimension={{"status":"active"}}
+ - RIGHT: "online sales" → dimension={{"channel":"online"}}
+ - RIGHT: "year to date" → time={{"window":"ytd","granularity":"month"}}
+
+ALWAYS include ALL keys below (even if dimension/time are empty). Return ONLY this JSON structure (no prose):
 {{
-  "intent": "what|why|compare|trend|forecast|rank|drill|anomaly|target|correlation",
-  "subject": "revenue|margin|customers|products|sales|orders|...",
-  "measure": "revenue|gm|aov|customer_count|...",
-  "dimension": {{}},
-  "time": {{
-    "period": "Q3|last_month|ytd|...",
-    "granularity": "day|week|month|quarter|year"
-  }},
+  "intent": "<one>",
+  "subject": "<entity>",
+  "measure": "<metric>",
+  "dimension": {{}} ,
+  "time": {{}} ,
   "confidence": {{
-    "overall": 0.0-1.0,
-    "components": {{
-      "intent": 0.0-1.0,
-      "subject": 0.0-1.0,
-      "measure": 0.0-1.0,
-      "time": 0.0-1.0
-    }}
+     "overall": 0.9,
+     "components": {{"intent": 0.9, "subject": 0.9, "measure": 0.9, "time": 0.8, "dimension": 0.8}}
   }},
   "refused": false,
   "refusal_reason": null
-}}
+}}"""
 
-Only return the JSON, nothing else."""
+    def _build_repair_prompt(self, question: str, current: Dict[str, Any], issues: List[str]) -> str:
+        """Build a focused repair prompt that updates only the JSON to satisfy constraints.
+
+        TRM-inspired: iteratively improve answer y given constraints and detected issues.
+        """
+        return (
+            "You produced the following JSON classification, but it has issues to fix.\n"
+            "Fix ONLY the JSON to satisfy the constraints and detected issues. Do not add prose.\n\n"
+            f"Question: {question}\n\n"
+            f"Current JSON: {json.dumps(current, ensure_ascii=False)}\n\n"
+            "Constraints (must all be satisfied):\n"
+            "- subject must be a business entity (not a metric) from: [revenue, margin, profit, customers, orders, sales, marketing, products, regions, segments, reps, productLines, timePeriods].\n"
+            "- If measure in customers set [customer_count, churn_rate, ltv, nps, cac, arpu], subject MUST be customers.\n"
+            "- If measure in orders set [order_count, aov, return_rate], subject MUST be orders.\n"
+            "- Map adjectives to dimensions: active/inactive -> {\"status\":\"active|inactive\"}; online/offline/email/web/mobile -> {\"channel\":\"online|offline|email|web|mobile\"}.\n"
+            "- If phrase 'year to date' or 'ytd' appears, time.window MUST be 'ytd' with granularity 'month'.\n"
+            "- Time tokens must be canonical as defined previously.\n\n"
+            f"Detected issues: {json.dumps(issues, ensure_ascii=False)}\n\n"
+            "Return ONLY the corrected JSON object."
+        )
+
+    def _recursive_repair(
+        self,
+        question: str,
+        initial: Dict[str, Any],
+        tenant_id: str,
+        request_id: str,
+    ) -> Dict[str, Any]:
+        """Attempt up to N focused repair steps using the provider to correct common misses."""
+        steps = _self_repair_steps()
+        current = dict(initial)
+        for i in range(steps):
+            issues = _detect_issues(question, current)
+            if not issues:
+                break
+            try:
+                client = self._get_client()
+                prompt = self._build_repair_prompt(question, current, issues)
+                response = client.invoke_model(
+                    modelId=self.model_id,
+                    body=json.dumps({
+                        "anthropic_version": "bedrock-2023-05-31",
+                        "max_tokens": 512,
+                        "messages": [
+                            {"role": "user", "content": prompt}
+                        ],
+                        "temperature": 0.0
+                    })
+                )
+                response_body = json.loads(response["body"].read())
+                content = response_body["content"][0]["text"]
+                repaired = self._extract_json(content)
+                self._validate_classification(repaired)
+                current = repaired
+                logger.info(
+                    "Self-repair step applied",
+                    extra={"tenant_id": tenant_id, "request_id": request_id, "step": i + 1}
+                )
+            except Exception as e:
+                logger.warning(
+                    "Self-repair step failed; keeping previous JSON",
+                    extra={"tenant_id": tenant_id, "request_id": request_id, "step": i + 1, "error": str(e)}
+                )
+                break
+        return current
     
     def _build_narrative_prompt(
         self,
         classification: Dict[str, Any],
-        data_references: list
+        data_references: List[Dict[str, Any]]
     ) -> str:
         """Build narrative generation prompt."""
         data_str = json.dumps(data_references, indent=2)
@@ -414,7 +536,7 @@ class OllamaAdapter(AIAdapter):
                         "temperature": 0.0
                     }
                 },
-                timeout=30
+                timeout=120  # Increased for larger models (20B+)
             )
             
             response.raise_for_status()
@@ -422,9 +544,18 @@ class OllamaAdapter(AIAdapter):
             
             # Extract JSON from response
             classification = self._extract_json(result["response"])
-            
+
             # Validate classification
             self._validate_classification(classification)
+
+            # Optional TRM-inspired self-repair pass
+            if _should_self_repair():
+                classification = self._recursive_repair(
+                    question=question,
+                    initial=classification,
+                    request_id=request_id,
+                    tenant_id=tenant_id,
+                )
             
             logger.info(
                 "Classification successful",
@@ -454,7 +585,7 @@ class OllamaAdapter(AIAdapter):
     def generate_narrative(
         self,
         classification: Dict[str, Any],
-        data_references: list,
+        data_references: List[Dict[str, Any]],
         tenant_id: str,
         request_id: str
     ) -> Dict[str, Any]:
@@ -524,41 +655,146 @@ class OllamaAdapter(AIAdapter):
             raise AIProviderError(f"Ollama narrative generation failed: {e}")
     
     def _build_classification_prompt(self, question: str) -> str:
-        """Build classification prompt for Ollama."""
-        # Same prompt structure as Bedrock
-        return f"""You are a business intelligence classifier. Classify the following question into structured components.
+        """Build classification prompt for Ollama (improved separation of subject vs measure)."""
+        return f"""You are a strict business-intelligence classifier. Produce ONLY a JSON object.
 
 Question: {question}
 
-Return a JSON object with the following structure:
+1) intent: choose ONE from [what, why, compare, trend, forecast, rank, breakdown, target, correlation, anomaly]
+    Intent cues (default to what unless explicit cues for others):
+    - what: what|how many|how much|show|list (no words about trend/next/forecast)
+    - compare: vs|versus|compare|than
+    - breakdown: by <dimension> (by region/segment/product/channel/status)
+    - rank: top|bottom|best|worst|highest|lowest|top N|bottom N
+    - trend: trend|trending|increase|decrease|over time (must mention trend/time behavior)
+    - anomaly: spike|drop|outlier|unusual|sudden
+    - target: on track|target|goal|hit|miss|ahead|behind
+    - forecast: will|projected|expected next|next quarter/month/year (future terms required)
+
+2) subject: the BUSINESS ENTITY (lowercase, singular). MUST be one of:
+    [revenue, margin, profit, customers, orders, sales, marketing, products, regions, segments, reps, productLines, timePeriods]
+    - Never put a METRIC name here.
+    - If the question explicitly mentions an entity (e.g., customers/orders/marketing), USE THAT as subject even if the metric belongs to another family (e.g., MRR for active customers → subject=customers).
+    - If the measure is from the customers set (e.g., churn_rate, ltv, cac, nps, arpu), subject MUST be customers.
+    - If the measure is from the marketing set (e.g., conversion_rate, signup_count, lead_count), subject is typically marketing.
+    - If the measure is from the orders set (e.g., aov, order_count, return_rate), subject MUST be orders.
+
+3) measure: the SPECIFIC METRIC (lowercase, snake_case). Use canonical names:
+    revenue: [revenue, mrr, arr, gm, gm_pct, gross_profit]
+    customers: [customer_count, churn_rate, ltv, nps, cac, arpu]
+    orders: [order_count, aov, return_rate]
+    sales: [pipeline_value, win_rate, deal_count]
+    marketing: [conversion_rate, signup_count, lead_count]
+    aliases → canonical: gross_margin→gm, margin_pct→gm_pct, refund_rate→return_rate, nps_score→nps,
+                             pipeline→pipeline_value, signups→signup_count, orders_count→order_count,
+                             average_revenue_per_user→arpu, gross_profit_margin→gm
+
+4) dimension: include filters/breakdowns ONLY if explicit words like by/for/in or known values appear.
+        MUST map common adjectives to keys:
+            - active/inactive → {{"status":"active|inactive"}}
+            - online/offline/email/web/mobile → {{"channel":"online|offline|email|web|mobile"}}
+        Examples: {{"segment":"Enterprise"}}, {{"region":"EMEA"}}, {{"channel":"email"}}, {{"status":"active"}}, {{"limit":5,"direction":"top"}}
+
+5) time: ALWAYS include BOTH period and granularity if any time is mentioned. Use these CANONICAL tokens:
+    period: [today, yesterday, this_week, last_week, this_month, last_month, this_quarter, last_quarter, this_year, last_year, Q1, Q2, Q3, Q4]
+    window: [ytd, qtd, mtd, l3m, l6m, l12m]  (use when phrases like "year-to-date", "YTD", "last 12 months" appear)
+    granularity: [day, week, month, quarter, year]
+    examples: {{"period":"Q3","granularity":"quarter"}}, {{"period":"last_month","granularity":"month"}}, {{"period":"this_quarter","granularity":"quarter"}}, {{"window":"ytd","granularity":"month"}}, {{"window":"l12m","granularity":"month"}}
+    Do NOT output free text like "this month"; always use snake_case canonical tokens.
+
+Disambiguation (RIGHT vs WRONG):
+ - RIGHT: subject=marketing, measure=conversion_rate   | WRONG: subject=conversion_rate
+ - RIGHT: subject=customers, measure=churn_rate        | WRONG: subject=churn_rate
+ - RIGHT: subject=sales,     measure=pipeline_value    | WRONG: subject=pipeline_value
+ - RIGHT: subject=orders,    measure=aov               | WRONG: subject=aov
+ - RIGHT: subject=revenue,   measure=mrr/arr/revenue   | WRONG: subject=mrr/arr
+ - RIGHT: subject=customers, measure=arpu              | WRONG: subject=revenue, measure=arpu
+ - RIGHT: subject=profit,    measure=gross_profit      | WRONG: subject=margin,  measure=gross_margin
+ - RIGHT: include dimension channel/status when words like online/email/active appear | WRONG: missing dimension
+ - RIGHT: "How many active customers" → dimension={{"status":"active"}}
+ - RIGHT: "online sales" → dimension={{"channel":"online"}}
+ - RIGHT: "year to date" → time={{"window":"ytd","granularity":"month"}}
+
+ALWAYS include ALL keys below (even if dimension/time are empty). Return ONLY this JSON structure (no prose):
 {{
-  "intent": "what|why|compare|trend|forecast|rank|drill|anomaly|target|correlation",
-  "subject": "revenue|margin|customers|products|sales|orders|...",
-  "measure": "revenue|gm|aov|customer_count|...",
-  "dimension": {{}},
-  "time": {{
-    "period": "Q3|last_month|ytd|...",
-    "granularity": "day|week|month|quarter|year"
-  }},
+  "intent": "<one>",
+  "subject": "<entity>",
+  "measure": "<metric>",
+  "dimension": {{}} ,
+  "time": {{}} ,
   "confidence": {{
-    "overall": 0.0-1.0,
-    "components": {{
-      "intent": 0.0-1.0,
-      "subject": 0.0-1.0,
-      "measure": 0.0-1.0,
-      "time": 0.0-1.0
-    }}
+     "overall": 0.9,
+     "components": {{"intent": 0.9, "subject": 0.9, "measure": 0.9, "time": 0.8, "dimension": 0.8}}
   }},
   "refused": false,
   "refusal_reason": null
-}}
+}}"""
 
-Only return the JSON, nothing else."""
+    def _build_repair_prompt(self, question: str, current: Dict[str, Any], issues: List[str]) -> str:
+        """Build repair prompt for Ollama (mirrors Bedrock)."""
+        return (
+            "You produced the following JSON classification, but it has issues to fix.\n"
+            "Fix ONLY the JSON to satisfy the constraints and detected issues. Do not add prose.\n\n"
+            f"Question: {question}\n\n"
+            f"Current JSON: {json.dumps(current, ensure_ascii=False)}\n\n"
+            "Constraints (must all be satisfied):\n"
+            "- subject must be a business entity (not a metric) from: [revenue, margin, profit, customers, orders, sales, marketing, products, regions, segments, reps, productLines, timePeriods].\n"
+            "- If measure in customers set [customer_count, churn_rate, ltv, nps, cac, arpu], subject MUST be customers.\n"
+            "- If measure in orders set [order_count, aov, return_rate], subject MUST be orders.\n"
+            "- Map adjectives to dimensions: active/inactive -> {\"status\":\"active|inactive\"}; online/offline/email/web/mobile -> {\"channel\":\"online|offline|email|web|mobile\"}.\n"
+            "- If phrase 'year to date' or 'ytd' appears, time.window MUST be 'ytd' with granularity 'month'.\n"
+            "- Time tokens must be canonical as defined previously.\n\n"
+            f"Detected issues: {json.dumps(issues, ensure_ascii=False)}\n\n"
+            "Return ONLY the corrected JSON object."
+        )
+
+    def _recursive_repair(
+        self,
+        question: str,
+        initial: Dict[str, Any],
+        tenant_id: str,
+        request_id: str,
+    ) -> Dict[str, Any]:
+        steps = _self_repair_steps()
+        current = dict(initial)
+        for i in range(steps):
+            issues = _detect_issues(question, current)
+            if not issues:
+                break
+            try:
+                import requests
+                prompt = self._build_repair_prompt(question, current, issues)
+                response = requests.post(
+                    f"{self.base_url}/api/generate",
+                    json={
+                        "model": self.model,
+                        "prompt": prompt,
+                        "stream": False,
+                        "options": {"temperature": 0.0},
+                    },
+                    timeout=60,
+                )
+                response.raise_for_status()
+                result = response.json()
+                repaired = self._extract_json(result["response"])
+                self._validate_classification(repaired)
+                current = repaired
+                logger.info(
+                    "Self-repair step applied",
+                    extra={"tenant_id": tenant_id, "request_id": request_id, "step": i + 1}
+                )
+            except Exception as e:
+                logger.warning(
+                    "Self-repair step failed; keeping previous JSON",
+                    extra={"tenant_id": tenant_id, "request_id": request_id, "step": i + 1, "error": str(e)}
+                )
+                break
+        return current
     
     def _build_narrative_prompt(
         self,
         classification: Dict[str, Any],
-        data_references: list
+        data_references: List[Dict[str, Any]]
     ) -> str:
         """Build narrative generation prompt."""
         data_str = json.dumps(data_references, indent=2)
@@ -569,10 +805,6 @@ Classification: {json.dumps(classification, indent=2)}
 Data: {data_str}
 
 Requirements:
-- Use specific numbers from the data
-- Keep it under 3 sentences
-- Be factual and precise
-- Cite your sources
 
 Return only the narrative text, nothing else."""
     
@@ -617,7 +849,7 @@ Return only the narrative text, nothing else."""
                 raise ValidationError(f"Invalid component confidence {key}: {value}")
 
 
-def get_adapter(provider: AIProvider = AIProvider.BEDROCK, **kwargs) -> AIAdapter:
+def get_adapter(provider: AIProvider = AIProvider.BEDROCK, **kwargs: Any) -> AIAdapter:
     """
     Factory function to get the appropriate AI adapter.
     
@@ -638,3 +870,48 @@ def get_adapter(provider: AIProvider = AIProvider.BEDROCK, **kwargs) -> AIAdapte
         return OllamaAdapter(**kwargs)
     else:
         raise ValueError(f"Unsupported AI provider: {provider}")
+
+
+# ---- TRM-inspired self-repair helpers (provider-agnostic) ----
+
+def _should_self_repair() -> bool:
+    return os.getenv("USE_SELF_REPAIR", "false").lower() in {"1", "true", "yes"}
+
+
+def _self_repair_steps() -> int:
+    try:
+        return max(0, int(os.getenv("SELF_REPAIR_STEPS", "1")))
+    except Exception:
+        return 1
+
+
+def _detect_issues(question: str, classification: Dict[str, Any]) -> List[str]:
+    """Lightweight heuristics to trigger repair for known problem patterns."""
+    q = (question or "").lower()
+    issues: List[str] = []
+
+    subject = classification.get("subject", "")
+    measure = classification.get("measure", "")
+    dimension = classification.get("dimension", {}) or {}
+    time = classification.get("time", {}) or {}
+
+    # Dimension cues
+    if ("active" in q or "inactive" in q) and "status" not in dimension:
+        issues.append("missing_status_dimension_for_active_inactive")
+    channel_cues = ["online", "offline", "email", "web", "mobile"]
+    if any(tok in q for tok in channel_cues) and "channel" not in dimension:
+        issues.append("missing_channel_dimension_for_channel_cue")
+
+    # Time cues
+    if ("year to date" in q or "ytd" in q) and "window" not in time:
+        issues.append("ytd_should_use_window_token")
+
+    # Subject/measure family constraints
+    customers_metrics = {"customer_count", "churn_rate", "ltv", "nps", "cac", "arpu"}
+    orders_metrics = {"order_count", "aov", "return_rate"}
+    if measure in customers_metrics and subject != "customers":
+        issues.append("customers_metric_requires_customers_subject")
+    if measure in orders_metrics and subject != "orders":
+        issues.append("orders_metric_requires_orders_subject")
+
+    return issues

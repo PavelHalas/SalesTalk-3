@@ -220,3 +220,6 @@ override.tf.json
 # LocalStack
 localstack_data/
 .localstack/
+
+# Test logs (generated reports)
+backend/tests/logs/
