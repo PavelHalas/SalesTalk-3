@@ -2,9 +2,8 @@
   "id": "margin",
   "subject": "margin",
   "aliases": [
-    "margin",
     "profit_margin",
     "overall_margin"
   ],
-  "description": "Generic margin (context-dependent, unqualified)."
+  "description": "Generic margin (context-dependent, unqualified). Note: 'margin' alone maps to margin_pct."
 }

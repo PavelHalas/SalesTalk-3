@@ -21,14 +21,6 @@ if _src_path not in sys.path:
 
 logger = logging.getLogger(__name__)
 
-
-def _load_prompt_template(rel_path: str) -> str:
-    """Load a prompt template from backend/lambda/prompts/<rel_path>."""
-    base = os.path.join(os.path.dirname(__file__), "prompts")
-    path = os.path.join(base, rel_path)
-    with open(path, "r", encoding="utf-8") as f:
-        return f.read()
-
 # Prompt template directory
 PROMPT_DIR = Path(__file__).parent / "prompts"
 

@@ -1,0 +1,1 @@
+cd /Users/pavel/Documents/Development/SalesTalk-3/backend && source .venv/bin/activate && AI_PROVIDER=ollama OLLAMA_MODEL=dolphin-mistral:latest USE_HIER_PASSES=true python -m pytest tests/e2e/test_product_owner_questions.py -q
