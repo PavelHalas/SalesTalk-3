@@ -28,9 +28,13 @@ Question: {question}
     orders: [order_count, aov, return_rate]
     sales: [pipeline_value, win_rate, deal_count]
     marketing: [conversion_rate, signup_count, lead_count]
-    aliases → canonical: gross_margin→gm, margin_pct→gm_pct, refund_rate→return_rate, nps_score→nps,
-                             pipeline→pipeline_value, signups→signup_count, orders_count→order_count,
-                             average_revenue_per_user→arpu, gross_profit_margin→gm
+    aliases -> canonical: gross_margin->gm, refund_rate->return_rate, nps_score->nps,
+                             pipeline->pipeline_value, signups->signup_count, orders_count->order_count,
+                             average_revenue_per_user->arpu, gross_profit_margin->gm
+    CRITICAL measure disambiguation:
+    - "gross margin %"/"gross margin percentage"/"gm%" -> gm_pct (NOT gm)
+    - Unqualified "margin" or "margin %/percent" (no "gross") -> margin_pct (NOT gm_pct)
+    - "recurring revenue" -> mrr (NOT revenue); "annual recurring" -> arr (NOT revenue)
 
 4) dimension: include filters/breakdowns ONLY if explicit words like by/for/in or known values appear.
         MUST map common adjectives to keys:

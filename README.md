@@ -89,6 +89,17 @@ streamlit run app.py
 
 → See [Local Development Guide](./docs/architecture/ARCHITECTURE_OVERVIEW.md#local-development-setup) for full setup
 
+### E2E Tests (Streaming Progress)
+
+Run the product owner question suite with per-question ticks/crosses:
+
+```bash
+./run_e2e.sh                # defaults to llama3.2:latest
+./run_e2e.sh dolphin-mistral:latest
+```
+
+Each question prints expected vs actual classification components. Disable streaming with `VERBOSE_E2E=false`.
+
 ---
 
 ## 📊 Key Features (MVP)

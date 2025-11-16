@@ -145,6 +145,31 @@ USE_REAL_AI=true AI_PROVIDER=ollama OLLAMA_BASE_URL=http://localhost:11434 pytes
 USE_REAL_AI=true AI_PROVIDER=bedrock pytest tests/e2e/ -v
 ```
 
+### Streaming Progress Output (Per-Question)
+
+For long runs, enable streaming ticks/crosses per question using the helper script:
+
+```bash
+./run_e2e.sh            # defaults to llama3.2:latest
+./run_e2e.sh dolphin-mistral:latest
+```
+
+This sets `VERBOSE_E2E=true` and prints for each row:
+
+```
+[012] Q: Are we tracking to 20% margin YTD?
+   intent   exp=what act=what ✓
+   subject  exp=company act=company ✓
+   measure  exp=margin_pct act=margin_pct ✓
+   dimension ✓ time ✓ refused=False
+```
+
+Disable streaming by unsetting the env var:
+
+```bash
+VERBOSE_E2E=false ./run_e2e.sh
+```
+
 ### Run with E2E Marker
 
 ```bash

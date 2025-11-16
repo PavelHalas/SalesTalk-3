@@ -24,6 +24,7 @@ os.environ.setdefault("AI_PROVIDER", "ollama")
 os.environ.setdefault("OLLAMA_BASE_URL", "http://localhost:11434")
 os.environ.setdefault("OLLAMA_MODEL", "dolphin-mistral:latest")  # Quick test: 100% subject/intent, 80% measure, 2.6s/q
 os.environ.setdefault("USE_HIER_PASSES", "true")
+VERBOSE_E2E = os.environ.get("VERBOSE_E2E", "false").lower() in ("true", "1", "yes")
 
 # Strict / waterproof testing configuration (env-overridable)
 STRICT_E2E = os.environ.get("STRICT_E2E", "true").lower() in ("true", "1", "yes")
@@ -282,6 +283,26 @@ class TestProductOwnerQuestionSuite:
             "time_ok": time_ok,
         }
         aggregator["rows"].append(mismatch_detail)
+
+        # Streaming verbose output (controlled by VERBOSE_E2E env)
+        if VERBOSE_E2E:
+            def _icon(ok: bool) -> str:
+                return "✓" if ok else "✗"
+            refused = classification.get("refused", False)
+            intent_val = classification.get("intent")
+            subject_val = classification.get("subject")
+            measure_val = classification.get("measure")
+            # Compact dimension/time indicators
+            dim_indicator = _icon(dim_ok)
+            time_indicator = _icon(time_ok)
+            print(
+                f"[{row_index:03d}] Q: {question}\n"
+                f"    intent   exp={expected['intent']} act={intent_val} {_icon(intent_ok)}\n"
+                f"    subject  exp={expected['subject']} act={subject_val} {_icon(subject_ok)}\n"
+                f"    measure  exp={expected['measure']} act={measure_val} {_icon(measure_ok)}\n"
+                f"    dimension {dim_indicator} time {time_indicator} refused={refused}",
+                flush=True,
+            )
 
         # Enforce structure
         assert_minimal_structure(classification)

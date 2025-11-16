@@ -985,6 +985,31 @@ def _apply_phase_1_hierarchy(
     if not _should_use_hierarchical_passes():
         return classification
 
+    # Harmonize time based on cues (window/granularity)
+    try:
+        ql = (question or "").lower()
+        t = classification.get("time", {}) or {}
+        changed = False
+        if ("ytd" in ql or "year to date" in ql):
+            if t.get("window") != "ytd":
+                t = {"window": "ytd", "granularity": t.get("granularity") or "month"}; changed = True
+        if "last 6 months" in ql and (t.get("window") != "l6m"):
+            t = {"window": "l6m", "granularity": "month"}; changed = True
+        if "last 12 months" in ql and (t.get("window") != "l12m"):
+            t = {"window": "l12m", "granularity": "month"}; changed = True
+        if "last 3 months" in ql and (t.get("window") != "l3m"):
+            t = {"window": "l3m", "granularity": "month"}; changed = True
+        if "last 8 quarters" in ql and (t.get("window") != "l8q"):
+            t = {"window": "l8q", "granularity": "quarter"}; changed = True
+        if changed:
+            classification["time"] = t
+            meta = classification.setdefault("metadata", {})
+            corr = meta.setdefault("corrections_applied", [])
+            if "time_tokens_harmonized" not in corr:
+                corr.append("time_tokens_harmonized")
+    except Exception:
+        pass
+
     try:
         hierarchy_module = __import__(
             "classification.hierarchy",
@@ -998,6 +1023,18 @@ def _apply_phase_1_hierarchy(
 
     try:
         updated = run_hierarchical_pipeline(question, classification)
+        # Preserve dimensions if Phase 1 dropped them
+        try:
+            orig_dim = classification.get("dimension", {})
+            upd_dim = updated.get("dimension") if isinstance(updated, dict) else None
+            if isinstance(orig_dim, dict) and orig_dim and (not isinstance(upd_dim, dict) or not upd_dim):
+                updated["dimension"] = orig_dim
+                meta = updated.setdefault("metadata", {})
+                corr = meta.setdefault("corrections_applied", [])
+                if "dimension_preserved_phase1" not in corr:
+                    corr.append("dimension_preserved_phase1")
+        except Exception:
+            pass
         logger.info(
             "Phase 1 hierarchical passes applied",
             extra={
