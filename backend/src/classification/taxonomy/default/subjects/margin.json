@@ -8,13 +8,15 @@
   ],
   "intents": [
     "what",
-    "trend",
-    "why",
-    "breakdown",
-    "rank",
     "compare",
+    "trend",
+    "forecast",
+    "rank",
+    "breakdown",
     "target",
-    "forecast"
+    "correlation",
+    "anomaly",
+    "why"
   ],
   "metrics": [
     "gm_pct",

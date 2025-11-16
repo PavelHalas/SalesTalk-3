@@ -1,5 +1,7 @@
 """Phase 0: Dimension Extraction Enhancement (DIM_EXT).
 
+# pyright: reportUnknownLambdaType=false, reportUnknownArgumentType=false
+
 Extracts dimensions (filters/breakdowns) from questions using regex patterns for
 common cues like rank limits, regions, segments, channels, and status. All
 vocabularies are sourced from the shared classification configuration to avoid
@@ -9,7 +11,7 @@ hardcoded taxonomies.
 from __future__ import annotations
 
 import re
-from typing import Dict, Any, Optional, List, Tuple
+from typing import Dict, Any, Optional, List, Tuple, cast, Match, Callable
 
 from .config_loader import ClassificationConfigError, get_dimensions_config
 
@@ -39,15 +41,25 @@ def _build_lookup(values: List[str], transform=None) -> Dict[str, str]:
     return lookup
 
 
-DIM_CONFIG = get_dimensions_config()
+DIM_CONFIG: Dict[str, Any] = get_dimensions_config()
+SYNONYMS: Dict[str, List[str]] = cast(Dict[str, List[str]], DIM_CONFIG.get("synonyms", {})) if isinstance(DIM_CONFIG.get("synonyms", {}), dict) else {}
 
-REGION_LOOKUP = _build_lookup(DIM_CONFIG.get("regions", []), lambda val: val.upper())
-SEGMENT_LOOKUP = _build_lookup(DIM_CONFIG.get("segments", []))
-CHANNEL_LOOKUP = _build_lookup(DIM_CONFIG.get("channels", []), lambda val: val.lower())
-STATUS_LOOKUP = _build_lookup(DIM_CONFIG.get("status", []), lambda val: val.lower())
-TIME_OF_WEEK_LOOKUP = _build_lookup(DIM_CONFIG.get("timeOfWeek", []), lambda val: val.lower())
-PRODUCT_LINE_LOOKUP = _build_lookup(DIM_CONFIG.get("productLines", []), lambda val: val)
-RELATED_METRIC_LOOKUP = _build_lookup(DIM_CONFIG.get("related_metrics", []), lambda val: val)
+def _upper(val: str) -> str:
+    return val.upper()
+
+def _lower(val: str) -> str:
+    return val.lower()
+
+def _id(val: str) -> str:
+    return val
+
+REGION_LOOKUP = _build_lookup(cast(List[str], DIM_CONFIG.get("regions", [])), _upper)
+SEGMENT_LOOKUP = _build_lookup(cast(List[str], DIM_CONFIG.get("segments", [])), _id)
+CHANNEL_LOOKUP = _build_lookup(cast(List[str], DIM_CONFIG.get("channels", [])), _lower)
+STATUS_LOOKUP = _build_lookup(cast(List[str], DIM_CONFIG.get("status", [])), _lower)
+TIME_OF_WEEK_LOOKUP = _build_lookup(cast(List[str], DIM_CONFIG.get("timeOfWeek", [])), _lower)
+PRODUCT_LINE_LOOKUP = _build_lookup(cast(List[str], DIM_CONFIG.get("productLines", [])), _id)
+RELATED_METRIC_LOOKUP = _build_lookup(cast(List[str], DIM_CONFIG.get("related_metrics", [])), _id)
 
 REGION_CANONICAL_VALUES = set(REGION_LOOKUP.values())
 SEGMENT_CANONICAL_VALUES = set(SEGMENT_LOOKUP.values())
@@ -73,60 +85,155 @@ TIME_OF_WEEK_PATTERN = _choice_pattern(list(TIME_OF_WEEK_LOOKUP.keys())) if TIME
 PRODUCT_LINE_PATTERN = _choice_pattern(list(PRODUCT_LINE_LOOKUP.keys())) if PRODUCT_LINE_LOOKUP else r""
 RELATED_METRIC_PATTERN = _choice_pattern(list(RELATED_METRIC_LOOKUP.keys())) if RELATED_METRIC_LOOKUP else r""
 
+# Synonym vocab from taxonomy (no hardcoded tokens)
+RANK_TOP_TRIGGERS = [str(x) for x in SYNONYMS.get("rank_top_triggers", [])]
+RANK_BOTTOM_TRIGGERS = [str(x) for x in SYNONYMS.get("rank_bottom_triggers", [])]
+REGION_PREPOSITIONS = [str(x) for x in SYNONYMS.get("region_prepositions", [])]
+CHANNEL_PREPOSITIONS = [str(x) for x in SYNONYMS.get("channel_prepositions", [])]
+CHANNEL_NOUN_TARGETS = [str(x) for x in SYNONYMS.get("channel_noun_targets", [])]
+STATUS_NOUNS = [str(x) for x in SYNONYMS.get("status_nouns", [])]
+PRODUCT_LINE_PHRASES = [str(x) for x in SYNONYMS.get("product_line_phrases", [])]
+CORRELATION_VERBS = [str(x) for x in SYNONYMS.get("correlation_verbs", [])]
+CORRELATION_CONNECTORS = [str(x) for x in SYNONYMS.get("correlation_connectors", [])]
+
+RANK_TOP_PATTERN = _choice_pattern(RANK_TOP_TRIGGERS) if RANK_TOP_TRIGGERS else r""
+RANK_BOTTOM_PATTERN = _choice_pattern(RANK_BOTTOM_TRIGGERS) if RANK_BOTTOM_TRIGGERS else r""
+REGION_PREP_PATTERN = _choice_pattern(REGION_PREPOSITIONS) if REGION_PREPOSITIONS else r""
+CHANNEL_PREP_PATTERN = _choice_pattern(CHANNEL_PREPOSITIONS) if CHANNEL_PREPOSITIONS else r""
+CHANNEL_NOUNS_PATTERN = _choice_pattern(CHANNEL_NOUN_TARGETS) if CHANNEL_NOUN_TARGETS else r""
+STATUS_NOUNS_PATTERN = _choice_pattern(STATUS_NOUNS) if STATUS_NOUNS else r""
+PRODUCT_LINE_PHRASES_PATTERN = _choice_pattern(PRODUCT_LINE_PHRASES) if PRODUCT_LINE_PHRASES else r""
+CORRELATION_VERBS_PATTERN = _choice_pattern(CORRELATION_VERBS) if CORRELATION_VERBS else r""
+CORRELATION_CONNECTORS_PATTERN = _choice_pattern(CORRELATION_CONNECTORS) if CORRELATION_CONNECTORS else r""
+
 MAX_RANK_LIMIT = int(DIM_CONFIG.get("rank", {}).get("max_limit", 1000))
 
-# Dimension extraction patterns
-DIMENSION_PATTERNS = [
-    # Rank patterns: "top 5", "bottom 10", "top N", "best 3"
-    (re.compile(r'\b(top|best|highest)\s+(\d+)\b', re.I), lambda m: {"limit": int(m.group(2)), "direction": "top"}),
-    (re.compile(r'\b(bottom|worst|lowest)\s+(\d+)\b', re.I), lambda m: {"limit": int(m.group(2)), "direction": "bottom"}),
+Extractor = Callable[[Match[str]], Dict[str, Any]]
+DIMENSION_PATTERNS: List[Tuple[re.Pattern[str], Extractor]] = []
 
-    # Region patterns (preposition + region, or standalone region word)
-    (re.compile(rf'\b(in|for|from)\s+({REGION_PATTERN})\b', re.I),
-     lambda m: {"region": REGION_LOOKUP[m.group(2).lower()]}),
-    (re.compile(rf'\b({REGION_PATTERN})\b', re.I),
-     lambda m: {"region": REGION_LOOKUP[m.group(1).lower()]}),
+# Rank patterns from taxonomy triggers
+if RANK_TOP_PATTERN:
+    DIMENSION_PATTERNS.append(
+        (
+            re.compile(rf"\b({RANK_TOP_PATTERN})\s+(\d+)\b", re.I),
+            lambda m: {"limit": int(m.group(2)), "direction": "top"},
+        )
+    )
+if RANK_BOTTOM_PATTERN:
+    DIMENSION_PATTERNS.append(
+        (
+            re.compile(rf"\b({RANK_BOTTOM_PATTERN})\s+(\d+)\b", re.I),
+            lambda m: {"limit": int(m.group(2)), "direction": "bottom"},
+        )
+    )
 
-    # Segment patterns
-    (re.compile(rf'\b({SEGMENT_PATTERN})\b', re.I),
-     lambda m: {"segment": SEGMENT_LOOKUP[m.group(1).lower()]}),
+# Region patterns from configured prepositions and values
+if REGION_PREP_PATTERN and REGION_PATTERN:
+    DIMENSION_PATTERNS.append(
+        (
+            re.compile(rf"\b({REGION_PREP_PATTERN})\s+({REGION_PATTERN})\b", re.I),
+            lambda m: {"region": REGION_LOOKUP[m.group(2).lower()]},
+        )
+    )
+if REGION_PATTERN:
+    DIMENSION_PATTERNS.append(
+        (
+            re.compile(rf"\b({REGION_PATTERN})\b", re.I),
+            lambda m: {"region": REGION_LOOKUP[m.group(1).lower()]},
+        )
+    )
 
-    # Channel patterns: adjectives like "online", "email"
-    (re.compile(rf'\b({CHANNEL_PATTERN})\s+(sales|orders|customers|revenue|signups?)\b', re.I),
-     lambda m: {"channel": CHANNEL_LOOKUP[m.group(1).lower()]}),
-    (re.compile(rf'\b(through|via|from)\s+({CHANNEL_PATTERN})\b', re.I),
-     lambda m: {"channel": CHANNEL_LOOKUP[m.group(2).lower()]}),
+# Segment patterns
+if SEGMENT_PATTERN:
+    DIMENSION_PATTERNS.append(
+        (
+            re.compile(rf"\b({SEGMENT_PATTERN})\b", re.I),
+            lambda m: {"segment": SEGMENT_LOOKUP[m.group(1).lower()]},
+        )
+    )
 
-    # Status patterns: "active customers", "inactive users", "churned"
-    (re.compile(rf'\b({STATUS_PATTERN})\s+(customers?|users?|accounts?)\b', re.I),
-     lambda m: {"status": STATUS_LOOKUP[m.group(1).lower()]}),
-    (re.compile(rf'\b(customers?|users?|accounts?)\s+(who\s+are\s+)?({STATUS_PATTERN})\b', re.I),
-     lambda m: {"status": STATUS_LOOKUP[m.group(3).lower()]}),
+# Channel patterns from configured nouns and prepositions
+if CHANNEL_PATTERN and CHANNEL_NOUNS_PATTERN:
+    DIMENSION_PATTERNS.append(
+        (
+            re.compile(rf"\b({CHANNEL_PATTERN})\s+({CHANNEL_NOUNS_PATTERN})\b", re.I),
+            lambda m: {"channel": CHANNEL_LOOKUP[m.group(1).lower()]},
+        )
+    )
+if CHANNEL_PREP_PATTERN and CHANNEL_PATTERN:
+    DIMENSION_PATTERNS.append(
+        (
+            re.compile(rf"\b({CHANNEL_PREP_PATTERN})\s+({CHANNEL_PATTERN})\b", re.I),
+            lambda m: {"channel": CHANNEL_LOOKUP[m.group(2).lower()]},
+        )
+    )
 
-    # Time-of-week patterns (weekday/weekend, allow optional plural "s")
-    (
-        re.compile(r"\b(weekday|weekend)s?\b", re.I),
-        lambda m: {"timeOfWeek": TIME_OF_WEEK_LOOKUP.get(m.group(1).lower(), m.group(1).lower())},
-    ),
+# Status patterns from configured nouns
+if STATUS_PATTERN and STATUS_NOUNS_PATTERN:
+    DIMENSION_PATTERNS.append(
+        (
+            re.compile(rf"\b({STATUS_PATTERN})\s+({STATUS_NOUNS_PATTERN})\b", re.I),
+            lambda m: {"status": STATUS_LOOKUP[m.group(1).lower()]},
+        )
+    )
+    DIMENSION_PATTERNS.append(
+        (
+            re.compile(rf"\b({STATUS_NOUNS_PATTERN})\s+(who\s+are\s+)?({STATUS_PATTERN})\b", re.I),
+            lambda m: {"status": STATUS_LOOKUP[m.group(3).lower()]},
+        )
+    )
 
-    # Product line patterns — prefer taxonomy-backed canonicalization
-    *([] if not PRODUCT_LINE_PATTERN else [
-        (re.compile(rf'\b(product\s+line|product\s+lines?)\s+(?:of\s+)?({PRODUCT_LINE_PATTERN})\b', re.I),
-         lambda m: {"productLine": PRODUCT_LINE_LOOKUP[m.group(2).lower()]}),
-        (re.compile(rf'\b({PRODUCT_LINE_PATTERN})\b\s+(?:product|product\s+line)', re.I),
-         lambda m: {"productLine": PRODUCT_LINE_LOOKUP[m.group(1).lower()]}),
-    ]),
+# Time-of-week patterns from configured tokens
+if TIME_OF_WEEK_PATTERN:
+    DIMENSION_PATTERNS.append(
+        (
+            re.compile(rf"\b({TIME_OF_WEEK_PATTERN})\b", re.I),
+            lambda m: {"timeOfWeek": TIME_OF_WEEK_LOOKUP.get(m.group(1).lower(), m.group(1).lower())},
+        )
+    )
 
-    # Related metric correlation phrasing
-    *([] if not RELATED_METRIC_PATTERN else [
-        (re.compile(rf'\bcorrelat(?:e|ion)\b.*?\b({RELATED_METRIC_PATTERN})\b', re.I),
-         lambda m: {"related_metric": RELATED_METRIC_LOOKUP[m.group(1).lower()]}),
-        (re.compile(rf'\bimpact(?:s)?\b.*?\b({RELATED_METRIC_PATTERN})\b', re.I),
-         lambda m: {"related_metric": RELATED_METRIC_LOOKUP[m.group(1).lower()]}),
-        (re.compile(rf'\b({RELATED_METRIC_PATTERN})\b\s+(?:vs|and|with)\b', re.I),
-         lambda m: {"related_metric": RELATED_METRIC_LOOKUP[m.group(1).lower()]}),
-    ]),
-]
+# Product line patterns from configured phrases and values
+if PRODUCT_LINE_PHRASES_PATTERN and PRODUCT_LINE_PATTERN:
+    DIMENSION_PATTERNS.append(
+        (
+            re.compile(rf"\b({PRODUCT_LINE_PHRASES_PATTERN})\s+(?:of\s+)?({PRODUCT_LINE_PATTERN})\b", re.I),
+            lambda m: {"productLine": PRODUCT_LINE_LOOKUP[m.group(2).lower()]},
+        )
+    )
+    DIMENSION_PATTERNS.append(
+        (
+            re.compile(rf"\b({PRODUCT_LINE_PATTERN})\b\s+(?:{PRODUCT_LINE_PHRASES_PATTERN})\b", re.I),
+            lambda m: {"productLine": PRODUCT_LINE_LOOKUP[m.group(1).lower()]},
+        )
+    )
+
+# Related metric correlation phrasing from configured verbs/connectors
+if RELATED_METRIC_PATTERN and CORRELATION_VERBS_PATTERN:
+    DIMENSION_PATTERNS.append(
+        (
+            re.compile(rf"\b({CORRELATION_VERBS_PATTERN})\b.*?\b({RELATED_METRIC_PATTERN})\b", re.I),
+            lambda m: {"related_metric": RELATED_METRIC_LOOKUP[m.group(2).lower()]},
+        )
+    )
+if RELATED_METRIC_PATTERN and CORRELATION_CONNECTORS_PATTERN:
+    DIMENSION_PATTERNS.append(
+        (
+            re.compile(rf"\b({RELATED_METRIC_PATTERN})\b\s+(?:{CORRELATION_CONNECTORS_PATTERN})\b", re.I),
+            lambda m: {"related_metric": RELATED_METRIC_LOOKUP[m.group(1).lower()]},
+        )
+    )
+
+# Additional related metric heuristics from taxonomy regex patterns
+for entry in DIM_CONFIG.get("related_metric_patterns", []) or []:
+    try:
+        rx = str(entry.get("regex", ""))
+        val = str(entry.get("value", ""))
+        if not rx or not val:
+            continue
+        pattern = re.compile(rx, re.I)
+        DIMENSION_PATTERNS.append((pattern, lambda m, v=val: {"related_metric": v}))
+    except Exception:
+        continue
 
 
 def extract_dimensions(question: str, existing_dimension: Optional[Dict[str, Any]] = None) -> Tuple[Dict[str, Any], List[str]]:
@@ -161,19 +268,21 @@ def extract_dimensions(question: str, existing_dimension: Optional[Dict[str, Any
     # still extract as dimension
     q_lower = question.lower()
 
-    # Check for bare status words at start or with "how many"
-    if not dimension.get("status"):
+    # Check for bare status words with configured status nouns
+    if not dimension.get("status") and STATUS_NOUNS:
+        nouns_alt = _choice_pattern(STATUS_NOUNS)
         for status_word in STATUS_LOOKUP.keys():
-            if re.search(rf'\b{re.escape(status_word)}\s+(customers?|users?|accounts?)\b', q_lower):
+            if re.search(rf'\b{re.escape(status_word)}\s+({nouns_alt})\b', q_lower):
                 canonical = STATUS_LOOKUP[status_word]
                 dimension["status"] = canonical
                 extractions.append(f"dimension_status_extracted_heuristic:{canonical}")
                 break
 
     # Check for bare channel words
-    if not dimension.get("channel"):
+    if not dimension.get("channel") and CHANNEL_NOUN_TARGETS:
+        nouns_alt = _choice_pattern(CHANNEL_NOUN_TARGETS)
         for channel_word in CHANNEL_LOOKUP.keys():
-            if re.search(rf'\b{re.escape(channel_word)}\s+(revenue|sales|orders|signups?|customers?)\b', q_lower):
+            if re.search(rf'\b{re.escape(channel_word)}\s+({nouns_alt})\b', q_lower):
                 canonical = CHANNEL_LOOKUP[channel_word]
                 dimension["channel"] = canonical
                 extractions.append(f"dimension_channel_extracted_heuristic:{canonical}")

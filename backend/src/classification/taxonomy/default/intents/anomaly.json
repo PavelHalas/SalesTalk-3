@@ -1,0 +1,16 @@
+{
+  "id": "anomaly",
+  "description": "Detect or explain unexpected spikes or drops",
+  "keywords": [
+    "anomaly",
+    "spike",
+    "drop",
+    "outlier",
+    "unusual",
+    "sudden"
+  ],
+  "required_fields": [],
+  "prompt_hints": [
+    "Identify the anomaly and highlight likely causes"
+  ]
+}

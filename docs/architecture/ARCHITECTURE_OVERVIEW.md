@@ -677,6 +677,112 @@ services:
 
 ---
 
+## 🧠 Classification Architecture
+
+### Design Principles
+
+SalesTalk's classification layer follows **file-based configuration** and **zero-hardcoding** principles to enable rapid iteration without code changes.
+
+**Core Guardrails:**
+1. **No Hardcoded Patterns** – All taxonomies, synonyms, and regex patterns live in JSON files under `backend/src/classification/taxonomy/default/`
+2. **Taxonomy-Driven** – Classification modules load configuration at runtime; changes to vocabulary require no code deployment
+3. **Multi-Phase Pipeline** – Phase 0 (deterministic) → Phase 1 (hierarchical) → Optional self-repair
+4. **Provider-Agnostic** – Same classification logic for Bedrock (production) and Ollama (local)
+
+### Classification Pipeline
+
+```mermaid
+flowchart LR
+    Q[Question] --> Norm[Normalization]
+    Norm --> LLM[LLM Classification]
+    LLM --> P0[Phase 0: Hardening]
+    P0 --> P1[Phase 1: Hierarchy]
+    P1 --> Valid{Valid?}
+    Valid -->|Yes| Return[Classification]
+    Valid -->|No| Refuse[Refused + Reason]
+    
+    P0 --> Rules[RULES: Metric Families]
+    P0 --> Time[TIME_EXT: Token Extraction]
+    P0 --> Dim[DIM_EXT: Dimension Patterns]
+    P0 --> JSON[JSON_STRICT: Robust Parsing]
+    
+    P1 --> S[Subject/Intent Restriction]
+    P1 --> M[Measure Alignment]
+    P1 --> C[Context Sanitization]
+```
+
+### Taxonomy Structure
+
+```
+backend/src/classification/taxonomy/default/
+├── intents/
+│   ├── what.json         # Factual queries
+│   ├── why.json          # Root-cause analysis
+│   ├── trend.json        # Time-series behavior
+│   ├── forecast.json     # Future predictions
+│   ├── rank.json         # Top/bottom lists
+│   ├── breakdown.json    # Dimensional grouping
+│   ├── target.json       # Goal tracking
+│   ├── correlation.json  # Metric relationships
+│   ├── anomaly.json      # Outlier detection
+│   └── compare.json      # Comparative analysis
+├── subjects/
+│   ├── revenue.json      # Revenue entity + allowed intents/metrics
+│   ├── customers.json    # Customer entity
+│   ├── orders.json       # Orders entity
+│   ├── sales.json        # Sales pipeline entity
+│   ├── marketing.json    # Marketing entity
+│   └── ...
+├── metrics/
+│   ├── revenue.json      # Metric definition + aliases + subject
+│   ├── mrr.json          # Monthly Recurring Revenue
+│   ├── churn_rate.json   # Customer churn
+│   └── ...
+└── shared/
+    ├── dimensions.json   # Regions, channels, status, synonyms, patterns
+    └── time.json         # Periods, windows, granularity
+```
+
+### No-Hardcoding Policy
+
+**❌ FORBIDDEN:**
+```python
+# DO NOT hardcode patterns in code
+RANK_TRIGGERS = ["top", "best", "highest"]  # ❌
+CORRELATION_PATTERN = r"\bcorrelate.*with\b"  # ❌
+```
+
+**✅ REQUIRED:**
+```json
+// Edit taxonomy/default/shared/dimensions.json
+{
+  "synonyms": {
+    "rank_top_triggers": ["top", "best", "highest"],
+    "correlation_verbs": ["correlate", "correlation", "impact"]
+  },
+  "related_metric_patterns": [
+    {"regex": "\\bcorrelate.*with\\b", "value": "related_metric"}
+  ]
+}
+```
+
+**Enforcement:**
+- Code reviews reject hardcoded taxonomies
+- `dimension_extractor.py` and similar modules dynamically compile patterns from config
+- Documentation (`backend/src/classification/README.md`) specifies how to extend taxonomy
+
+### Extending Classification
+
+| Task | Files to Edit | No Code Changes Required |
+|------|---------------|--------------------------|
+| Add new metric | `metrics/<metric>.json`, `subjects/<subject>.json` | ✅ |
+| Add dimension value | `shared/dimensions.json` (e.g., add region) | ✅ |
+| Add synonym/pattern | `shared/dimensions.json` (synonyms or patterns) | ✅ |
+| Add intent | `intents/<intent>.json`, update subjects | ✅ |
+| Add time token | `shared/time.json` | ✅ |
+
+---
+
 ## 📚 Related Documents
 
 - **[EVENTS.md](../contracts/EVENTS.md)** - Event schemas and versioning

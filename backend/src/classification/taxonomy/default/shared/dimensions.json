@@ -84,6 +84,23 @@
     "bounce_rate",
     "avg_session_duration"
   ],
+  "synonyms": {
+    "rank_top_triggers": ["top", "best", "highest"],
+    "rank_bottom_triggers": ["bottom", "worst", "lowest"],
+    "region_prepositions": ["in", "for", "from"],
+    "channel_prepositions": ["through", "via", "from"],
+    "channel_noun_targets": ["sales", "orders", "customers", "revenue", "signup", "signups"],
+    "status_nouns": ["customers", "users", "accounts"],
+    "product_line_phrases": ["product", "product line", "product lines"],
+    "correlation_verbs": ["correlate", "correlation", "impact", "impacts"],
+    "correlation_connectors": ["vs", "and", "with"]
+  },
+  "related_metric_patterns": [
+    {"regex": "\\bdiscount(s|ing|ed)?\\b", "value": "discount_rate"},
+    {"regex": "\\b(page|site)\\s+(speed|load\\s*time|latency)\\b", "value": "page_load_time"},
+    {"regex": "\\bsales\\s+(headcount|team\\s*size|people|reps|representatives)\\b", "value": "sales_headcount"},
+    {"regex": "\\bdemo(s)?\\s+(completion\\s*rate|completion|completed)\\b", "value": "demo_completion_rate"}
+  ],
   "rank": {
     "max_limit": 1000
   },

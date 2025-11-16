@@ -3,10 +3,10 @@
   "subject": "margin",
   "aliases": [
     "margin_pct",
-    "margin",
     "profit_margin_pct",
-    "profit_margin",
-    "overall_margin"
+    "margin_percentage",
+    "margin_percent",
+    "margin%"
   ],
   "description": "General margin percentage (context-dependent)."
 }

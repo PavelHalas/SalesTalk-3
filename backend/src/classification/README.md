@@ -67,8 +67,20 @@ Regex-based extraction of dimension filters from questions:
 - **Segments**: SMB, Enterprise, Mid-Market, Startup
 - **Channels**: online, offline, email, web, mobile, phone, direct, partner
 - **Status**: active, inactive, churned, trial, paying
+- **Related metrics**: discount_rate, page_load_time, sales_headcount, demo_completion_rate, seasonality_index
+- **Product lines**: Software, Hardware, Services, Platform, SaaS, PaaS, IaaS
+- **Time of week**: weekday, weekend
 
 **Heuristics**: Detects bare adjectives like "active customers" or "online sales" without explicit "by/for/in" prepositions.
+
+**⚠️ No Hardcoding Policy**:
+All dimension patterns, synonyms, and heuristics are **loaded from taxonomy files** (`taxonomy/default/shared/dimensions.json`).
+- Do NOT edit `DIMENSION_PATTERNS` or other constants in `dimension_extractor.py` code.
+- Instead, update the taxonomy configuration:
+  - Add new dimension values to `regions`, `channels`, `status`, `productLines`, `related_metrics`, etc.
+  - Add synonym triggers to `synonyms` (e.g., `rank_top_triggers`, `correlation_verbs`, `channel_noun_targets`).
+  - Add complex patterns to `related_metric_patterns` (regex + value pairs).
+- The extractor automatically compiles regex patterns from taxonomy at load time.
 
 ### 5. Metadata Instrumentation ✅
 
@@ -182,7 +194,38 @@ Corrections applied during these passes append `phase1.*` entries to `metadata.c
 
 ## Maintenance
 
-- **Adding metrics**: Create or update files under `backend/src/classification/taxonomy/<env>/<version>/metrics/<metric>.json` (set `subject`, `aliases`, metadata) and list the metric slug in the appropriate `subjects/<subject>.json` file; the loader auto-builds `METRIC_SUBJECT_MAP`/aliases at runtime.
+### Extending Taxonomy (No-Hardcoding Policy)
+
+**⚠️ Critical Guardrail**: Do NOT hardcode patterns, triggers, or synonyms in Python code. All classification configuration must live in JSON taxonomy files under `backend/src/classification/taxonomy/default/`.
+
+#### Adding Metrics
+Create or update files under `metrics/<metric>.json` (set `subject`, `aliases`, metadata) and list the metric slug in the appropriate `subjects/<subject>.json` file. The loader auto-builds `METRIC_SUBJECT_MAP` and aliases at runtime.
+
+#### Adding Dimension Values
+Edit `shared/dimensions.json`:
+- Add to `regions`, `channels`, `status`, `productLines`, `related_metrics`, etc.
+- The dimension extractor will automatically load and use these values.
+
+#### Adding Dimension Patterns
+Edit `shared/dimensions.json`:
+- **Synonyms**: Add to `synonyms` dict (e.g., `rank_top_triggers`, `correlation_verbs`, `channel_noun_targets`)
+- **Regex Patterns**: Add to `related_metric_patterns` array with `{"regex": "...", "value": "canonical_name"}`
+
+Example:
+```json
+{
+  "synonyms": {
+    "rank_top_triggers": ["top", "best", "highest"],
+    "correlation_verbs": ["correlate", "correlation", "impact", "impacts"]
+  },
+  "related_metric_patterns": [
+    {"regex": "\\bdiscount(s|ing|ed)?\\b", "value": "discount_rate"},
+    {"regex": "\\bsales\\s+(headcount|team\\s*size)\\b", "value": "sales_headcount"}
+  ]
+}
+```
+
+The `dimension_extractor.py` compiles these into regex patterns at load time—no code changes needed.
 - **Adding intents**: Drop a new file into `taxonomy/<env>/<version>/intents/<intent>.json` and reference the slug inside any subject file that should allow it.
 - **Adding time tokens**: Update `TIME_PHRASE_PATTERNS` in `time_extractor.py`
 - **Adding dimensions**: Update `DIMENSION_PATTERNS` in `dimension_extractor.py`

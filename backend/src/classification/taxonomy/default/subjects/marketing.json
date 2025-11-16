@@ -11,10 +11,15 @@
   ],
   "intents": [
     "what",
+    "compare",
     "trend",
-    "why",
+    "forecast",
+    "rank",
     "breakdown",
-    "rank"
+    "target",
+    "correlation",
+    "anomaly",
+    "why"
   ],
   "metrics": [
     "conversion_rate",

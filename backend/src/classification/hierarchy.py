@@ -67,7 +67,8 @@ class _PipelineState:
 
         dimension_value_maps: Dict[str, Dict[str, str]] = {}
         for config_key, values in dimensions.items():
-            if config_key in {"rank", "dimension_keys", "passthrough_keys"}:
+            # Skip special keys and non-list values (synonyms, related_metric_patterns, etc.)
+            if config_key in {"rank", "dimension_keys", "passthrough_keys", "synonyms", "related_metric_patterns"}:
                 continue
             if not isinstance(values, list):
                 continue
@@ -203,6 +204,48 @@ def _subject_intent_pass(
         else:
             payload["intent"] = current_intent
 
+    # Default routing: rank/breakdown questions should use dimension subjects when dimension keys are present
+    # Map dimension keys to their corresponding dimensional subjects
+    dim_to_subject = {
+        "region": "regions",
+        "segment": "segments",
+        "channel": "channels",
+        "productLine": "productLines",
+    }
+    try:
+        dimension = payload.get("dimension") if isinstance(payload.get("dimension"), dict) else {}
+    except Exception:
+        dimension = {}
+    intent = (payload.get("intent") or "").lower()
+    # Prefer dimensional subjects for rank/breakdown when the matching dimension key exists
+    if intent in {"rank", "breakdown"} and isinstance(dimension, dict):
+        for dim_key, dim_subject in dim_to_subject.items():
+            if dim_key in dimension and subject_slug != dim_subject:
+                corrections.append(f"phase1.subject_defaulted_from_dimension:{subject_slug}->{dim_subject}({dim_key})")
+                subject_slug = dim_subject
+                payload["subject"] = dim_subject
+                # Re-apply intent restriction for the new subject
+                allowed = state.allowed_intents(subject_slug)
+                if allowed and intent not in allowed:
+                    payload["intent"] = allowed[0]
+                break
+
+    # Time-based defaults: if ranking/breakdown across explicit periods or month/quarter granularity, use timePeriods
+    try:
+        time_payload = payload.get("time") if isinstance(payload.get("time"), dict) else {}
+    except Exception:
+        time_payload = {}
+    has_multi_periods = isinstance(time_payload.get("periods"), list) and len(time_payload.get("periods") or []) > 1
+    gran = (time_payload.get("granularity") or "").lower()
+    if intent in {"rank", "breakdown"} and (has_multi_periods or gran in {"month", "quarter"}):
+        if subject_slug != "timePeriods":
+            corrections.append(f"phase1.subject_defaulted_from_time:{subject_slug}->timePeriods")
+            subject_slug = "timePeriods"
+            payload["subject"] = "timePeriods"
+            allowed = state.allowed_intents(subject_slug)
+            if allowed and intent not in allowed:
+                payload["intent"] = allowed[0]
+
     return subject_slug
 
 
@@ -275,6 +318,13 @@ def _context_pass(
                 )
         elif value:
             corrections.append(f"phase1.dimension_passthrough_dropped:{passthrough_key}={value}")
+
+    # Special normalization: map common alias to canonical related_metric values
+    if "related_metric" in sanitized_dimension:
+        rm_val = str(sanitized_dimension.get("related_metric") or "")
+        if rm_val == "seasonality":
+            sanitized_dimension["related_metric"] = "seasonality_index"
+            corrections.append("phase1.dimension_value_canonicalized:related_metric=seasonality->seasonality_index")
 
     rank_cfg = state.dimensions.get("rank", {})
     max_limit = int(rank_cfg.get("max_limit", 1000))

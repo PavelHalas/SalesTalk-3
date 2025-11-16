@@ -179,6 +179,13 @@ class BedrockAdapter(AIAdapter):
             # Validate classification
             self._validate_classification(classification)
 
+            # Always-on normalization (aliases/synonyms to canonical)
+            try:
+                from classification.normalizer import normalize_classification
+                classification = normalize_classification(classification)
+            except Exception as e:
+                logger.warning(f"Normalizer not applied: {e}")
+
             # Phase 0 enhancements
             classification = self._apply_phase_0_enhancements(
                 question=question,
@@ -671,6 +678,13 @@ class OllamaAdapter(AIAdapter):
 
             # Validate classification
             self._validate_classification(classification)
+
+            # Always-on normalization (aliases/synonyms to canonical)
+            try:
+                from classification.normalizer import normalize_classification
+                classification = normalize_classification(classification)
+            except Exception as e:
+                logger.warning(f"Normalizer not applied: {e}")
 
             # Phase 0 enhancements
             classification = self._apply_phase_0_enhancements(

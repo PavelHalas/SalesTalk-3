@@ -8,10 +8,15 @@
   ],
   "intents": [
     "what",
+    "compare",
+    "trend",
+    "forecast",
     "rank",
     "breakdown",
-    "compare",
-    "trend"
+    "target",
+    "correlation",
+    "anomaly",
+    "why"
   ],
   "metrics": [
     "revenue",

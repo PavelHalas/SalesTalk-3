@@ -1,0 +1,15 @@
+{
+  "id": "compare",
+  "description": "Compare one KPI or segment against another",
+  "keywords": [
+    "compare",
+    "vs",
+    "versus",
+    "than",
+    "relative"
+  ],
+  "required_fields": [],
+  "prompt_hints": [
+    "Return a comparison-ready structure; ensure both sides are clear"
+  ]
+}
