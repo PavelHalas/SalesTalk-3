@@ -6,7 +6,8 @@
     "profit_margin_pct",
     "margin_percentage",
     "margin_percent",
-    "margin%"
+    "margin%",
+    "margin"
   ],
   "description": "General margin percentage (context-dependent)."
 }

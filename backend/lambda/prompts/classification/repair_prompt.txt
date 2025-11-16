@@ -1,0 +1,18 @@
+You produced the following JSON classification, but it has issues to fix.
+Fix ONLY the JSON to satisfy the constraints and detected issues. Do not add prose.
+
+Question: {question}
+
+Current JSON: {current_json}
+
+Constraints (must all be satisfied):
+- subject must be a business entity (not a metric) from: [revenue, margin, profit, customers, orders, sales, marketing, products, regions, segments, reps, productLines, timePeriods].
+- If measure in customers set [customer_count, churn_rate, ltv, nps, cac, arpu], subject MUST be customers.
+- If measure in orders set [order_count, aov, return_rate], subject MUST be orders.
+- Map adjectives to dimensions: active/inactive -> {{"status":"active|inactive"}}; online/offline/email/web/mobile -> {{"channel":"online|offline|email|web|mobile"}}.
+- If phrase 'year to date' or 'ytd' appears, time.window MUST be 'ytd' with granularity 'month'.
+- Time tokens must be canonical as defined previously.
+
+Detected issues: {issues}
+
+Return ONLY the corrected JSON object.

@@ -68,23 +68,12 @@ def normalize_expected(row: Dict[str, str]) -> Dict[str, Any]:
         time_obj = json.loads(time_raw)
     except Exception:
         time_obj = {}
-    # Canonicalize measure aliases in expected
+    # Canonicalize measure aliases in expected (taxonomy-only; no hardcoded synonyms)
     metrics = get_metrics_config()
     aliases = metrics.get("aliases", {})
-    hard_synonyms = {
-        "op_margin_pct": "gm_pct",
-        "operating_margin_pct": "gm_pct",
-        "operating_margin_percent": "gm_pct",
-        "operating_margin_percentage": "gm_pct",
-        "op_margin": "gm_pct",
-        "op%": "gm_pct",
-        "ebitda_margin": "gm_pct",
-        "gross_profit_margin": "gm",
-        "margin": "gm_pct",
-    }
     def canon_measure(val: str) -> str:
         key = val.strip().lower()
-        return aliases.get(key) or hard_synonyms.get(key) or val.strip()
+        return aliases.get(key) or val.strip()
 
     # Canonicalize time tokens (q3 -> Q3, etc.)
     time_cfg = get_time_config()

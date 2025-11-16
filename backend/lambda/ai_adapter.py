@@ -12,6 +12,7 @@ import json
 import logging
 import os
 import sys
+from pathlib import Path
 
 # Add src to path for Phase 0 modules
 _src_path = os.path.join(os.path.dirname(__file__), "..", "src")
@@ -19,6 +20,17 @@ if _src_path not in sys.path:
     sys.path.insert(0, _src_path)
 
 logger = logging.getLogger(__name__)
+
+
+def _load_prompt_template(rel_path: str) -> str:
+    """Load a prompt template from backend/lambda/prompts/<rel_path>."""
+    base = os.path.join(os.path.dirname(__file__), "prompts")
+    path = os.path.join(base, rel_path)
+    with open(path, "r", encoding="utf-8") as f:
+        return f.read()
+
+# Prompt template directory
+PROMPT_DIR = Path(__file__).parent / "prompts"
 
 
 class AIProvider(Enum):
@@ -93,6 +105,27 @@ class AIProviderError(Exception):
 class ValidationError(Exception):
     """Raised when AI response fails validation."""
     pass
+
+
+def _load_prompt_template(template_name: str) -> str:
+    """Load a prompt template from the prompts directory.
+    
+    Args:
+        template_name: Relative path to template file from prompts/ directory
+        
+    Returns:
+        Template content as string
+        
+    Raises:
+        AIProviderError: If template file not found
+    """
+    template_path = PROMPT_DIR / template_name
+    try:
+        return template_path.read_text(encoding="utf-8")
+    except FileNotFoundError:
+        raise AIProviderError(f"Prompt template not found: {template_path}")
+    except Exception as e:
+        raise AIProviderError(f"Failed to load prompt template {template_path}: {e}")
 
 
 class BedrockAdapter(AIAdapter):
@@ -306,110 +339,18 @@ class BedrockAdapter(AIAdapter):
             )
             raise AIProviderError(f"Bedrock narrative generation failed: {e}")
     
-        def _build_classification_prompt(self, question: str) -> str:
-            """Build classification prompt for Bedrock (improved separation of subject vs measure + clearer intents and new dimensions)."""
-            return f"""You are a strict business-intelligence classifier. Produce ONLY a JSON object.
-
-Question: {question}
-
-1) intent: choose ONE from [what, why, compare, trend, forecast, rank, breakdown, target, correlation, anomaly]
-    Intent cues (default to what unless explicit cues for others):
-    - what: what|how many|how much|show|list (no words about trend/next/forecast)
-    - compare: vs|versus|compare|than
-    - breakdown: by <dimension> (by region/segment/product/channel/status/product line)
-    - rank: top|bottom|best|worst|highest|lowest|top N|bottom N
-    - trend: trend|trending|increase|decrease|over time (must mention trend/time behavior)
-    - anomaly: spike|drop|outlier|unusual|sudden
-    - target: on track|target|goal|hit|miss|ahead|behind
-    - forecast: will|projected|expected next|next quarter/month/year (future terms required)
-    - correlation: correlate|correlation|impact|affect|related to
-
-2) subject: the BUSINESS ENTITY (lowercase, singular). MUST be one of:
-    [revenue, margin, profit, customers, orders, sales, marketing, products, regions, segments, reps, productLines, timePeriods]
-    - Never put a METRIC name here.
-    - If the question explicitly mentions an entity (e.g., customers/orders/marketing), USE THAT as subject even if the metric belongs to another family (e.g., MRR for active customers → subject=customers).
-    - If the measure is from the customers set (e.g., churn_rate, ltv, cac, nps, arpu), subject MUST be customers.
-    - If the measure is from the marketing set (e.g., conversion_rate, signup_count, lead_count), subject is typically marketing.
-    - If the measure is from the orders set (e.g., aov, order_count, return_rate), subject MUST be orders.
-
-3) measure: the SPECIFIC METRIC (lowercase, snake_case). Use canonical names:
-    revenue: [revenue, mrr, arr, gm, gm_pct, gross_profit]
-    customers: [customer_count, churn_rate, ltv, nps, cac, arpu]
-    orders: [order_count, aov, return_rate]
-    sales: [pipeline_value, win_rate, deal_count]
-    marketing: [conversion_rate, signup_count, lead_count]
-    aliases → canonical: gross_margin→gm, margin_pct→gm_pct, refund_rate→return_rate, nps_score→nps,
-                             pipeline→pipeline_value, signups→signup_count, orders_count→order_count,
-                             average_revenue_per_user→arpu, gross_profit_margin→gm
-
-4) dimension: include filters/breakdowns ONLY if explicit words like by/for/in or known values appear.
-        MUST map common adjectives to keys:
-            - active/inactive → {{"status":"active|inactive"}}
-            - online/offline/email/web/mobile → {{"channel":"online|offline|email|web|mobile"}}
-    For correlation intent, include the other metric as {{"related_metric":"<metric>"}} when stated (e.g., "correlate with ad spend").
-    For product lines, use {{"productLine":"Software|Hardware|Services|Platform"}}.
-    For weekday/weekend comparisons, use {{"timeOfWeek":"weekday|weekend"}}.
-        Examples: {{"segment":"Enterprise"}}, {{"region":"EMEA"}}, {{"channel":"email"}}, {{"status":"active"}}, {{"limit":5,"direction":"top"}}
-
-5) time: ALWAYS include BOTH period and granularity if any time is mentioned. Use these CANONICAL tokens:
-    period: [today, yesterday, this_week, last_week, this_month, last_month, this_quarter, last_quarter, this_year, last_year, Q1, Q2, Q3, Q4]
-    window: [ytd, qtd, mtd, l3m, l6m, l12m]  (use when phrases like "year-to-date", "YTD", "last 12 months" appear)
-    granularity: [day, week, month, quarter, year]
-    examples: {{"period":"Q3","granularity":"quarter"}}, {{"period":"last_month","granularity":"month"}}, {{"period":"this_quarter","granularity":"quarter"}}, {{"window":"ytd","granularity":"month"}}, {{"window":"l12m","granularity":"month"}}, {{"window":"l6m","granularity":"month"}}, {{"window":"l8q","granularity":"quarter"}}
-    Do NOT output free text like "this month"; always use snake_case canonical tokens.
-
-Disambiguation (RIGHT vs WRONG):
- - RIGHT: subject=marketing, measure=conversion_rate   | WRONG: subject=conversion_rate
- - RIGHT: subject=customers, measure=churn_rate        | WRONG: subject=churn_rate
- - RIGHT: subject=sales,     measure=pipeline_value    | WRONG: subject=pipeline_value
- - RIGHT: subject=orders,    measure=aov               | WRONG: subject=aov
- - RIGHT: subject=revenue,   measure=mrr/arr/revenue   | WRONG: subject=mrr/arr
- - RIGHT: subject=revenue,   measure=revenue (generic "revenue" asked) | WRONG: measure=mrr/arr when not asked
- - RIGHT: subject=customers, measure=arpu              | WRONG: subject=revenue, measure=arpu
- - RIGHT: subject=profit,    measure=gross_profit      | WRONG: subject=margin,  measure=gross_margin
- - RIGHT: include dimension channel/status when words like online/email/active appear | WRONG: missing dimension
- - RIGHT: "How many active customers" → dimension={{"status":"active"}}
- - RIGHT: "online sales" → dimension={{"channel":"online"}}
- - RIGHT: "year to date" → time={{"window":"ytd","granularity":"month"}}
- - RIGHT: "last 6 months" → time={{"window":"l6m","granularity":"month"}}
- - RIGHT: "over last 8 quarters" → time={{"window":"l8q","granularity":"quarter"}}
- - RIGHT: "correlate conversion rate with ad spend" → intent=correlation, dimension={{"related_metric":"ad_spend"}}
- - RIGHT: "compare by product line" → intent=breakdown, dimension may include breakdown fields but JSON stays in the fixed schema
-
-ALWAYS include ALL keys below (even if dimension/time are empty). Return ONLY this JSON structure (no prose):
-{{
-  "intent": "<one>",
-  "subject": "<entity>",
-  "measure": "<metric>",
-  "dimension": {{}} ,
-  "time": {{}} ,
-  "confidence": {{
-     "overall": 0.9,
-     "components": {{"intent": 0.9, "subject": 0.9, "measure": 0.9, "time": 0.8, "dimension": 0.8}}
-  }},
-  "refused": false,
-  "refusal_reason": null
-}}"""
+    def _build_classification_prompt(self, question: str) -> str:
+        """Build classification prompt for Bedrock using external template."""
+        template = _load_prompt_template("classification/bedrock_classification.txt")
+        return template.format(question=question)
 
     def _build_repair_prompt(self, question: str, current: Dict[str, Any], issues: List[str]) -> str:
-        """Build a focused repair prompt that updates only the JSON to satisfy constraints.
-
-        TRM-inspired: iteratively improve answer y given constraints and detected issues.
-        """
-        return (
-            "You produced the following JSON classification, but it has issues to fix.\n"
-            "Fix ONLY the JSON to satisfy the constraints and detected issues. Do not add prose.\n\n"
-            f"Question: {question}\n\n"
-            f"Current JSON: {json.dumps(current, ensure_ascii=False)}\n\n"
-            "Constraints (must all be satisfied):\n"
-            "- subject must be a business entity (not a metric) from: [revenue, margin, profit, customers, orders, sales, marketing, products, regions, segments, reps, productLines, timePeriods].\n"
-            "- If measure in customers set [customer_count, churn_rate, ltv, nps, cac, arpu], subject MUST be customers.\n"
-            "- If measure in orders set [order_count, aov, return_rate], subject MUST be orders.\n"
-            "- Map adjectives to dimensions: active/inactive -> {\"status\":\"active|inactive\"}; online/offline/email/web/mobile -> {\"channel\":\"online|offline|email|web|mobile\"}.\n"
-            "- If phrase 'year to date' or 'ytd' appears, time.window MUST be 'ytd' with granularity 'month'.\n"
-            "- Time tokens must be canonical as defined previously.\n\n"
-            f"Detected issues: {json.dumps(issues, ensure_ascii=False)}\n\n"
-            "Return ONLY the corrected JSON object."
+        """Build repair prompt using external template."""
+        template = _load_prompt_template("classification/repair_prompt.txt")
+        return template.format(
+            question=question,
+            current_json=json.dumps(current, ensure_ascii=False),
+            issues=json.dumps(issues, ensure_ascii=False)
         )
 
     def _recursive_repair(
@@ -544,21 +485,12 @@ ALWAYS include ALL keys below (even if dimension/time are empty). Return ONLY th
         classification: Dict[str, Any],
         data_references: List[Dict[str, Any]]
     ) -> str:
-        """Build narrative generation prompt."""
-        data_str = json.dumps(data_references, indent=2)
-        return f"""Generate a clear, concise business narrative based on this data.
-
-Classification: {json.dumps(classification, indent=2)}
-
-Data: {data_str}
-
-Requirements:
-- Use specific numbers from the data
-- Keep it under 3 sentences
-- Be factual and precise
-- Cite your sources
-
-Return only the narrative text, nothing else."""
+        """Build narrative generation prompt using external template."""
+        template = _load_prompt_template("narrative/narrative_generation.txt")
+        return template.format(
+            classification=json.dumps(classification, indent=2),
+            data_references=json.dumps(data_references, indent=2)
+        )
     
     def _extract_json(self, text: str) -> Dict[str, Any]:
         """Extract JSON from model response using Phase 0 strict parser."""
@@ -809,105 +741,17 @@ class OllamaAdapter(AIAdapter):
             raise AIProviderError(f"Ollama narrative generation failed: {e}")
     
     def _build_classification_prompt(self, question: str) -> str:
-        """Build classification prompt for Ollama (clearer intents + new dimensions)."""
-        return f"""You are a strict business-intelligence classifier. Produce ONLY a JSON object.
-
-Question: {question}
-
-1) intent: choose ONE from [what, why, compare, trend, forecast, rank, breakdown, target, correlation, anomaly]
-    Intent cues (default to what unless explicit cues for others):
-    - what: what|how many|how much|show|list (no words about trend/next/forecast)
-    - compare: vs|versus|compare|than
-    - breakdown: by <dimension> (by region/segment/product/channel/status/product line)
-    - rank: top|bottom|best|worst|highest|lowest|top N|bottom N
-    - trend: trend|trending|increase|decrease|over time (must mention trend/time behavior)
-    - anomaly: spike|drop|outlier|unusual|sudden
-    - target: on track|target|goal|hit|miss|ahead|behind
-    - forecast: will|projected|expected next|next quarter/month/year (future terms required)
-    - correlation: correlate|correlation|impact|affect|related to
-
-2) subject: the BUSINESS ENTITY (lowercase, singular). MUST be one of:
-    [revenue, margin, profit, customers, orders, sales, marketing, products, regions, segments, reps, productLines, timePeriods]
-    - Never put a METRIC name here.
-    - If the question explicitly mentions an entity (e.g., customers/orders/marketing), USE THAT as subject even if the metric belongs to another family (e.g., MRR for active customers → subject=customers).
-    - If the measure is from the customers set (e.g., churn_rate, ltv, cac, nps, arpu), subject MUST be customers.
-    - If the measure is from the marketing set (e.g., conversion_rate, signup_count, lead_count), subject is typically marketing.
-    - If the measure is from the orders set (e.g., aov, order_count, return_rate), subject MUST be orders.
-
-3) measure: the SPECIFIC METRIC (lowercase, snake_case). Use canonical names:
-    revenue: [revenue, mrr, arr, gm, gm_pct, gross_profit]
-    customers: [customer_count, churn_rate, ltv, nps, cac, arpu]
-    orders: [order_count, aov, return_rate]
-    sales: [pipeline_value, win_rate, deal_count]
-    marketing: [conversion_rate, signup_count, lead_count]
-    aliases → canonical: gross_margin→gm, margin_pct→gm_pct, refund_rate→return_rate, nps_score→nps,
-                             pipeline→pipeline_value, signups→signup_count, orders_count→order_count,
-                             average_revenue_per_user→arpu, gross_profit_margin→gm
-
-4) dimension: include filters/breakdowns ONLY if explicit words like by/for/in or known values appear.
-        MUST map common adjectives to keys:
-            - active/inactive → {{"status":"active|inactive"}}
-            - online/offline/email/web/mobile → {{"channel":"online|offline|email|web|mobile"}}
-    For correlation intent, include the other metric as {{"related_metric":"<metric>"}} when stated (e.g., "correlate with ad spend").
-    For product lines, use {{"productLine":"Software|Hardware|Services|Platform"}}.
-    For weekday/weekend comparisons, use {{"timeOfWeek":"weekday|weekend"}}.
-        Examples: {{"segment":"Enterprise"}}, {{"region":"EMEA"}}, {{"channel":"email"}}, {{"status":"active"}}, {{"limit":5,"direction":"top"}}
-
-5) time: ALWAYS include BOTH period and granularity if any time is mentioned. Use these CANONICAL tokens:
-    period: [today, yesterday, this_week, last_week, this_month, last_month, this_quarter, last_quarter, this_year, last_year, Q1, Q2, Q3, Q4]
-    window: [ytd, qtd, mtd, l3m, l6m, l12m]  (use when phrases like "year-to-date", "YTD", "last 12 months" appear)
-    granularity: [day, week, month, quarter, year]
-    examples: {{"period":"Q3","granularity":"quarter"}}, {{"period":"last_month","granularity":"month"}}, {{"period":"this_quarter","granularity":"quarter"}}, {{"window":"ytd","granularity":"month"}}, {{"window":"l12m","granularity":"month"}}, {{"window":"l6m","granularity":"month"}}, {{"window":"l8q","granularity":"quarter"}}
-    Do NOT output free text like "this month"; always use snake_case canonical tokens.
-
-Disambiguation (RIGHT vs WRONG):
- - RIGHT: subject=marketing, measure=conversion_rate   | WRONG: subject=conversion_rate
- - RIGHT: subject=customers, measure=churn_rate        | WRONG: subject=churn_rate
- - RIGHT: subject=sales,     measure=pipeline_value    | WRONG: subject=pipeline_value
- - RIGHT: subject=orders,    measure=aov               | WRONG: subject=aov
- - RIGHT: subject=revenue,   measure=mrr/arr/revenue   | WRONG: subject=mrr/arr
- - RIGHT: subject=customers, measure=arpu              | WRONG: subject=revenue, measure=arpu
- - RIGHT: subject=profit,    measure=gross_profit      | WRONG: subject=margin,  measure=gross_margin
- - RIGHT: include dimension channel/status when words like online/email/active appear | WRONG: missing dimension
- - RIGHT: "How many active customers" → dimension={{"status":"active"}}
- - RIGHT: "online sales" → dimension={{"channel":"online"}}
- - RIGHT: "year to date" → time={{"window":"ytd","granularity":"month"}}
- - RIGHT: "last 6 months" → time={{"window":"l6m","granularity":"month"}}
- - RIGHT: "over last 8 quarters" → time={{"window":"l8q","granularity":"quarter"}}
- - RIGHT: "correlate conversion rate with ad spend" → intent=correlation, dimension={{"related_metric":"ad_spend"}}
- - RIGHT: "compare by product line" → intent=breakdown, dimension may include breakdown fields but JSON stays in the fixed schema
-
-ALWAYS include ALL keys below (even if dimension/time are empty). Return ONLY this JSON structure (no prose):
-{{
-  "intent": "<one>",
-  "subject": "<entity>",
-  "measure": "<metric>",
-  "dimension": {{}} ,
-  "time": {{}} ,
-  "confidence": {{
-     "overall": 0.9,
-     "components": {{"intent": 0.9, "subject": 0.9, "measure": 0.9, "time": 0.8, "dimension": 0.8}}
-  }},
-  "refused": false,
-  "refusal_reason": null
-}}"""
+        """Build classification prompt for Ollama using external template."""
+        template = _load_prompt_template("classification/ollama_classification.txt")
+        return template.format(question=question)
 
     def _build_repair_prompt(self, question: str, current: Dict[str, Any], issues: List[str]) -> str:
-        """Build repair prompt for Ollama (mirrors Bedrock)."""
-        return (
-            "You produced the following JSON classification, but it has issues to fix.\n"
-            "Fix ONLY the JSON to satisfy the constraints and detected issues. Do not add prose.\n\n"
-            f"Question: {question}\n\n"
-            f"Current JSON: {json.dumps(current, ensure_ascii=False)}\n\n"
-            "Constraints (must all be satisfied):\n"
-            "- subject must be a business entity (not a metric) from: [revenue, margin, profit, customers, orders, sales, marketing, products, regions, segments, reps, productLines, timePeriods].\n"
-            "- If measure in customers set [customer_count, churn_rate, ltv, nps, cac, arpu], subject MUST be customers.\n"
-            "- If measure in orders set [order_count, aov, return_rate], subject MUST be orders.\n"
-            "- Map adjectives to dimensions: active/inactive -> {\"status\":\"active|inactive\"}; online/offline/email/web/mobile -> {\"channel\":\"online|offline|email|web|mobile\"}.\n"
-            "- If phrase 'year to date' or 'ytd' appears, time.window MUST be 'ytd' with granularity 'month'.\n"
-            "- Time tokens must be canonical as defined previously.\n\n"
-            f"Detected issues: {json.dumps(issues, ensure_ascii=False)}\n\n"
-            "Return ONLY the corrected JSON object."
+        """Build repair prompt using external template."""
+        template = _load_prompt_template("classification/repair_prompt.txt")
+        return template.format(
+            question=question,
+            current_json=json.dumps(current, ensure_ascii=False),
+            issues=json.dumps(issues, ensure_ascii=False)
         )
 
     def _recursive_repair(
@@ -1040,17 +884,12 @@ ALWAYS include ALL keys below (even if dimension/time are empty). Return ONLY th
         classification: Dict[str, Any],
         data_references: List[Dict[str, Any]]
     ) -> str:
-        """Build narrative generation prompt."""
-        data_str = json.dumps(data_references, indent=2)
-        return f"""Generate a clear, concise business narrative based on this data.
-
-Classification: {json.dumps(classification, indent=2)}
-
-Data: {data_str}
-
-Requirements:
-
-Return only the narrative text, nothing else."""
+        """Build narrative generation prompt using external template."""
+        template = _load_prompt_template("narrative/narrative_generation.txt")
+        return template.format(
+            classification=json.dumps(classification, indent=2),
+            data_references=json.dumps(data_references, indent=2)
+        )
     
     def _extract_json(self, text: str) -> Dict[str, Any]:
         """Extract JSON from model response using Phase 0 strict parser."""

@@ -1,0 +1,101 @@
+You are a strict business-intelligence classifier. Produce ONLY a JSON object.
+
+Question: {question}
+
+1) intent: choose ONE from [what, why, compare, trend, forecast, rank, breakdown, target, correlation, anomaly]
+    Intent cues (default to what unless explicit cues for others):
+    - what: what|how many|how much|show|list (no words about trend/next/forecast/why)
+    - why: why|what caused|what's causing|what drove|what's driving|reason for|explain (questions seeking root cause or explanation)
+    - compare: vs|versus|compare|than|better|worse (comparing two values)
+    - breakdown: by <dimension> (by region/segment/product/channel/status/product line)
+    - rank: top|bottom|best|worst|highest|lowest|top N|bottom N|which <entities> (which products/regions/reps)
+    - trend: trend|trending|increase|decrease|over time (must mention trend/time behavior WITHOUT asking why)
+    - anomaly: spike|drop|outlier|unusual|sudden (must mention spike/drop WITHOUT asking why)
+    - target: on track|target|goal|hit|miss|ahead|behind
+    - forecast: will|projected|expected next|next quarter/month/year (future terms required)
+    - correlation: correlate|correlation|impact|affect|related to
+    CRITICAL intent distinction:
+    - "Why did X increase/decrease?" → why (NOT trend; asking for causal explanation)
+    - "X is increasing" or "X increased" → trend (NOT why; describing pattern)
+    - "Why is there a spike?" → why (NOT anomaly; asking for cause)
+    - "There was a spike" → anomaly (describing outlier)
+
+2) subject: the BUSINESS ENTITY (lowercase, singular). MUST be one of:
+    [revenue, margin, profit, customers, orders, sales, marketing, products, regions, segments, reps, productLines, timePeriods]
+    - Never put a METRIC name here.
+    - If the question explicitly mentions an entity (e.g., customers/orders/marketing), USE THAT as subject even if the metric belongs to another family (e.g., MRR for active customers → subject=customers).
+    - If the measure is from the customers set (e.g., churn_rate, ltv, cac, nps, arpu), subject MUST be customers.
+    - If the measure is from the marketing set (e.g., conversion_rate, signup_count, lead_count), subject is typically marketing.
+    - If the measure is from the orders set (e.g., aov, order_count, return_rate), subject MUST be orders.
+    CRITICAL subject selection for rank/breakdown:
+    - "top/bottom products" or "which products" → subject=products (NOT revenue/profit)
+    - "top/bottom regions" or "which regions" → subject=regions (NOT revenue)
+    - "top/bottom reps" or "which reps" → subject=reps (NOT sales)
+    - "by region" or "by segment" or "by product" → subject=<dimensional entity> (regions/segments/products)
+
+3) measure: the SPECIFIC METRIC (lowercase, snake_case). Use canonical names:
+    revenue: [revenue, mrr, arr, gm, gm_pct, gross_profit]
+    customers: [customer_count, churn_rate, ltv, nps, cac, arpu]
+    orders: [order_count, aov, return_rate]
+    sales: [pipeline_value, win_rate, deal_count]
+    marketing: [conversion_rate, signup_count, lead_count]
+    profit/margin: [margin_pct, op_margin_pct]
+    aliases → canonical: gross_margin→gm, refund_rate→return_rate, nps_score→nps,
+                             pipeline→pipeline_value, signups→signup_count, orders_count→order_count,
+                             average_revenue_per_user→arpu, gross_profit_margin→gm
+    CRITICAL measure disambiguation:
+    - "gross margin percentage" or "gross margin %" or "gm%" → gm_pct (NOT gm)
+    - "margin" or "margin %" or "margin percent" (WITHOUT "gross") → margin_pct (NOT gm_pct)
+    - "recurring revenue" or "subscription revenue" or "monthly recurring" → mrr (NOT revenue)
+    - "annual recurring" → arr (NOT revenue)
+    - For rank/breakdown questions asking "which products"/"which regions"/"which reps" → subject MUST be products/regions/reps (the dimensional entity being ranked)
+
+4) dimension: include filters/breakdowns ONLY if explicit words like by/for/in or known values appear.
+        MUST map common adjectives to keys:
+            - active/inactive → {{"status":"active|inactive"}}
+            - online/offline/email/web/mobile → {{"channel":"online|offline|email|web|mobile"}}
+    For correlation intent, include the other metric as {{"related_metric":"<metric>"}} when stated (e.g., "correlate with ad spend").
+    For product lines, use {{"productLine":"Software|Hardware|Services|Platform"}}.
+    For weekday/weekend comparisons, use {{"timeOfWeek":"weekday|weekend"}}.
+        Examples: {{"segment":"Enterprise"}}, {{"region":"EMEA"}}, {{"channel":"email"}}, {{"status":"active"}}, {{"limit":5,"direction":"top"}}
+
+5) time: ALWAYS include BOTH period and granularity if any time is mentioned. Use these CANONICAL tokens:
+    period: [today, yesterday, this_week, last_week, this_month, last_month, this_quarter, last_quarter, this_year, last_year, Q1, Q2, Q3, Q4]
+    window: [ytd, qtd, mtd, l3m, l6m, l12m]  (use when phrases like "year-to-date", "YTD", "last 12 months" appear)
+    granularity: [day, week, month, quarter, year]
+    examples: {{"period":"Q3","granularity":"quarter"}}, {{"period":"last_month","granularity":"month"}}, {{"period":"this_quarter","granularity":"quarter"}}, {{"window":"ytd","granularity":"month"}}, {{"window":"l12m","granularity":"month"}}, {{"window":"l6m","granularity":"month"}}, {{"window":"l8q","granularity":"quarter"}}
+    Do NOT output free text like "this month"; always use snake_case canonical tokens.
+
+Disambiguation (RIGHT vs WRONG):
+ - RIGHT: subject=marketing, measure=conversion_rate   | WRONG: subject=conversion_rate
+ - RIGHT: subject=customers, measure=churn_rate        | WRONG: subject=churn_rate
+ - RIGHT: subject=sales,     measure=pipeline_value    | WRONG: subject=pipeline_value
+ - RIGHT: subject=orders,    measure=aov               | WRONG: subject=aov
+ - RIGHT: subject=revenue,   measure=mrr/arr/revenue   | WRONG: subject=mrr/arr
+ - RIGHT: subject=customers, measure=arpu              | WRONG: subject=revenue, measure=arpu
+ - RIGHT: subject=profit,    measure=gross_profit      | WRONG: subject=margin,  measure=gross_margin
+ - RIGHT: include dimension channel/status when words like online/email/active appear | WRONG: missing dimension
+ - RIGHT: "How many active customers" → dimension={{"status":"active"}}
+ - RIGHT: "online sales" → dimension={{"channel":"online"}}
+ - RIGHT: "year to date" → time={{"window":"ytd","granularity":"month"}}
+ - RIGHT: "last 6 months" → time={{"window":"l6m","granularity":"month"}}
+ - RIGHT: "over last 8 quarters" → time={{"window":"l8q","granularity":"quarter"}}
+ - RIGHT: "correlate conversion rate with ad spend" → intent=correlation, dimension={{"related_metric":"ad_spend"}}
+ - RIGHT: "compare by product line" → intent=breakdown, dimension may include breakdown fields but JSON stays in the fixed schema
+ - RIGHT: "20% margin" (without "gross") → measure=margin_pct
+ - RIGHT: "gross margin %" → measure=gm_pct
+
+ALWAYS include ALL keys below (even if dimension/time are empty). Return ONLY this JSON structure (no prose):
+{{
+  "intent": "<one>",
+  "subject": "<entity>",
+  "measure": "<metric>",
+  "dimension": {{}} ,
+  "time": {{}} ,
+  "confidence": {{
+     "overall": 0.9,
+     "components": {{"intent": 0.9, "subject": 0.9, "measure": 0.9, "time": 0.8, "dimension": 0.8}}
+  }},
+  "refused": false,
+  "refusal_reason": null
+}}

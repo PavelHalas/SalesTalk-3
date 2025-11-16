@@ -37,21 +37,13 @@ def _canonical_time_token(raw: Optional[str], lookup: Dict[str, str]) -> Optiona
         return lookup[key[:-1]]
     return raw
 
-
-# Hard synonyms beyond file-based aliases
-HARD_MEASURE_SYNONYMS = {
-    # Treat operating margin % as gross margin % for classification purposes
-    "op_margin_pct": "gm_pct",
-    "operating_margin_pct": "gm_pct",
-    "operating_margin_percent": "gm_pct",
-    "operating_margin_percentage": "gm_pct",
-    "op_margin": "gm_pct",
-    "op%": "gm_pct",
-    "ebitda_margin": "gm_pct",
-    # Common gross profit margin synonyms
-    "gross_profit_margin": "gm",
-    "gross_profit": "gross_profit",
-}
+"""
+No-hardcoding policy:
+- All measure/subject/time aliases must live in taxonomy JSON under
+    backend/src/classification/taxonomy/default/** and be loaded via config.
+- This normalizer performs only file-driven canonicalization; no hardcoded
+    synonym tables are permitted here.
+"""
 
 
 def normalize_classification(classification: Dict[str, Any]) -> Dict[str, Any]:
@@ -81,7 +73,7 @@ def normalize_classification(classification: Dict[str, Any]) -> Dict[str, Any]:
     raw_measure = result.get("measure")
     if isinstance(raw_measure, str):
         m_key = _normalize_token(raw_measure)
-        canonical = metric_aliases.get(m_key) or HARD_MEASURE_SYNONYMS.get(m_key)
+        canonical = metric_aliases.get(m_key)
         if canonical and canonical != raw_measure:
             result["measure"] = canonical
 

@@ -1,0 +1,13 @@
+Generate a clear, concise business narrative based on this data.
+
+Classification: {classification}
+
+Data: {data_references}
+
+Requirements:
+- Use specific numbers from the data
+- Keep it under 3 sentences
+- Be factual and precise
+- Cite your sources
+
+Return only the narrative text, nothing else.
