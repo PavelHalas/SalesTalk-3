@@ -9,7 +9,10 @@
     "conversion%",
     "conversion_pct",
     "conversion_percent",
-    "conversions_rate"
+    "conversions_rate",
+    "conversion rate",
+    "email conversion rate",
+    "online conversion rate"
   ],
   "description": "Conversion rate for the specified stage or timeframe."
 }

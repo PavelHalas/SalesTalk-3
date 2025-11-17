@@ -62,14 +62,18 @@ def apply_subject_metric_rules(classification: Dict[str, Any]) -> Tuple[Dict[str
                 result["measure"] = normalized_measure
                 measure = normalized_measure
     
-    # Rule 3: Enforce metric-subject family constraints
+    # Rule 3: Enforce metric-subject family constraints (avoid duplicate corrections)
     if measure in METRIC_SUBJECT_MAP:
         required_subject = METRIC_SUBJECT_MAP[measure]
         if subject != required_subject:
-            corrections.append(
-                f"subject_family_corrected:measure={measure} requires subject={required_subject} (was {subject})"
-            )
+            tag = f"subject_family_corrected:measure={measure} requires subject={required_subject} (was {subject})"
+            if tag not in corrections:
+                corrections.append(tag)
             result["subject"] = required_subject
+
+    # Dedupe any repeated corrections (preserve order)
+    if corrections:
+        corrections = list(dict.fromkeys(corrections))
     
     return result, corrections
 

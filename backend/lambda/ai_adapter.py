@@ -988,21 +988,37 @@ def _apply_phase_1_hierarchy(
     # Harmonize time based on cues (window/granularity)
     try:
         ql = (question or "").lower()
-        t = classification.get("time", {}) or {}
+        time_payload = classification.get("time", {}) or {}
         changed = False
-        if ("ytd" in ql or "year to date" in ql):
-            if t.get("window") != "ytd":
-                t = {"window": "ytd", "granularity": t.get("granularity") or "month"}; changed = True
-        if "last 6 months" in ql and (t.get("window") != "l6m"):
-            t = {"window": "l6m", "granularity": "month"}; changed = True
-        if "last 12 months" in ql and (t.get("window") != "l12m"):
-            t = {"window": "l12m", "granularity": "month"}; changed = True
-        if "last 3 months" in ql and (t.get("window") != "l3m"):
-            t = {"window": "l3m", "granularity": "month"}; changed = True
-        if "last 8 quarters" in ql and (t.get("window") != "l8q"):
-            t = {"window": "l8q", "granularity": "quarter"}; changed = True
+        # Load taxonomy time config for patterns
+        try:
+            from classification.config_loader import get_classification_config
+            cfg = get_classification_config()
+            time_cfg = cfg.get("time", {}) or {}
+            window_patterns = time_cfg.get("window_patterns", []) or []
+        except Exception:
+            window_patterns = []
+        for pattern in window_patterns:
+            matches = pattern.get("match", []) if isinstance(pattern, dict) else []
+            if not isinstance(matches, list):
+                continue
+            if any(m in ql for m in matches):
+                # Apply pattern mappings if not already set or if different
+                new_window = pattern.get("window")
+                new_gran = pattern.get("granularity")
+                new_period = pattern.get("period")
+                updated = dict(time_payload)
+                if new_period and updated.get("period") != new_period:
+                    updated["period"] = new_period
+                if new_window and updated.get("window") != new_window:
+                    updated["window"] = new_window
+                if new_gran and updated.get("granularity") != new_gran:
+                    updated["granularity"] = new_gran
+                if updated != time_payload:
+                    time_payload = updated
+                    changed = True
         if changed:
-            classification["time"] = t
+            classification["time"] = time_payload
             meta = classification.setdefault("metadata", {})
             corr = meta.setdefault("corrections_applied", [])
             if "time_tokens_harmonized" not in corr:

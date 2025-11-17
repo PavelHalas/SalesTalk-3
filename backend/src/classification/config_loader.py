@@ -71,15 +71,18 @@ def _load_metrics(root: Path) -> Tuple[Dict[str, Dict[str, Any]], Dict[str, Any]
 
         subject_map[metric_id] = subject_name
         for alias in metric_data.get("aliases", []):
-            alias_key = alias.lower()
-            existing = alias_map.get(alias_key)
-            if existing and existing != metric_id:
-                raise ClassificationConfigError(
-                    f"Alias '{alias}' collides between metrics '{existing}' and '{metric_id}'"
-                )
-            if alias_key != metric_id:
-                alias_map[alias_key] = metric_id
-                subject_map.setdefault(alias_key, subject_name)
+            raw_alias = alias.strip().lower()
+            norm_alias = raw_alias.replace(" ", "_")
+            variants = {raw_alias, norm_alias}
+            for alias_key in variants:
+                existing = alias_map.get(alias_key)
+                if existing and existing != metric_id:
+                    raise ClassificationConfigError(
+                        f"Alias '{alias}' collides between metrics '{existing}' and '{metric_id}'"
+                    )
+                if alias_key != metric_id:
+                    alias_map[alias_key] = metric_id
+                    subject_map.setdefault(alias_key, subject_name)
 
     if not metrics:
         raise ClassificationConfigError("No metrics defined in taxonomy")

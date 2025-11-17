@@ -73,7 +73,8 @@ def normalize_classification(classification: Dict[str, Any]) -> Dict[str, Any]:
     raw_measure = result.get("measure")
     if isinstance(raw_measure, str):
         m_key = _normalize_token(raw_measure)
-        canonical = metric_aliases.get(m_key)
+        # Fallback: if underscore-normalized lookup misses, try raw lowercase (space-preserving)
+        canonical = metric_aliases.get(m_key) or metric_aliases.get(raw_measure.lower())
         if canonical and canonical != raw_measure:
             result["measure"] = canonical
 

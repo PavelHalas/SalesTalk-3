@@ -66,5 +66,17 @@
       "prefix": "black_friday_",
       "style": "title"
     }
+  ],
+  "window_patterns": [
+    {"match": ["year to date", "ytd"], "window": "ytd", "granularity": "month"},
+    {"match": ["quarter to date", "qtd"], "window": "qtd", "granularity": "month"},
+    {"match": ["month to date", "mtd"], "window": "mtd", "granularity": "day"},
+    {"match": ["last 3 months"], "window": "l3m", "granularity": "month"},
+    {"match": ["last 6 months"], "window": "l6m", "granularity": "month"},
+    {"match": ["last 12 months"], "window": "l12m", "granularity": "month"},
+    {"match": ["last 8 quarters"], "window": "l8q", "granularity": "quarter"},
+    {"match": ["last 30 days"], "window": "l30d", "granularity": "day"},
+    {"match": ["last 90 days"], "window": "l90d", "granularity": "day"},
+    {"match": ["this quarter", "current quarter"], "period": "this_quarter", "granularity": "quarter"}
   ]
 }

@@ -25,6 +25,20 @@ os.environ.setdefault("OLLAMA_BASE_URL", "http://localhost:11434")
 os.environ.setdefault("OLLAMA_MODEL", "dolphin-mistral:latest")  # Quick test: 100% subject/intent, 80% measure, 2.6s/q
 os.environ.setdefault("USE_HIER_PASSES", "true")
 VERBOSE_E2E = os.environ.get("VERBOSE_E2E", "false").lower() in ("true", "1", "yes")
+SUPPRESS_INFO_LOGS = os.environ.get("SUPPRESS_INFO_LOGS", "true").lower() in ("true", "1", "yes")
+
+if SUPPRESS_INFO_LOGS:
+    # Suppress noisy INFO logs from classification pipeline during test streaming.
+    import logging
+    root_logger = logging.getLogger()
+    root_logger.setLevel(logging.WARNING)
+    ai_logger = logging.getLogger("ai_adapter")
+    ai_logger.setLevel(logging.WARNING)
+    # Ensure existing handlers respect the elevated level.
+    for h in root_logger.handlers:
+        h.setLevel(logging.WARNING)
+    for h in ai_logger.handlers:
+        h.setLevel(logging.WARNING)
 
 # Strict / waterproof testing configuration (env-overridable)
 STRICT_E2E = os.environ.get("STRICT_E2E", "true").lower() in ("true", "1", "yes")
@@ -295,14 +309,36 @@ class TestProductOwnerQuestionSuite:
             # Compact dimension/time indicators
             dim_indicator = _icon(dim_ok)
             time_indicator = _icon(time_ok)
-            print(
-                f"[{row_index:03d}] Q: {question}\n"
-                f"    intent   exp={expected['intent']} act={intent_val} {_icon(intent_ok)}\n"
-                f"    subject  exp={expected['subject']} act={subject_val} {_icon(subject_ok)}\n"
-                f"    measure  exp={expected['measure']} act={measure_val} {_icon(measure_ok)}\n"
-                f"    dimension {dim_indicator} time {time_indicator} refused={refused}",
-                flush=True,
-            )
+            # Time breakdown
+            t = classification.get("time", {}) or {}
+            period = t.get("period")
+            window = t.get("window")
+            granularity = t.get("granularity")
+            # Dimension / filters breakdown
+            d = classification.get("dimension", {}) or {}
+            dim_keys = list(d.keys())
+            # Metadata & confidence
+            meta = classification.get("metadata", {}) or {}
+            # Collapse duplicate corrections while preserving order
+            raw_corrections = meta.get("corrections_applied", [])
+            seen = set()
+            corrections = []
+            for c in raw_corrections:
+                if c not in seen:
+                    corrections.append(c)
+                    seen.add(c)
+            phase1_status = meta.get("phase1", {}).get("status")
+            conf_overall = classification.get("confidence", {}).get("overall")
+            lines = [f"[{row_index:03d}] Q: {question}"]
+            lines.append(f"    intent   exp={expected['intent']} act={intent_val} {_icon(intent_ok)}")
+            lines.append(f"    subject  exp={expected['subject']} act={subject_val} {_icon(subject_ok)}")
+            lines.append(f"    measure  exp={expected['measure']} act={measure_val} {_icon(measure_ok)}")
+            if d or expected.get("dimension"):
+                lines.append(f"    dimension {dim_indicator} keys={dim_keys}")
+            if t or expected.get("time"):
+                lines.append(f"    time {time_indicator} period={period} window={window} gran={granularity}")
+            lines.append(f"    confidence={conf_overall} refused={refused} corrections={corrections} phase1={phase1_status}")
+            print("\n".join(lines), flush=True)
 
         # Enforce structure
         assert_minimal_structure(classification)
@@ -331,7 +367,17 @@ class TestProductOwnerQuestionSuite:
                 "measure_ok": measure_ok,
                 "dimension_ok": dim_ok,
                 "time_ok": time_ok,
-            }
+            },
+            "time_parts": {
+                "period": classification.get("time", {}).get("period"),
+                "window": classification.get("time", {}).get("window"),
+                "granularity": classification.get("time", {}).get("granularity"),
+            },
+            "dimension_keys": list((classification.get("dimension") or {}).keys()),
+            "refused": classification.get("refused", False),
+            "corrections": classification.get("metadata", {}).get("corrections_applied", []),
+            "phase1_status": classification.get("metadata", {}).get("phase1", {}).get("status"),
+            "confidence_overall": classification.get("confidence", {}).get("overall"),
         }
         with log_file.open("a") as lf:
             lf.write(json.dumps(entry) + "\n")
@@ -349,6 +395,8 @@ class TestProductOwnerQuestionSuite:
                     "measure_expected","measure_actual","measure_ok",
                     "dimension_expected","dimension_actual","dimension_ok",
                     "time_expected","time_actual","time_ok",
+                    "time_period","time_window","time_granularity",
+                    "dimension_keys","refused","confidence_overall","corrections","phase1_status",
                     "statusCode",
                 ])
             writer.writerow([
@@ -358,6 +406,14 @@ class TestProductOwnerQuestionSuite:
                 expected["measure"], classification.get("measure"), measure_ok,
                 json.dumps(expected.get("dimension", {})), json.dumps(classification.get("dimension", {})), dim_ok,
                 json.dumps(expected.get("time", {})), json.dumps(classification.get("time", {})), time_ok,
+                classification.get("time", {}).get("period"),
+                classification.get("time", {}).get("window"),
+                classification.get("time", {}).get("granularity"),
+                ";".join(list((classification.get("dimension") or {}).keys())),
+                classification.get("refused", False),
+                classification.get("confidence", {}).get("overall"),
+                ";".join(classification.get("metadata", {}).get("corrections_applied", [])),
+                classification.get("metadata", {}).get("phase1", {}).get("status"),
                 response.get("statusCode"),
             ])
 
@@ -419,7 +475,45 @@ class TestProductOwnerQuestionSuite:
                 "time": MIN_TIME_MATCH_RATE,
             },
             "strict": STRICT_E2E,
+            "distributions": {
+                "time_periods": {},
+                "time_windows": {},
+                "time_granularity": {},
+                "dimension_keys": {},
+                "refusals": 0,
+            }
         }
+
+        # Build distributions
+        from collections import Counter
+        period_counter = Counter()
+        window_counter = Counter()
+        gran_counter = Counter()
+        dim_key_counter = Counter()
+        refusals = 0
+        for row_detail in aggregator["rows"]:
+            t_act = row_detail.get("actual_time", {}) or {}
+            if isinstance(t_act, dict):
+                p = t_act.get("period"); w = t_act.get("window"); g = t_act.get("granularity")
+                if p: period_counter[p] += 1
+                if w: window_counter[w] += 1
+                if g: gran_counter[g] += 1
+            d_act = row_detail.get("actual_dimension", {}) or {}
+            if isinstance(d_act, dict):
+                for k in d_act.keys():
+                    dim_key_counter[k] += 1
+            if row_detail.get("actual_intent") and row_detail.get("actual_measure") and row_detail.get("actual_subject") and row_detail.get("time_ok") and row_detail.get("dimension_ok") and row_detail.get("question"):
+                pass  # placeholder if advanced refusal criteria added later
+            if row_detail.get("actual_dimension", {}).get("refused") or row_detail.get("actual_time", {}).get("refused") or row_detail.get("actual_measure") is None:
+                pass
+        for row_detail in aggregator["rows"]:
+            if row_detail.get("actual_intent") == "refused" or row_detail.get("refused"):
+                refusals += 1
+        summary["distributions"]["time_periods"] = period_counter.most_common()
+        summary["distributions"]["time_windows"] = window_counter.most_common()
+        summary["distributions"]["time_granularity"] = gran_counter.most_common()
+        summary["distributions"]["dimension_keys"] = dim_key_counter.most_common()
+        summary["distributions"]["refusals"] = refusals
 
         # Write aggregate JSON for external consumption
         agg_path = LOG_DIR / "product_owner_aggregate.json"
@@ -440,6 +534,11 @@ class TestProductOwnerQuestionSuite:
         print(f"Measure accuracy:  {measure_rate:6.1%}  ({counts['measure']}/{total})")
         print(f"Dimension accuracy: {dimension_rate:6.1%}  ({counts['dimension']}/{counts['dimension_expected_non_empty']} when expected)")
         print(f"Time accuracy:     {time_rate:6.1%}  ({counts['time']}/{counts['time_expected_non_empty']} when expected)")
+        print(f"\nTime Periods: {summary['distributions']['time_periods']}")
+        print(f"Time Windows: {summary['distributions']['time_windows']}")
+        print(f"Time Granularity: {summary['distributions']['time_granularity']}")
+        print(f"Dimension Keys: {summary['distributions']['dimension_keys']}")
+        print(f"Refusals: {summary['distributions']['refusals']}")
         print(f"\nTop Intent Mismatches:")
         for mismatch, count in intent_mismatches.most_common(5):
             print(f"  {mismatch}: {count}")

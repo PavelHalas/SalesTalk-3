@@ -12,6 +12,7 @@ export AI_PROVIDER=ollama
 export OLLAMA_MODEL="$MODEL"
 export USE_HIER_PASSES=true
 export VERBOSE_E2E=true
+export SUPPRESS_INFO_LOGS=true
 
 cd /Users/pavel/Documents/Development/SalesTalk-3/backend
 if [ -d .venv ]; then
