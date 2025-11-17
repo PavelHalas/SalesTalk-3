@@ -21,6 +21,12 @@ Question: {question}
     - If the measure is from the customers set (e.g., churn_rate, ltv, cac, nps, arpu), subject MUST be customers.
     - If the measure is from the marketing set (e.g., conversion_rate, signup_count, lead_count), subject is typically marketing.
     - If the measure is from the orders set (e.g., aov, order_count, return_rate), subject MUST be orders.
+        CRITICAL for rank intent only:
+        - Subject is the ENTITY BEING RANKED (not the metric family).
+            Examples:
+                • "Top 5 products by revenue" → subject=products, measure=revenue
+                • "Which regions are performing worst?" → subject=regions, measure=performance, dimension={"direction":"bottom"}
+                • "Rank months this year by revenue" → subject=timePeriods, measure=revenue, time={"window":"ytd","granularity":"month"}
 
 3) measure: the SPECIFIC METRIC (lowercase, snake_case). Use canonical names:
     revenue: [revenue, mrr, arr, gm, gm_pct, gross_profit]
@@ -35,6 +41,14 @@ Question: {question}
     - "gross margin %"/"gross margin percentage"/"gm%" -> gm_pct (NOT gm)
     - Unqualified "margin" or "margin %/percent" (no "gross") -> margin_pct (NOT gm_pct)
     - "recurring revenue" -> mrr (NOT revenue); "annual recurring" -> arr (NOT revenue)
+        - For rank queries WITHOUT an explicit metric (e.g., "which regions are performing worst"), use measure=performance
+
+        Correlation disambiguation (primary vs related metric):
+        - Choose the BUSINESS OUTCOME as measure, and place the driver/input as dimension.related_metric.
+            Examples:
+                • "correlation between ad spend and conversions" → measure=conversion_rate, subject=marketing, dimension={{"related_metric":"ad_spend"}}
+                • "Is CAC correlated with win rate by channel?" → measure=win_rate, subject=sales, dimension={{"related_metric":"cac","breakdown_by":["channel"]}}
+                • "Does NPS correlate with churn?" → measure=churn_rate, subject=customers, dimension={{"related_metric":"nps"}}
 
 4) dimension: include filters/breakdowns ONLY if explicit words like by/for/in or known values appear.
         MUST map common adjectives to keys:
@@ -43,13 +57,27 @@ Question: {question}
     For correlation intent, include the other metric as {{"related_metric":"<metric>"}} when stated (e.g., "correlate with ad spend").
     For product lines, use {{"productLine":"Software|Hardware|Services|Platform"}}.
     For weekday/weekend comparisons, use {{"timeOfWeek":"weekday|weekend"}}.
-        Examples: {{"segment":"Enterprise"}}, {{"region":"EMEA"}}, {{"channel":"email"}}, {{"status":"active"}}, {{"limit":5,"direction":"top"}}
+    CRITICAL for compare intent: When comparing TWO OR MORE values, output ARRAYS:
+        - "EMEA revenue vs APAC" → {{"region":["EMEA","APAC"]}}
+        - "SMB vs Enterprise churn" → {{"segment":["SMB","Enterprise"]}}
+        - "online vs retail" → {{"channel":["online","retail"]}}
+        - "Hardware vs Software margin" → {{"productLine":["Hardware","Software"]}}
+    Examples: {{"segment":"Enterprise"}}, {{"region":["EMEA","APAC"]}}, {{"channel":"email"}}, {{"status":"active"}}, {{"limit":5,"direction":"top"}}
 
 5) time: ALWAYS include BOTH period and granularity if any time is mentioned. Use these CANONICAL tokens:
     period: [today, yesterday, this_week, last_week, this_month, last_month, this_quarter, last_quarter, this_year, last_year, Q1, Q2, Q3, Q4]
     window: [ytd, qtd, mtd, l3m, l6m, l12m]  (use when phrases like "year-to-date", "YTD", "last 12 months" appear)
     granularity: [day, week, month, quarter, year]
-    examples: {{"period":"Q3","granularity":"quarter"}}, {{"period":"last_month","granularity":"month"}}, {{"period":"this_quarter","granularity":"quarter"}}, {{"window":"ytd","granularity":"month"}}, {{"window":"l12m","granularity":"month"}}, {{"window":"l6m","granularity":"month"}}, {{"window":"l8q","granularity":"quarter"}}
+    
+    CRITICAL for compare intent with MULTIPLE TIME PERIODS:
+    - When comparing DIFFERENT time periods (e.g., "Q3 vs Q4", "this month vs last month", "2024 vs 2025"):
+      Use "periods" (plural array) instead of "period", plus "comparison" type:
+      • Sequential comparison (adjacent periods): {{"periods":["Q3","Q4"],"granularity":"quarter","comparison":"sequential"}}
+      • Year-over-year: {{"periods":["Q1 2025","Q1 2024"],"granularity":"quarter","comparison":"yoy"}}
+    - When comparing dimensions with SINGLE time context (e.g., "EMEA vs APAC this quarter"):
+      Use "period" (singular): {{"period":"this_quarter","granularity":"quarter"}}
+    
+    Standard examples: {{"period":"Q3","granularity":"quarter"}}, {{"period":"last_month","granularity":"month"}}, {{"period":"this_quarter","granularity":"quarter"}}, {{"window":"ytd","granularity":"month"}}, {{"window":"l12m","granularity":"month"}}, {{"window":"l6m","granularity":"month"}}, {{"window":"l8q","granularity":"quarter"}}
     Do NOT output free text like "this month"; always use snake_case canonical tokens.
 
 Disambiguation (RIGHT vs WRONG):
@@ -67,6 +95,9 @@ Disambiguation (RIGHT vs WRONG):
  - RIGHT: "year to date" → time={{"window":"ytd","granularity":"month"}}
  - RIGHT: "last 6 months" → time={{"window":"l6m","granularity":"month"}}
  - RIGHT: "over last 8 quarters" → time={{"window":"l8q","granularity":"quarter"}}
+ - RIGHT: "Compare Q3 margin to Q4" → intent=compare, time={{"periods":["Q3","Q4"],"granularity":"quarter","comparison":"sequential"}}
+ - RIGHT: "Compare Q1 2025 vs Q1 2024" → intent=compare, time={{"periods":["Q1 2025","Q1 2024"],"granularity":"quarter","comparison":"yoy"}}
+ - RIGHT: "EMEA vs APAC this quarter" → intent=compare, dimension={{"region":["EMEA","APAC"]}}, time={{"period":"this_quarter","granularity":"quarter"}}
  - RIGHT: "correlate conversion rate with ad spend" → intent=correlation, dimension={{"related_metric":"ad_spend"}}
  - RIGHT: "compare by product line" → intent=breakdown, dimension may include breakdown fields but JSON stays in the fixed schema
 

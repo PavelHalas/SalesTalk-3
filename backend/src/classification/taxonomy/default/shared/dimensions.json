@@ -8,10 +8,10 @@
     "US",
     "UK",
     "CANADA",
-    "North_America",
+    "North America",
     "Europe",
-    "Asia_Pacific",
-    "Latin_America"
+    "Asia Pacific",
+    "Latin America"
   ],
   "segments": [
     "SMB",
@@ -93,7 +93,8 @@
     "status_nouns": ["customers", "users", "accounts"],
     "product_line_phrases": ["product", "product line", "product lines"],
     "correlation_verbs": ["correlate", "correlation", "impact", "impacts"],
-    "correlation_connectors": ["vs", "and", "with"]
+    "correlation_connectors": ["vs", "and", "with"],
+    "comparison_separators": ["vs", "versus", "vs.", "compared to", "compare to"]
   },
   "related_metric_patterns": [
     {"regex": "\\bdiscount(s|ing|ed)?\\b", "value": "discount_rate"},

@@ -333,8 +333,9 @@ class BedrockAdapter(AIAdapter):
     
     def _build_classification_prompt(self, question: str) -> str:
         """Build classification prompt for Bedrock using external template."""
-        template = _load_prompt_template("classification/bedrock_classification.txt")
-        return template.format(question=question)
+        template = _load_prompt_template("classification/classification_prompt.txt")
+        # Use simple replacement to avoid Python format interpreting JSON braces
+        return template.replace("{question}", question)
 
     def _build_repair_prompt(self, question: str, current: Dict[str, Any], issues: List[str]) -> str:
         """Build repair prompt using external template."""
@@ -482,6 +483,16 @@ class BedrockAdapter(AIAdapter):
         except Exception as e:
             logger.warning(f"Phase 0 measure correction failed: {e}")
         
+        
+        try:
+            # Phase 0.6: Rank subject detection (entity being ranked)
+            from classification.rules import apply_rank_subject_rules
+            result, rank_corr = apply_rank_subject_rules(question, result)
+            all_corrections.extend(rank_corr)
+        except ImportError:
+            logger.warning("Phase 0 rank subject rules not available")
+        except Exception as e:
+            logger.warning(f"Phase 0 rank subject detection failed: {e}")
         # Store all corrections in metadata
         if all_corrections:
             result["metadata"]["corrections_applied"] = all_corrections
@@ -758,9 +769,9 @@ class OllamaAdapter(AIAdapter):
             raise AIProviderError(f"Ollama narrative generation failed: {e}")
     
     def _build_classification_prompt(self, question: str) -> str:
-        """Build classification prompt for Ollama using external template."""
-        template = _load_prompt_template("classification/ollama_classification.txt")
-        return template.format(question=question)
+        """Build classification prompt for Ollama using unified template."""
+        template = _load_prompt_template("classification/classification_prompt.txt")
+        return template.replace("{question}", question)
 
     def _build_repair_prompt(self, question: str, current: Dict[str, Any], issues: List[str]) -> str:
         """Build repair prompt using external template."""
@@ -905,6 +916,16 @@ class OllamaAdapter(AIAdapter):
             logger.warning("Phase 0 measure text rules not available")
         except Exception as e:
             logger.warning(f"Phase 0 measure correction failed: {e}")
+        
+        try:
+            # Phase 0.6: Rank subject detection (entity being ranked)
+            from classification.rules import apply_rank_subject_rules
+            result, rank_corr = apply_rank_subject_rules(question, result)
+            all_corrections.extend(rank_corr)
+        except ImportError:
+            logger.warning("Phase 0 rank subject rules not available")
+        except Exception as e:
+            logger.warning(f"Phase 0 rank subject detection failed: {e}")
         
         # Store all corrections in metadata
         if all_corrections:

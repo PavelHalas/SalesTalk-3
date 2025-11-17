@@ -130,7 +130,9 @@ def extract_time_tokens(question: str, existing_time: Optional[Dict[str, Any]] =
     # If no window, consider period detection and fill missing pieces
     if period and not time_obj.get("period"):
         time_obj["period"] = period
-    if gran and not time_obj.get("granularity"):
+    # Override granularity if detected pattern has explicit granularity
+    # (patterns like "last quarter" know the correct granularity is "quarter")
+    if gran:
         time_obj["granularity"] = gran
 
     return time_obj

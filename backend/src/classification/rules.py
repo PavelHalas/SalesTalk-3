@@ -11,13 +11,26 @@ metric-specific keywords; rely on taxonomy aliases for detection.
 from typing import Dict, Any, List, Tuple
 import re
 
-from .config_loader import ClassificationConfigError, get_metrics_config, get_intent_patterns_config
+from .config_loader import ClassificationConfigError, get_metrics_config, get_intent_patterns_config, get_subjects_config
 
 _METRIC_CONFIG = get_metrics_config()
 METRIC_SUBJECT_MAP = _METRIC_CONFIG.get("subject_map", {})
 METRIC_ALIASES = _METRIC_CONFIG.get("aliases", {})
 
 _INTENT_PATTERNS = get_intent_patterns_config()
+_SUBJECTS_CONFIG = get_subjects_config()
+
+# Build subject entity alias map for rank detection (no hardcoding)
+_SUBJECT_ENTITY_ALIASES: Dict[str, str] = {}
+for subject_name, subject_info in _SUBJECTS_CONFIG.items():
+    meta = subject_info.get("meta", {})
+    canonical = meta.get("subject", subject_name).lower()
+    # Add canonical name
+    _SUBJECT_ENTITY_ALIASES[canonical] = canonical
+    # Add aliases from taxonomy
+    for alias in meta.get("aliases", []):
+        alias_key = alias.strip().lower()
+        _SUBJECT_ENTITY_ALIASES[alias_key] = canonical
 
 if not METRIC_SUBJECT_MAP:
     raise ClassificationConfigError("Metric subject map is empty; taxonomy misconfigured")
@@ -203,3 +216,57 @@ def get_subject_for_measure(measure: str) -> str:
     """
     measure = normalize_measure(measure)
     return METRIC_SUBJECT_MAP.get(measure, "")
+
+
+def apply_rank_subject_rules(question: str, classification: Dict[str, Any]) -> Tuple[Dict[str, Any], List[str]]:
+    """For rank intent, detect the entity being ranked from taxonomy subject aliases.
+    
+    Examples:
+        - "Top 5 products by revenue" → subject=products
+        - "Which regions are performing worst?" → subject=regions
+        - "Rank months this year by revenue" → subject=timePeriods
+    
+    Uses taxonomy subject aliases (no hardcoded keywords).
+    """
+    result = dict(classification)
+    corrections: List[str] = []
+    
+    intent = str(result.get("intent", "")).lower()
+    if intent != "rank":
+        return result, corrections
+    
+    ql = (question or "").lower()
+    current_subject = str(result.get("subject", "")).lower()
+    
+    # Scan question for subject/entity aliases using word boundaries
+    detected_entities: List[str] = []
+    for alias, canonical in _SUBJECT_ENTITY_ALIASES.items():
+        pattern = rf'\b{re.escape(alias)}\b'
+        if re.search(pattern, ql):
+            detected_entities.append(canonical)
+    
+    # Deduplicate while preserving order
+    detected_unique = list(dict.fromkeys(detected_entities))
+
+    # Prefer non-family entities when multiple detected (e.g., "products" and "revenue")
+    # Family subjects are those referenced by metric->subject mappings in taxonomy.
+    try:
+        family_subjects = set(METRIC_SUBJECT_MAP.values())
+    except Exception:
+        family_subjects = set()
+
+    non_family_candidates = [s for s in detected_unique if s not in family_subjects]
+
+    target_subject: str = ""
+    if len(detected_unique) == 1:
+        target_subject = detected_unique[0]
+    elif len(non_family_candidates) == 1:
+        # Exactly one non-family subject mentioned alongside family terms like revenue/margin
+        target_subject = non_family_candidates[0]
+
+    # Apply correction if we found a clear target and it differs from current
+    if target_subject and target_subject != current_subject:
+        result["subject"] = target_subject
+        corrections.append(f"rank_subject_corrected:{current_subject}→{target_subject}")
+    
+    return result, corrections
