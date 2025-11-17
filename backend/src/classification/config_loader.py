@@ -149,6 +149,8 @@ def _load_taxonomy() -> Dict[str, Any]:
     shared_dir = root / "shared"
     dimensions = _read_json(shared_dir / "dimensions.json")
     time_config = _read_json(shared_dir / "time.json")
+    intent_patterns_path = shared_dir / "intent_patterns.json"
+    intent_patterns = _read_json(intent_patterns_path) if intent_patterns_path.exists() else {}
 
     intents_registry = _load_intents(root)
     metrics_registry, metrics_index = _load_metrics(root)
@@ -157,6 +159,7 @@ def _load_taxonomy() -> Dict[str, Any]:
     return {
         "dimensions": dimensions,
         "time": time_config,
+        "intent_patterns": intent_patterns,
         "subjects": subjects,
         "metrics": metrics_index,
         "intents": intents_registry,
@@ -187,4 +190,10 @@ def get_time_config() -> Dict[str, Any]:
     config = get_classification_config().get("time")
     if not config:
         raise ClassificationConfigError("Missing 'time' section in taxonomy")
+    return config
+
+
+def get_intent_patterns_config() -> Dict[str, Any]:
+    """Load intent patterns for Phase 0 heuristic rules."""
+    config = get_classification_config().get("intent_patterns", {})
     return config

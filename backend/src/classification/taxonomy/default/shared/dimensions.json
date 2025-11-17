@@ -99,6 +99,7 @@
     {"regex": "\\bdiscount(s|ing|ed)?\\b", "value": "discount_rate"},
     {"regex": "\\b(page|site)\\s+(speed|load\\s*time|latency)\\b", "value": "page_load_time"},
     {"regex": "\\bsales\\s+(headcount|team\\s*size|people|reps|representatives)\\b", "value": "sales_headcount"},
+    {"regex": "\\bheadcount\\b", "value": "sales_headcount"},
     {"regex": "\\bdemo(s)?\\s+(completion\\s*rate|completion|completed)\\b", "value": "demo_completion_rate"}
   ],
   "rank": {

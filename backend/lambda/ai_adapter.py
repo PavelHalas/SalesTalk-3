@@ -456,6 +456,31 @@ class BedrockAdapter(AIAdapter):
             logger.warning("Phase 0 dimension_extractor module not available")
         except Exception as e:
             logger.warning(f"Phase 0 dimension extraction failed: {e}")
+
+        try:
+            # Phase 0.4: Intent corrections based on cues/dimensions
+            from classification.rules import apply_intent_rules
+            result, intent_corr = apply_intent_rules(question, result)
+            all_corrections.extend(intent_corr)
+        except ImportError:
+            logger.warning("Phase 0 intent rules not available")
+        except Exception as e:
+            logger.warning(f"Phase 0 intent correction failed: {e}")
+
+        try:
+            # Phase 0.5: Measure corrections from text cues and re-apply subject enforcement
+            from classification.rules import apply_measure_text_corrections, apply_subject_metric_rules
+            corrected, meas_corr = apply_measure_text_corrections(question, result)
+            if corrected != result:
+                result = corrected
+                all_corrections.extend(meas_corr)
+                # Enforce subject family after measure change
+                result, fam_corr = apply_subject_metric_rules(result)
+                all_corrections.extend(fam_corr)
+        except ImportError:
+            logger.warning("Phase 0 measure text rules not available")
+        except Exception as e:
+            logger.warning(f"Phase 0 measure correction failed: {e}")
         
         # Store all corrections in metadata
         if all_corrections:
