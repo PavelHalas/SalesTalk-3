@@ -1,0 +1,17 @@
+{
+  "today": ["dnes", "dnesni"],
+  "yesterday": ["vcera", "vcerejsi"],
+  "tomorrow": ["zitra", "zitrejsi"],
+  "this_week": ["tento tyden", "tenhle tyden"],
+  "last_week": ["minuly tyden", "prosly tyden"],
+  "this_month": ["tento mesic", "tenhle mesic"],
+  "last_month": ["minuly mesic", "prosly mesic"],
+  "this_quarter": ["tento kvartal"],
+  "last_quarter": ["minuly kvartal", "prosly kvartal"],
+  "this_year": ["letosni rok", "tento rok"],
+  "last_year": ["minuly rok", "prosly rok", "loni"],
+  "Q1": ["prvni kvartal", "q1"],
+  "Q2": ["druhy kvartal", "q2"],
+  "Q3": ["treti kvartal", "q3"],
+  "Q4": ["ctvrty kvartal", "q4"]
+}

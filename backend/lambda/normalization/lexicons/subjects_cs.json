@@ -1,0 +1,15 @@
+{
+  "revenue": ["trzby", "obrat", "vynosy"],
+  "customers": ["zakaznici", "klienti", "zakazniku"],
+  "orders": ["objednavky", "objednavek"],
+  "sales": ["prodeje", "prodej", "prodeju"],
+  "marketing": ["marketing"],
+  "margin": ["marze", "marzi"],
+  "profit": ["zisk", "zisku"],
+  "products": ["produkty", "produkt", "produktu"],
+  "regions": ["regiony", "region", "regionu"],
+  "segments": ["segmenty", "segment", "segmentu"],
+  "reps": ["obchodni zastupce", "obchodnici", "zastupce"],
+  "productLines": ["produktove rady", "produktova rada"],
+  "timePeriods": ["obdobi"]
+}

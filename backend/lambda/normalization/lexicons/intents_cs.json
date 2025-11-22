@@ -1,0 +1,12 @@
+{
+  "what": ["co", "jaky", "jaka", "jake"],
+  "why": ["proc"],
+  "compare": ["porovnat", "porovnej", "porovnani", "versus", "vs", "oproti"],
+  "trend": ["trend", "trendy", "vyvoj"],
+  "forecast": ["predpoved", "predikce", "projekce"],
+  "rank": ["zebricek", "poradi", "porad", "top", "nejlepsi", "nejhorsi"],
+  "breakdown": ["rozlozeni", "rozdeleni", "podle"],
+  "target": ["cil", "cilova hodnota"],
+  "correlation": ["korelace", "souvislost", "vztah"],
+  "anomaly": ["anomalie", "vyjimka", "neobvykle"]
+}

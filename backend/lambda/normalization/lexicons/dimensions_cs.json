@@ -1,0 +1,16 @@
+{
+  "active": ["aktivni"],
+  "inactive": ["neaktivni"],
+  "online": ["online"],
+  "email": ["email"],
+  "retail": ["maloobchod"],
+  "wholesale": ["velkoobchod"],
+  "North America": ["severni amerika"],
+  "Europe": ["evropa"],
+  "APAC": ["asie", "asie-tichomori"],
+  "SMB": ["smb", "male a stredni podniky"],
+  "Enterprise": ["podnik", "enterprise"],
+  "Software": ["software"],
+  "Hardware": ["hardware"],
+  "Services": ["sluzby"]
+}

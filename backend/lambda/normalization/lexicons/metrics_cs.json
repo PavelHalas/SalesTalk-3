@@ -1,0 +1,12 @@
+{
+  "mrr": ["mrr", "mesicni opakujici se trzby"],
+  "arr": ["arr", "rocni opakujici se trzby"],
+  "churn_rate": ["mira odlivu", "churn"],
+  "ltv": ["ltv", "zivotni hodnota zakaznika"],
+  "nps": ["nps", "net promoter score"],
+  "cac": ["cac", "naklady na ziskani zakaznika"],
+  "aov": ["aov", "prumerna hodnota objednavky"],
+  "conversion_rate": ["konverzni pomer", "mira konverze"],
+  "growth_rate": ["rustova mira", "rust"],
+  "revenue": ["trzby", "obrat", "vynosy"]
+}

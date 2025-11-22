@@ -1,0 +1,94 @@
+{
+  "patterns": [
+    {
+      "name": "overall_performance",
+      "regex": "\\bjak se nam vede\\b|\\bjak se nám vede\\b|\\bjak se dari\\b|\\bjak se nám daří\\b",
+      "replacement_en": "what is our overall performance?",
+      "tags": ["intent:what", "subject:overall", "measure:performance"]
+    },
+    {
+      "name": "overall_status",
+      "regex": "\\bjak jsme na tom\\b|\\bjak jsme na tom celkove\\b|\\bjak na tom jsme\\b",
+      "replacement_en": "what is our overall performance?",
+      "tags": ["intent:what", "subject:overall", "measure:performance"]
+    },
+    {
+      "name": "downward_trend_reason",
+      "regex": "\\bproc jdeme dolu\\b|\\bproc jdeme dolů\\b|\\bproc klesame\\b|\\bproč klesáme\\b|\\bproc klesa(me)?\\b|\\bproč jdeme dolů\\b",
+      "replacement_en": "why is our performance decreasing?",
+      "tags": ["intent:why", "trend:down"]
+    },
+    {
+      "name": "revenue_down_reason",
+      "regex": "\\bproc (nam )?padaji trzby\\b|\\bproc klesaji trzby\\b|\\bproc jdou trzby dolu\\b",
+      "replacement_en": "why is our revenue decreasing?",
+      "tags": ["intent:why", "subject:revenue", "trend:down"]
+    },
+    {
+      "name": "margin_down_reason",
+      "regex": "\\bproc klesa marze\\b|\\bproc jde marze dolu\\b|\\bproc je marze nizsi\\b",
+      "replacement_en": "why is our margin decreasing?",
+      "tags": ["intent:why", "subject:margin", "trend:down"]
+    },
+    {
+      "name": "who_is_churning",
+      "regex": "\\bkdo nam odchazi\\b|\\bkdo nám odchází\\b|\\bkdo odchazi\\b|\\bkdo odchází\\b",
+      "replacement_en": "who is churning?",
+      "tags": ["intent:who", "subject:customers", "measure:churn_rate"]
+    },
+    {
+      "name": "who_churns_most",
+      "regex": "\\bkdo (nam )?odchazi nejvic\\b|\\bkdo nejvic odchazi\\b|\\bkteri zakaznici odchazi\\b",
+      "replacement_en": "which customers are churning the most?",
+      "tags": ["intent:who", "subject:customers", "measure:churn_rate"]
+    },
+    {
+      "name": "best_worst_regions",
+      "regex": "\\bkde se nam dari nejlepe\\b|\\bkde se nam dari nejhur\\b|\\bktery region je nejlepsi\\b|\\bktery region je nejhorsi\\b",
+      "replacement_en": "which regions perform best and worst?",
+      "tags": ["intent:rank", "subject:regions", "measure:performance"]
+    },
+    {
+      "name": "top_products_up",
+      "regex": "\\bktere produkty rostou\\b|\\bktery produkt roste nejvic\\b|\\bco roste nejvic\\b",
+      "replacement_en": "which products are growing the most?",
+      "tags": ["intent:rank", "subject:products", "trend:up"]
+    },
+    {
+      "name": "top_products_down",
+      "regex": "\\bktere produkty klesaji\\b|\\bktery produkt pada nejvic\\b|\\bco klesa nejvic\\b",
+      "replacement_en": "which products are declining the most?",
+      "tags": ["intent:rank", "subject:products", "trend:down"]
+    },
+    {
+      "name": "customer_count",
+      "regex": "\\bkolik mame zakazniku\\b|\\bkolik je zakazniku\\b|\\bpocet zakazniku\\b",
+      "replacement_en": "what is our customer count?",
+      "tags": ["intent:what", "subject:customers", "measure:count"]
+    },
+    {
+      "name": "trend_query",
+      "regex": "\\bjaky je trend\\b|\\bjaky je vyvoj\\b",
+      "replacement_en": "what is the trend?",
+      "tags": ["intent:trend", "subject:overall"]
+    },
+    {
+      "name": "compare_period",
+      "regex": "\\bjak jsme proti loni\\b|\\boproti loni\\b|\\boproti minulemu mesici\\b|\\boproti minulemu kvartalu\\b",
+      "replacement_en": "compare current period versus last period",
+      "tags": ["intent:compare", "subject:overall"]
+    },
+    {
+      "name": "drivers_up",
+      "regex": "\\bco nas taha nahoru\\b|\\bco taha rust\\b|\\bco to taha nahoru\\b|\\bco zveda trzby\\b",
+      "replacement_en": "what is driving growth?",
+      "tags": ["intent:why", "trend:up", "subject:overall"]
+    },
+    {
+      "name": "drivers_down",
+      "regex": "\\bco nas taha dolu\\b|\\bco taha dolu\\b|\\bco srazi vykon\\b|\\bco brzdi rust\\b",
+      "replacement_en": "what is dragging performance down?",
+      "tags": ["intent:why", "trend:down", "subject:overall"]
+    }
+  ]
+}

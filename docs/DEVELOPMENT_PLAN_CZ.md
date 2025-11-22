@@ -59,21 +59,27 @@ Canonical JSON (English tokens)
 
 **Tasks**
 1. **Language Detection (LANG_DETECT)** [Todo 15]
-   - Fast heuristic: regex for common Czech diacritics (ě, š, č, ř, ž, ý, á, í, é, ú, ů) + stopwords (je, jsou, v, na, tento, minulý)
-   - Fallback: embedding similarity if ambiguous (short queries <5 words)
+   - **Primary**: Stopword-based detection (Czech people often omit diacritics when typing)
+     - Czech stopwords without diacritics: je, jsou, byl, byla, bylo, byli, jsem, jsi, jsme, jste, v, na, z, do, od, k, po, o, s, a, ale, nebo, tento, tato, toto, ten, ta, to, minuly, minula, minule, jaky, jaka, jake, ktery, ktera, ktere, kolik, proc, jak, kde, kdy
+     - Match threshold: ≥2 Czech stopwords OR ≥30% stopword density
+   - **Secondary**: Character pattern hints (optional boost, not required)
+     - If diacritics present (č, ď, ě, ň, ř, š, ť, ů, ž), boost Czech confidence
+   - **Fallback**: Embedding similarity for ambiguous cases (short queries <5 words with no stopwords)
    - Return: `{"language": "cs"|"en", "confidence": float}`
    - Environment flag: `ENABLE_LANG_DETECT=true`
 
 2. **Czech Normalization Mapping (CZ_NORM)** [Todo 16]
-   - Build bidirectional map: Czech phrase → English canonical token
-   - Coverage areas:
-     - Subjects (tržby→revenue, zákazníci→customers, objednávky→orders, marketing→marketing, prodeje→sales, marže→margin, zisk→profit)
-     - Metrics (MRR→mrr, ARR→arr, míra odlivu→churn_rate, LTV→ltv, NPS→nps, CAC→cac, průměrná hodnota objednávky→aov)
-     - Intents (co→what, proč→why, porovnat→compare, trend→trend, předpověď→forecast, žebříček→rank)
-     - Time periods (dnes→today, včera→yesterday, tento týden→this_week, minulý měsíc→last_month, Q1→Q1, letošní rok→this_year)
-     - Dimensions (aktivní→active, online→online, email→email, SMB→SMB, Enterprise→Enterprise, EMEA→EMEA)
-   - Implementation: `backend/lambda/normalization/cz_mapping.json`
-   - Normalization function applies longest-match-first strategy
+   - **MANDATORY**: Support both diacritic and diacritic-free variants for ALL Czech phrases
+   - Preprocessing: Strip diacritics before lookup (háčky: č→c, ď→d, ě→e, ň→n, ř→r, š→s, ť→t, ů→u, ž→z; čárky: á→a, é→e, í→i, ó→o, ú→u, ý→y)
+   - Build bidirectional map: Czech phrase (normalized) → English canonical token
+   - Coverage areas (all with diacritic-free variants):
+     - Subjects: trzby/tržby→revenue, zakaznici/zákazníci→customers, objednavky/objednávky→orders, prodeje→sales, marze/marže→margin, zisk→profit
+     - Metrics: mira odlivu/míra odlivu→churn_rate, prumerna hodnota objednavky/průměrná hodnota objednávky→aov
+     - Intents: co→what, proc/proč→why, porovnat→compare, predpoved/předpověď→forecast, zebricek/žebříček→rank
+     - Time: dnes→today, vcera/včera→yesterday, tento tyden/týden→this_week, minuly mesic/minulý měsíc→last_month, letosni rok/letošní rok→this_year
+     - Dimensions: aktivni/aktivní→active, neaktivni/neaktivní→inactive
+   - Implementation: `backend/lambda/normalization/cz_mapping.json` + `strip_diacritics()` utility
+   - Normalization function: strip_diacritics() → longest-match-first lookup
 
 3. **Integration Point**
    - Add normalization step in `classify.lambda_handler` before calling `ai_adapter`
@@ -90,6 +96,7 @@ Canonical JSON (English tokens)
 
 **Tasks**
 4. **Czech Taxonomy Extensions (CZ_TAXONOMY)** [Todo 17]
+   - **MANDATORY**: Include BOTH diacritic and diacritic-free variants in all aliases
    - Extend each subject JSON with `translations.cs.aliases` array
    - Example structure:
      ```json
@@ -98,7 +105,7 @@ Canonical JSON (English tokens)
        "aliases": ["topline", "sales"],
        "translations": {
          "cs": {
-           "aliases": ["tržby", "obrat", "výnosy"],
+           "aliases": ["tržby", "trzby", "obrat", "výnosy", "vynosy"],
            "display_name": "Tržby"
          }
        },
@@ -108,7 +115,7 @@ Canonical JSON (English tokens)
            "aliases": ["monthly_recurring_revenue"],
            "translations": {
              "cs": {
-               "aliases": ["měsíční opakující se tržby", "MRR"],
+               "aliases": ["měsíční opakující se tržby", "mesicni opakujici se trzby", "MRR"],
                "display_name": "Měsíční opakující se tržby"
              }
            }
@@ -122,17 +129,19 @@ Canonical JSON (English tokens)
      - `taxonomy/shared/time.json` (periods, windows, granularity)
 
 5. **Czech Dimensional Synonyms (CZ_DIM_SYN)** [Todo 27]
-   - Region: "Severní Amerika"→North America, "Evropa"→Europe, "Asie-Tichomoří"→APAC
-   - Segment: "malé a střední podniky"→SMB, "podnik"→Enterprise
+   - **MANDATORY**: All variants include diacritic-free forms
+   - Region: "Severní Amerika"/"Severni Amerika"→North America, "Evropa"→Europe, "Asie-Tichomoří"/"Asie-Tichomori"→APAC
+   - Segment: "malé a střední podniky"/"male a stredni podniky"→SMB, "podnik"→Enterprise
    - Channel: "maloobchod"→retail, "velkoobchod"→wholesale
-   - Product Line: "software"→Software, "hardware"→Hardware, "služby"→Services
-   - Status: "aktivní"→active, "neaktivní"→inactive
+   - Product Line: "software"→Software, "hardware"→Hardware, "služby"/"sluzby"→Services
+   - Status: "aktivní"/"aktivni"→active, "neaktivní"/"neaktivni"→inactive
 
 6. **Czech Time Tokens Extension (CZ_TIME)** [Todo 28]
-   - Periods: včera, dnes, zítra, tento týden, minulý týden, tento měsíc, minulý měsíc, tento kvartál, minulý kvartál, letošní rok, minulý rok
-   - Windows: od začátku roku (ytd), od začátku kvartálu (qtd), posledních 3 měsíce (l3m), posledních 6 měsíců (l6m), posledních 12 měsíců (l12m)
-   - Granularity: den, týden, měsíc, kvartál, rok
-   - Multi-period patterns: "Q3 vs Q4", "tento měsíc oproti minulému"
+   - **MANDATORY**: All time expressions in both diacritic and diacritic-free forms
+   - Periods: vcera/včera, dnes, zitra/zítra, tento tyden/týden, minuly tyden/minulý týden, tento mesic/měsíc, minuly mesic/minulý měsíc, tento kvartal/kvartál, minuly kvartal/minulý kvartál, letosni rok/letošní rok, minuly rok/minulý rok
+   - Windows: od zacatku roku/od začátku roku (ytd), od zacatku kvartalu/od začátku kvartálu (qtd), poslednich 3 mesice/posledních 3 měsíce (l3m), poslednich 6 mesicu/posledních 6 měsíců (l6m), poslednich 12 mesicu/posledních 12 měsíců (l12m)
+   - Granularity: den, tyden/týden, mesic/měsíc, kvartal/kvartál, rok
+   - Multi-period patterns: "Q3 vs Q4", "tento mesic/měsíc oproti minulemu/minulému"
 
 **Acceptance Criteria**
 - All 12 subjects have Czech translations
@@ -180,6 +189,7 @@ Canonical JSON (English tokens)
 
 **Tasks**
 9. **Czech Contract Test Suite (CZ_TESTS)** [Todo 19]
+   - **MANDATORY**: Test suite must include 50/50 split of diacritic vs diacritic-free questions
    - Create `backend/tests/data/product_owner_questions_cz.csv`
    - Coverage (target 80-100 questions):
      - All intent types (what, why, compare, trend, forecast, rank, breakdown, target, correlation, anomaly)
@@ -352,12 +362,13 @@ Canonical JSON (English tokens)
 ### Code Components
 - `backend/lambda/detection/language_detector.py` - Fast Czech/English detection
 - `backend/lambda/normalization/cz_normalizer.py` - Czech → English token mapper
-- `backend/lambda/normalization/cz_mapping.json` - Translation dictionary
+- `backend/lambda/normalization/cz_mapping.json` - Translation dictionary (diacritic-free keys)
+- `backend/lambda/normalization/diacritic_utils.py` - Diacritic stripping utility
 - `backend/lambda/prompts/classification/prompt_base.txt` - Core schema
-- `backend/lambda/prompts/classification/prompt_examples_cs.txt` - Czech examples
-- `taxonomy/subjects/*.json` - Extended with Czech translations
-- `taxonomy/shared/dimensions.json` - Czech dimension synonyms
-- `taxonomy/shared/time.json` - Czech time tokens
+- `backend/lambda/prompts/classification/prompt_examples_cs.txt` - Czech examples (with/without diacritics)
+- `taxonomy/subjects/*.json` - Extended with Czech translations (both variants)
+- `taxonomy/shared/dimensions.json` - Czech dimension synonyms (both variants)
+- `taxonomy/shared/time.json` - Czech time tokens (both variants)
 
 ### Test Artifacts
 - `backend/tests/data/product_owner_questions_cz.csv` - 80-100 Czech test cases
@@ -386,10 +397,11 @@ Canonical JSON (English tokens)
 
 ### Functional Requirements
 - ✅ Czech questions correctly classified with canonical English output tokens
-- ✅ Language detection accuracy ≥98%
-- ✅ Normalization coverage ≥90% common phrases
-- ✅ All 12 subjects + shared dimensions have Czech translations
-- ✅ Czech test suite (≥80 questions) runs successfully
+- ✅ **MANDATORY**: Diacritic-free Czech text processed with same accuracy as diacritic text
+- ✅ Language detection accuracy ≥98% (both diacritic and diacritic-free)
+- ✅ Normalization coverage ≥90% common phrases (both variants)
+- ✅ All 12 subjects + shared dimensions have Czech translations (both diacritic and diacritic-free aliases)
+- ✅ Czech test suite (≥80 questions, 50% diacritic-free) runs successfully
 
 ### Quality Requirements
 - ✅ CZ intent accuracy ≥95% (within 3pp of EN)

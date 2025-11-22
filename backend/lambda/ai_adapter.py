@@ -615,26 +615,15 @@ class OllamaAdapter(AIAdapter):
         prompt = self._build_classification_prompt(question)
         
         try:
-            import requests
-            
-            response = requests.post(
-                f"{self.base_url}/api/generate",
-                json={
-                    "model": self.model,
-                    "prompt": prompt,
-                    "stream": False,
-                    "options": {
-                        "temperature": 0.0
-                    }
-                },
-                timeout=120  # Increased for larger models (20B+)
+            # Use unified completion helper with adaptive endpoint selection
+            completion_text = self._ollama_complete(
+                prompt=prompt,
+                temperature=0.0,
+                timeout=120,
             )
-            
-            response.raise_for_status()
-            result = response.json()
-            
+
             # Extract JSON from response
-            classification = self._extract_json(result["response"])
+            classification = self._extract_json(completion_text)
 
             # Validate classification
             self._validate_classification(classification)
@@ -716,25 +705,12 @@ class OllamaAdapter(AIAdapter):
         prompt = self._build_narrative_prompt(classification, data_references)
         
         try:
-            import requests
-            
-            response = requests.post(
-                f"{self.base_url}/api/generate",
-                json={
-                    "model": self.model,
-                    "prompt": prompt,
-                    "stream": False,
-                    "options": {
-                        "temperature": 0.3
-                    }
-                },
-                timeout=30
+            # Use unified completion helper with adaptive endpoint selection
+            narrative_text = self._ollama_complete(
+                prompt=prompt,
+                temperature=0.3,
+                timeout=30,
             )
-            
-            response.raise_for_status()
-            result = response.json()
-            
-            narrative_text = result["response"]
             
             logger.info(
                 "Narrative generation successful",
@@ -796,21 +772,13 @@ class OllamaAdapter(AIAdapter):
             if not issues:
                 break
             try:
-                import requests
                 prompt = self._build_repair_prompt(question, current, issues)
-                response = requests.post(
-                    f"{self.base_url}/api/generate",
-                    json={
-                        "model": self.model,
-                        "prompt": prompt,
-                        "stream": False,
-                        "options": {"temperature": 0.0},
-                    },
+                completion_text = self._ollama_complete(
+                    prompt=prompt,
+                    temperature=0.0,
                     timeout=60,
                 )
-                response.raise_for_status()
-                result = response.json()
-                repaired = self._extract_json(result["response"])
+                repaired = self._extract_json(completion_text)
                 self._validate_classification(repaired)
                 current = repaired
                 logger.info(
@@ -824,6 +792,75 @@ class OllamaAdapter(AIAdapter):
                 )
                 break
         return current
+
+    def _ollama_complete(self, prompt: str, temperature: float, timeout: int) -> str:
+        """
+        Call Ollama using generate or chat endpoints, adapting on 404/405.
+
+        Respects optional env var `OLLAMA_PREFER_CHAT` to prioritize /api/chat.
+        """
+        import requests
+
+        prefer_chat = os.getenv("OLLAMA_PREFER_CHAT", "").lower() in {"1", "true", "yes"}
+        modes = ["chat", "generate"] if prefer_chat else ["generate", "chat"]
+
+        last_error: Optional[Exception] = None
+        for mode in modes:
+            try:
+                if mode == "generate":
+                    resp = requests.post(
+                        f"{self.base_url}/api/generate",
+                        json={
+                            "model": self.model,
+                            "prompt": prompt,
+                            "stream": False,
+                            "options": {"temperature": temperature},
+                        },
+                        timeout=timeout,
+                    )
+                    # If endpoint not found, try next mode
+                    if resp.status_code in (404, 405):
+                        raise requests.HTTPError(f"{resp.status_code} for /api/generate", response=resp)
+                    resp.raise_for_status()
+                    data = resp.json()
+                    text = data.get("response")
+                    if not isinstance(text, str):
+                        raise AIProviderError("Unexpected Ollama generate response format")
+                    return text
+                else:
+                    resp = requests.post(
+                        f"{self.base_url}/api/chat",
+                        json={
+                            "model": self.model,
+                            "messages": [{"role": "user", "content": prompt}],
+                            "stream": False,
+                            "options": {"temperature": temperature},
+                        },
+                        timeout=timeout,
+                    )
+                    if resp.status_code in (404, 405):
+                        raise requests.HTTPError(f"{resp.status_code} for /api/chat", response=resp)
+                    resp.raise_for_status()
+                    data = resp.json()
+                    # Prefer message.content; fallback to response or last messages entry
+                    msg = data.get("message") or {}
+                    text = msg.get("content")
+                    if not text and isinstance(data.get("messages"), list) and data["messages"]:
+                        text = data["messages"][-1].get("content")
+                    if not text:
+                        text = data.get("response")
+                    if not isinstance(text, str):
+                        raise AIProviderError("Unexpected Ollama chat response format")
+                    return text
+            except Exception as e:
+                last_error = e
+                logger.debug(
+                    "Ollama endpoint attempt failed; trying alternate",
+                    extra={"mode": mode, "error": str(e)}
+                )
+                continue
+
+        raise AIProviderError(f"Ollama request failed: {last_error}")
     
     def _apply_phase_0_enhancements(
         self,

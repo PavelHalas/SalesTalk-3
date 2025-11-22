@@ -1,0 +1,12 @@
+{
+  "day": ["den", "dne"],
+  "daily": ["denni", "denne"],
+  "week": ["tyden"],
+  "weekly": ["tydne"],
+  "month": ["mesic"],
+  "monthly": ["mesicne"],
+  "quarter": ["kvartal"],
+  "quarterly": ["kvartalne"],
+  "year": ["rok"],
+  "yearly": ["rocne"]
+}

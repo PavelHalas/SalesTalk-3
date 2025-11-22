@@ -1,0 +1,121 @@
+# Czech Test Benchmark Corpus
+
+This file contains 80+ realistic Czech queries for evaluating classification coverage.
+Each query is tagged with expected detection outcomes for validation.
+
+Format:
+- `cz`: Czech query (diacritic-free as users type)
+- `en`: Expected canonical English after normalization
+- `layer`: Expected processing layer (lexical|pattern|fuzzy|exemplar|manual)
+- `tags`: Classification tags for validation
+
+## Overall Performance (10 queries)
+
+{"cz": "jak se nam dari", "en": "how are we doing overall", "layer": "pattern", "tags": ["overall_performance"]}
+{"cz": "jak jsme na tom", "en": "how are we doing overall", "layer": "pattern", "tags": ["overall_performance"]}
+{"cz": "celkovy vysledek", "en": "overall results", "layer": "lexical", "tags": ["overall_performance"]}
+{"cz": "jaky je celkovy stav firmy", "en": "what is the overall company status", "layer": "pattern", "tags": ["overall_status"]}
+{"cz": "celkove trzby tento mesic", "en": "overall revenue this month", "layer": "lexical", "tags": ["revenue", "time"]}
+{"cz": "jak se nam dari celkove", "en": "how are we doing overall", "layer": "pattern", "tags": ["overall_performance"]}
+{"cz": "celkovy obrat za rok", "en": "overall revenue for year", "layer": "lexical", "tags": ["revenue", "time"]}
+{"cz": "co nam jde dobre a co spatne", "en": "what is going well and what badly", "layer": "manual", "tags": ["comparison"]}
+{"cz": "jak jsme na tom s trzby", "en": "how are we doing with revenue", "layer": "fuzzy", "tags": ["revenue"]}
+{"cz": "celkovy pohled na firmu", "en": "overall view of company", "layer": "manual", "tags": ["overview"]}
+
+## Trend Analysis (15 queries)
+
+{"cz": "proc klesaji trzby", "en": "why is revenue declining", "layer": "pattern", "tags": ["revenue", "trend", "why"]}
+{"cz": "proc jdeme dolu", "en": "why are we going down", "layer": "pattern", "tags": ["downward_trend"]}
+{"cz": "proc klesly prijmy", "en": "why did revenue decline", "layer": "exemplar", "tags": ["revenue", "trend", "why"]}
+{"cz": "proc nam klesa marze", "en": "why is our margin declining", "layer": "pattern", "tags": ["margin", "trend", "why"]}
+{"cz": "proc se nam zhorstuje obrat", "en": "why is our revenue worsening", "layer": "fuzzy", "tags": ["revenue", "trend"]}
+{"cz": "jak se vyviji trzby", "en": "how is revenue trending", "layer": "lexical", "tags": ["revenue", "trend"]}
+{"cz": "rostou nam prodeje", "en": "are our sales growing", "layer": "lexical", "tags": ["sales", "trend"]}
+{"cz": "klesaji objednavky", "en": "are orders declining", "layer": "lexical", "tags": ["orders", "trend"]}
+{"cz": "jak se vyviji zisk", "en": "how is profit trending", "layer": "lexical", "tags": ["profit", "trend"]}
+{"cz": "proc nam roste churn", "en": "why is our churn increasing", "layer": "fuzzy", "tags": ["churn", "trend", "why"]}
+{"cz": "proc ztracime zakazniky", "en": "why are we losing customers", "layer": "manual", "tags": ["customers", "churn", "why"]}
+{"cz": "trend trzeb tento rok", "en": "revenue trend this year", "layer": "pattern", "tags": ["revenue", "trend", "time"]}
+{"cz": "porovnej trzby mesic na mesic", "en": "compare revenue month over month", "layer": "pattern", "tags": ["revenue", "compare", "time"]}
+{"cz": "jak se vyviji MRR", "en": "how is MRR trending", "layer": "lexical", "tags": ["mrr", "trend"]}
+{"cz": "proc nam klesaji prijmy z prodeju", "en": "why is our sales revenue declining", "layer": "fuzzy", "tags": ["revenue", "sales", "trend", "why"]}
+
+## Customer & Churn Analysis (12 queries)
+
+{"cz": "kdo nam odchazi", "en": "who is churning", "layer": "pattern", "tags": ["churn", "who"]}
+{"cz": "kteri zakaznici nejvic churni", "en": "which customers churn the most", "layer": "pattern", "tags": ["customers", "churn", "rank"]}
+{"cz": "kdo nejvic churni", "en": "who churns the most", "layer": "pattern", "tags": ["churn", "rank"]}
+{"cz": "kteri segment ma nejvyssi churn", "en": "which segment has highest churn", "layer": "fuzzy", "tags": ["segments", "churn", "rank"]}
+{"cz": "kolik zakazniku jsme ztratili", "en": "how many customers did we lose", "layer": "pattern", "tags": ["customers", "churn", "count"]}
+{"cz": "pocet aktivnich zakazniku", "en": "count of active customers", "layer": "pattern", "tags": ["customers", "count", "active"]}
+{"cz": "churn rate tento mesic", "en": "churn rate this month", "layer": "lexical", "tags": ["churn_rate", "time"]}
+{"cz": "proc odchazeji zakaznici", "en": "why are customers churning", "layer": "manual", "tags": ["customers", "churn", "why"]}
+{"cz": "jake segmenty churni nejvic", "en": "which segments churn the most", "layer": "fuzzy", "tags": ["segments", "churn", "rank"]}
+{"cz": "LTV aktivnich zakazniku", "en": "LTV of active customers", "layer": "lexical", "tags": ["ltv", "customers", "active"]}
+{"cz": "kolik stoji ziskat zakaznika", "en": "how much does it cost to acquire customer", "layer": "fuzzy", "tags": ["cac"]}
+{"cz": "NPS skore tento kvartal", "en": "NPS score this quarter", "layer": "lexical", "tags": ["nps", "time"]}
+
+## Regional & Segment Breakdown (10 queries)
+
+{"cz": "nejlepsi a nejhorsi regiony", "en": "best and worst regions", "layer": "pattern", "tags": ["regions", "rank"]}
+{"cz": "ktere regiony vydelavaji nejvic", "en": "which regions earn the most", "layer": "fuzzy", "tags": ["regions", "revenue", "rank"]}
+{"cz": "trzby podle regionu", "en": "revenue by region", "layer": "lexical", "tags": ["revenue", "regions", "breakdown"]}
+{"cz": "prodej podle segmentu", "en": "sales by segment", "layer": "lexical", "tags": ["sales", "segments", "breakdown"]}
+{"cz": "marze podle regionu", "en": "margin by region", "layer": "lexical", "tags": ["margin", "regions", "breakdown"]}
+{"cz": "jak si vede evropa", "en": "how is Europe performing", "layer": "fuzzy", "tags": ["regions", "performance"]}
+{"cz": "porovnej severni ameriku a evropu", "en": "compare North America and Europe", "layer": "fuzzy", "tags": ["regions", "compare"]}
+{"cz": "ktere segmenty rostou", "en": "which segments are growing", "layer": "lexical", "tags": ["segments", "trend"]}
+{"cz": "enterprise vs SMB trzby", "en": "enterprise vs SMB revenue", "layer": "fuzzy", "tags": ["segments", "revenue", "compare"]}
+{"cz": "prodeje SMB tento kvartal", "en": "SMB sales this quarter", "layer": "lexical", "tags": ["sales", "segments", "time"]}
+
+## Product Analysis (10 queries)
+
+{"cz": "top produkty rostou", "en": "top products growing", "layer": "pattern", "tags": ["products", "trend", "rank"]}
+{"cz": "top produkty klesaji", "en": "top products declining", "layer": "pattern", "tags": ["products", "trend", "rank"]}
+{"cz": "nejprodavanejsi produkty", "en": "best selling products", "layer": "manual", "tags": ["products", "rank"]}
+{"cz": "ktere produkty vydelavaji nejvic", "en": "which products earn the most", "layer": "fuzzy", "tags": ["products", "revenue", "rank"]}
+{"cz": "marze podle produktu", "en": "margin by product", "layer": "lexical", "tags": ["margin", "products", "breakdown"]}
+{"cz": "prodej softwarove rady", "en": "sales of software product line", "layer": "fuzzy", "tags": ["sales", "productLines"]}
+{"cz": "kolik prodavame hardwaru", "en": "how much hardware are we selling", "layer": "fuzzy", "tags": ["sales", "productLines"]}
+{"cz": "porovnej software a hardware trzby", "en": "compare software and hardware revenue", "layer": "fuzzy", "tags": ["productLines", "revenue", "compare"]}
+{"cz": "trend prodeju sluzeb", "en": "services sales trend", "layer": "fuzzy", "tags": ["sales", "productLines", "trend"]}
+{"cz": "jake produkty mame", "en": "what products do we have", "layer": "manual", "tags": ["products"]}
+
+## Time-Based Queries (12 queries)
+
+{"cz": "trzby dnes", "en": "revenue today", "layer": "lexical", "tags": ["revenue", "time"]}
+{"cz": "objednavky vcera", "en": "orders yesterday", "layer": "lexical", "tags": ["orders", "time"]}
+{"cz": "prodeje tento tyden", "en": "sales this week", "layer": "lexical", "tags": ["sales", "time"]}
+{"cz": "trzby minuly mesic", "en": "revenue last month", "layer": "lexical", "tags": ["revenue", "time"]}
+{"cz": "obrat tento kvartal", "en": "revenue this quarter", "layer": "lexical", "tags": ["revenue", "time"]}
+{"cz": "zisk minuly rok", "en": "profit last year", "layer": "lexical", "tags": ["profit", "time"]}
+{"cz": "YTD trzby", "en": "YTD revenue", "layer": "lexical", "tags": ["revenue", "time"]}
+{"cz": "trzby za Q1", "en": "revenue for Q1", "layer": "lexical", "tags": ["revenue", "time"]}
+{"cz": "posledni 3 mesice obrat", "en": "last 3 months revenue", "layer": "lexical", "tags": ["revenue", "time"]}
+{"cz": "conversion rate tento mesic", "en": "conversion rate this month", "layer": "lexical", "tags": ["conversion_rate", "time"]}
+{"cz": "mesicni trzby", "en": "monthly revenue", "layer": "lexical", "tags": ["revenue", "granularity"]}
+{"cz": "tydenni prodeje", "en": "weekly sales", "layer": "lexical", "tags": ["sales", "granularity"]}
+
+## Metrics & KPIs (10 queries)
+
+{"cz": "jaky je MRR", "en": "what is MRR", "layer": "lexical", "tags": ["mrr", "what"]}
+{"cz": "ARR tento rok", "en": "ARR this year", "layer": "lexical", "tags": ["arr", "time"]}
+{"cz": "growth rate", "en": "growth rate", "layer": "lexical", "tags": ["growth_rate"]}
+{"cz": "prumerna hodnota objednavky", "en": "average order value", "layer": "lexical", "tags": ["aov"]}
+{"cz": "conversion rate", "en": "conversion rate", "layer": "lexical", "tags": ["conversion_rate"]}
+{"cz": "naklady na ziskani zakaznika", "en": "customer acquisition cost", "layer": "fuzzy", "tags": ["cac"]}
+{"cz": "celozivotn hodnota zakaznika", "en": "customer lifetime value", "layer": "fuzzy", "tags": ["ltv"]}
+{"cz": "mira churnu", "en": "churn rate", "layer": "lexical", "tags": ["churn_rate"]}
+{"cz": "NPS skore", "en": "NPS score", "layer": "lexical", "tags": ["nps"]}
+{"cz": "jaky je nas zisk", "en": "what is our profit", "layer": "lexical", "tags": ["profit", "what"]}
+
+## Complex Multi-Intent (6 queries)
+
+{"cz": "porovnej trzby Q1 a Q2", "en": "compare revenue Q1 and Q2", "layer": "pattern", "tags": ["revenue", "compare", "time"]}
+{"cz": "proc klesly trzby v evrope minuly kvartal", "en": "why did revenue decline in Europe last quarter", "layer": "fuzzy", "tags": ["revenue", "trend", "why", "regions", "time"]}
+{"cz": "top 5 produktu podle trzeb YTD", "en": "top 5 products by revenue YTD", "layer": "fuzzy", "tags": ["products", "revenue", "rank", "time"]}
+{"cz": "churn rate SMB vs enterprise tento rok", "en": "churn rate SMB vs enterprise this year", "layer": "fuzzy", "tags": ["churn_rate", "segments", "compare", "time"]}
+{"cz": "jak se vyviji marze podle regionu mesicne", "en": "how is margin by region trending monthly", "layer": "fuzzy", "tags": ["margin", "regions", "trend", "granularity"]}
+{"cz": "ktere produkty churni nejvic v SMB segmentu", "en": "which products churn the most in SMB segment", "layer": "manual", "tags": ["products", "churn", "segments", "rank"]}
+
+## Total: 85 queries across all categories

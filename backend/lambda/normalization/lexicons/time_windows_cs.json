@@ -1,0 +1,7 @@
+{
+  "ytd": ["od zacatku roku", "ytd"],
+  "qtd": ["od zacatku kvartalu", "qtd"],
+  "l3m": ["poslednich 3 mesice", "l3m"],
+  "l6m": ["poslednich 6 mesicu", "l6m"],
+  "l12m": ["poslednich 12 mesicu", "l12m"]
+}

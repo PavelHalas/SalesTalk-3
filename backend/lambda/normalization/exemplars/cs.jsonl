@@ -1,0 +1,3 @@
+{"cz":"proc klesly prijmy","en":"why is our revenue decreasing?","tags":["intent:why","subject:revenue","trend:down"]}
+{"cz":"jak jsme na tom celkove","en":"what is our overall performance?","tags":["intent:what","subject:overall","measure:performance"]}
+{"cz":"kdo nejvic odchazi","en":"which customers are churning the most?","tags":["intent:who","subject:customers","measure:churn_rate"]}
