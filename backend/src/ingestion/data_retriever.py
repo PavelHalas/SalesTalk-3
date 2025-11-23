@@ -55,12 +55,54 @@ class DataRetriever:
             if subject not in match.get("subjects", []) and subject.rstrip('s') not in match.get("subjects", []):
                 continue
                 
-            # Check Required Dimensions
-            required_dims = match.get("required_dimensions", [])
-            if required_dims:
-                missing = [d for d in required_dims if d not in dimensions]
-                if missing:
-                    continue
+            # Check Dimensions (Allowed/Supported)
+            # Logic: 
+            # 1. The query dimensions must be a SUBSET of the template's supported dimensions.
+            #    (You can't ask for "Region" if the template doesn't support it)
+            # 2. If the template lists "time", the query MUST have time.
+            # 3. If the template lists other dimensions, the query MUST have at least one of them (unless only time is listed).
+            
+            supported_dims = match.get("dimensions", [])
+            
+            # Get query dimensions (keys only)
+            query_dims = list(dimensions.keys())
+            if classification.get("time"):
+                query_dims.append("time")
+                
+            # Rule 1: No extra dimensions allowed
+            # If query has "region" but template doesn't support it -> Skip
+            extra_dims = [d for d in query_dims if d not in supported_dims]
+            if extra_dims:
+                continue
+                
+            # Rule 2: Time requirement
+            if "time" in supported_dims and "time" not in query_dims:
+                # Template supports time, but query doesn't have it.
+                # Is it mandatory? In this simplified schema, we assume yes if it's the ONLY dimension.
+                # But for "Ranking", time might be optional? 
+                # Let's stick to: If "time" is in supported_dims, it is ALLOWED.
+                # But we need a way to enforce "Required".
+                # Heuristic: If the query has NO dimensions, and the template expects some, skip.
+                pass
+
+            # Rule 3: "Best Fit" / Specificity
+            # We want to avoid "Point Lookup" matching "Ranking" just because it's a subset.
+            # But "Point Lookup" has dimensions=["time"].
+            # "Ranking" has dimensions=["time", "customer"...].
+            # If query is ["time"], both match Rule 1.
+            # We need to pick the one that is "tighter".
+            # Actually, "Ranking" usually requires a grouping dimension.
+            # If query is ["time"], it should NOT match "Ranking" (which needs a group).
+            
+            # Refined Logic:
+            # If template has non-time dimensions, the query MUST have at least one of them.
+            non_time_supported = [d for d in supported_dims if d != "time"]
+            non_time_query = [d for d in query_dims if d != "time"]
+            
+            if non_time_supported and not non_time_query:
+                # Template supports "customer", but query is just "time".
+                # This template is likely a breakdown/ranking, not a point lookup.
+                continue
             
             return template
             
@@ -121,6 +163,13 @@ class DataRetriever:
                 "message": "No matching query pattern found for this request."
             }
             
+        # Check if implementation exists (PO mode support)
+        if "dynamodb" not in template:
+            return {
+                "status": "not_implemented",
+                "message": f"Capability '{template.get('id')}' is defined but has no database implementation yet."
+            }
+
         # 2. Hydrate Template
         query_config = self._hydrate_template(template, classification)
         

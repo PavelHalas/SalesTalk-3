@@ -4,7 +4,8 @@
     "description": "Fetch single value for a specific period (e.g. Revenue in Q3)",
     "match": {
       "intents": ["what", "compare"],
-      "subjects": ["revenue", "margin", "cost", "aov", "units_sold", "orders"]
+      "subjects": ["revenue", "margin", "cost", "aov", "units_sold", "orders"],
+      "dimensions": ["time"]
     },
     "dynamodb": {
       "table": "metrics",
@@ -16,10 +17,11 @@
   },
   {
     "id": "metric_trend_analysis",
-    "description": "Fetch all values for a year to show trend",
+    "description": "Fetch values over a specified time window (e.g. Year, Quarter) to show trend",
     "match": {
       "intents": ["trend", "forecast"],
-      "subjects": ["revenue", "margin", "customers", "orders"]
+      "subjects": ["revenue", "margin", "customers", "orders"],
+      "dimensions": ["time"]
     },
     "dynamodb": {
       "table": "metrics",
@@ -33,8 +35,9 @@
     "id": "dimensional_breakdown",
     "description": "Break down a metric by a dimension (e.g. Revenue by Region)",
     "match": {
-      "intents": ["drill", "breakdown"],
-      "subjects": ["revenue", "margin", "units_sold"]
+      "intents": ["drill", "breakdown", "compare"],
+      "subjects": ["revenue", "margin", "units_sold"],
+      "dimensions": ["time", "region", "customer", "product"]
     },
     "dynamodb": {
       "table": "metrics",
@@ -51,7 +54,7 @@
     "match": {
       "intents": ["rank", "top"],
       "subjects": ["revenue", "margin", "orders", "units_sold"],
-      "required_dimensions": ["customer", "product", "region", "category"]
+      "dimensions": ["time", "customer", "product", "region", "category"]
     },
     "dynamodb": {
       "table": "metrics",
@@ -67,7 +70,7 @@
     "match": {
       "intents": ["rank", "top"],
       "subjects": ["revenue", "margin", "orders"],
-      "required_dimensions": ["month", "quarter"]
+      "dimensions": ["time"]
     },
     "dynamodb": {
       "table": "metrics",
@@ -83,7 +86,7 @@
     "match": {
       "intents": ["list", "what"],
       "subjects": ["inventory", "stock"],
-      "required_dimensions": ["age"]
+      "dimensions": ["age"]
     },
     "dynamodb": {
       "table": "metrics",
@@ -97,7 +100,8 @@
     "description": "Get top performing entities (e.g. Top 10 Customers)",
     "match": {
       "intents": ["rank", "top"],
-      "subjects": ["customers", "products", "regions"]
+      "subjects": ["customers", "products", "regions"],
+      "dimensions": ["time"]
     },
     "dynamodb": {
       "table": "metrics",
@@ -113,7 +117,8 @@
     "description": "List all entities of a certain type (e.g. List all Customers)",
     "match": {
       "intents": ["list"],
-      "subjects": ["customers", "products"]
+      "subjects": ["customers", "products"],
+      "dimensions": []
     },
     "dynamodb": {
       "table": "data",
@@ -128,7 +133,7 @@
     "match": {
       "intents": ["what", "profile"],
       "subjects": ["customer", "product"],
-      "required_dimensions": ["id"]
+      "dimensions": ["id"]
     },
     "dynamodb": {
       "table": "data",
@@ -142,7 +147,8 @@
     "description": "Find entity by name (e.g. Find customer Acme)",
     "match": {
       "intents": ["find", "search"],
-      "subjects": ["customer", "product"]
+      "subjects": ["customer", "product"],
+      "dimensions": ["name"]
     },
     "dynamodb": {
       "table": "data",
@@ -158,7 +164,7 @@
     "match": {
       "intents": ["list", "history"],
       "subjects": ["orders"],
-      "required_dimensions": ["customer_id"]
+      "dimensions": ["customer_id"]
     },
     "dynamodb": {
       "table": "data",
