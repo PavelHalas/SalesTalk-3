@@ -29,5 +29,12 @@
     "mrr_growth_rate",
     "performance"
   ],
-  "dimensions": {}
+  "dimensions": {
+    "valid": [
+      "regions",
+      "segments",
+      "channels",
+      "products"
+    ]
+  }
 }

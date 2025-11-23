@@ -1,0 +1,93 @@
+ID,Otázka,poopis otázky,Typ odpovědi,Odpověď modelu,Hodnocení,Správná odpověď,Poznámka,Kategorie popis,Kategorie_kód
+Q1.1,Kdo měl v roce 2024 nejvyšší obrat? Uveď název zákazníka a hodnotu v Kč v přehledné tabulce.,,text,,,,,Základní přehled (jednoduché otázky),1
+Q3.1,Seřaď zákazníky podle obatu od největšího po nejmenšího v roce 2024 a do tabulky doplň také zisk,,tabulka,,,,,Analýza zákazníků a segmentů,3
+Q2.1,Který zákazník měl největší obrat v kategorii kat. 3.1 v roce 2024? Uveď název zákazníka a hodnotu v Kč v přehledné tabulce.,,text,,,,,Analýza produktů a kategorií,2
+Q3.2,Kolik činil celkový obrat všech zákazníků v roce 2024? Odpověď uveď jako číslo v Kč s přesností na celé tisíce.,,číslo,,,,,Analýza zákazníků a segmentů,3
+Q2.2,Seznam zákazníků kteří od nás nakoupili malé roličky (kat. 3.1) v roce 2024?,,číslo,,,,,Analýza produktů a kategorií,2
+Q3.3,Jaký byl průměrný obrat na zákazníka v roce 2024?,,číslo,,,,,Analýza zákazníků a segmentů,3
+Q1.2,Srovnání obratu 2024 oproti 2023 v %?,,číslo,,,,,Základní přehled (jednoduché otázky),1
+Q6.1,Který měsíc měl nejvyšší obrat v roce 2024? Výsledek zobraz v tabulce s měsíci v prvním sloupci a hodnotami v Kč v dalším.,,text,,,,,Měsíční analýza firmy (trendové otázky),6
+Q2.3,Který produkt měl nejvyšší prodej v kusech v roce 2024? Vytvoř tabulku produktů s hodnotami prodejů a marží.,,text,,,,,Analýza produktů a kategorií,2
+Q1.3,Jaký byl celkový počet vydaných výdejek v roce 2024?,,číslo,,,,,Základní přehled (jednoduché otázky),1
+Q6.2,Udělej tabulku měsíčních obratů za rok 2024 (leden–září). Výsledek zobraz v tabulce s měsíci v prvním sloupci a hodnotami v Kč v dalším.,,tabulka,,,,,Měsíční analýza firmy (trendové otázky),6
+Q3.4,Vytvoř tabulku TOP 10 zákazníků podle obratu v roce 2024.,,tabulka,,,,,Analýza zákazníků a segmentů,3
+Q2.4,Spočti obrat kategorie 3.1 po měsících v roce 2024. Výsledek zobraz v tabulce s měsíci v prvním sloupci a hodnotami v Kč v dalším.,,tabulka,,,,,Analýza produktů a kategorií,2
+Q2.5,Spočti počet vydaných kusů za každý měsíc roku 2024. Výsledek zobraz v tabulce s měsíci v prvním sloupci a hodnotami v Kč v dalším.,,tabulka,,,,,Analýza produktů a kategorií,2
+Q5.1,Vypočti marži po měsících v roce 2024. Vypočítej hrubou marži (v Kč a v %) a výsledek zobraz v tabulce.,,tabulka,,,,,Finanční a logistická efektivita,5
+Q2.6,Zobraz průměrnou cenu za kus u malých roliček po měsících. Výsledek zobraz v tabulce s měsíci v prvním sloupci a hodnotami v Kč v dalším.,,tabulka,,,,,Analýza produktů a kategorií,2
+Q2.7,"Zobraz měsíční obrat po jednotlivých kategoriích (3.1, Jumbo, Autocut). Výsledek zobraz v tabulce s měsíci v prvním sloupci a hodnotami v Kč v dalším.",,tabulka,,,,,Analýza produktů a kategorií,2
+Q5.2,Které tři měsíce měly nejvyšší marži v roce 2024? Vypočítej hrubou marži (v Kč a v %) a výsledek zobraz v tabulce.,,text,,,,,Finanční a logistická efektivita,5
+Q1.4,Jaký byl průměrný počet položek na výdejku v roce 2024?,,číslo,,,,,Základní přehled (jednoduché otázky),1
+Q3.5,Kolik bylo nových zákazníků (první nákup) v roce 2024?,,číslo,,,,,Analýza zákazníků a segmentů,3
+Q6.3,Porovnej obrat Q1 2024 vs Q1 2024.,,tabulka,,,,,Měsíční analýza firmy (trendové otázky),6
+Q6.4,Spočti meziroční změnu obratu v % po čtvrtletích. Zobraz vývoj hodnot po měsících nebo čtvrtletích v přehledné tabulce.,,tabulka,,,,,Měsíční analýza firmy (trendové otázky),6
+Q3.6,Který zákazník měl největší růst obratu mezi 2024 a 2024? Uveď název zákazníka a hodnotu v Kč v přehledné tabulce.,,text,,,,,Analýza zákazníků a segmentů,3
+Q3.7,Který zákazník měl největší pokles obratu mezi 2024 a 2024? Uveď název zákazníka a hodnotu v Kč v přehledné tabulce.,,text,,,,,Analýza zákazníků a segmentů,3
+Q2.8,Která kategorie produktů měla nejvyšší růst v kusech mezi 2024 a 2024? Vytvoř tabulku produktů s hodnotami prodejů a marží.,,text,,,,,Analýza produktů a kategorií,2
+Q5.3,Který produkt měl nejvyšší marži v roce 2024? Vypočítej hrubou marži (v Kč a v %) a výsledek zobraz v tabulce.,,text,,,,,Finanční a logistická efektivita,5
+Q6.5,Jaký byl 12měsíční klouzavý průměr obratu po měsících od 2024-01 do 2024-09? Výsledek zobraz v tabulce s měsíci v prvním sloupci a hodnotami v Kč v dalším.,,tabulka,,,,,Měsíční analýza firmy (trendové otázky),6
+Q3.8,Ukaž meziroční rozdíl v počtu aktivních zákazníků. Zobraz vývoj hodnot po měsících nebo čtvrtletích v přehledné tabulce.,,číslo,,,,,Analýza zákazníků a segmentů,3
+Q3.9,"Kolik zákazníků nakoupilo v roce 2024, ale ne v roce 2024?",,číslo,,,,,Analýza zákazníků a segmentů,3
+Q3.10,"Kolik zákazníků nakoupilo v roce 2024, ale ne v roce 2024?",,číslo,,,,,Analýza zákazníků a segmentů,3
+Q5.4,Spočti hrubou marži po kategoriích v roce 2024 (v Kč a %). Vypočítej hrubou marži (v Kč a v %) a výsledek zobraz v tabulce.,,tabulka,,,,,Finanční a logistická efektivita,5
+Q5.5,Porovnej marži paletového servisu 'vlak' vs 'taxi' v roce 2024. Vypočítej hrubou marži (v Kč a v %) a výsledek zobraz v tabulce.,,tabulka,,,,,Finanční a logistická efektivita,5
+Q5.6,Kolik palet malých roliček je potřeba k pokrytí průměrné poptávky na 45 dní?,,číslo,,,,,Finanční a logistická efektivita,5
+Q5.7,Jaká byla průměrná doba obratu zásob v kategoriích 3.1 a Jumbo?,,tabulka,,,,,Finanční a logistická efektivita,5
+Q5.8,Kolik zboží v hodnotě je na skladě starší než 180 dní?,,číslo,,,,,Finanční a logistická efektivita,5
+Q5.9,Vyhodnoť průměrný stav zásob (v Kč) po měsících v roce 2024. Výsledek zobraz v tabulce s měsíci v prvním sloupci a hodnotami v Kč v dalším.,,tabulka,,,,,Finanční a logistická efektivita,5
+Q5.10,Kolik činila průměrná logistická nákladovost (v Kč/paleta) v roce 2024?,,číslo,,,,,Finanční a logistická efektivita,5
+Q5.11,Jaký byl DSO (Days Sales Outstanding) po měsících 2024? Výsledek zobraz v tabulce s měsíci v prvním sloupci a hodnotami v Kč v dalším.,,tabulka,,,,,Finanční a logistická efektivita,5
+Q5.12,Jaká byla průměrná marže po obchodnících (Jaroslav vs externí)? Vypočítej hrubou marži (v Kč a v %) a výsledek zobraz v tabulce.,,tabulka,,,,,Finanční a logistická efektivita,5
+Q2.9,Které položky se blíží expiraci do 90 dní?,,tabulka,,,,,Analýza produktů a kategorií,2
+Q7.1,Navrhni akční plán pro výprodej přestárlých zásob kategorie 3.1. Vytvoř tabulku produktů s hodnotami prodejů a marží.,,text,,,,,Strategické a návrhové otázky,7
+Q7.2,Navrhni motivační plán pro obchodníka na zvýšení prodeje malých roliček. Vytvoř textový návrh řešení založený na dosavadních trendech prodeje a marží.,,text,,,,,Strategické a návrhové otázky,7
+Q7.3,Navrhni A/B test pro ověření citlivosti zákazníků na cenu Jumbo 190. Vytvoř textový návrh řešení založený na dosavadních trendech prodeje a marží.,,text,,,,,Strategické a návrhové otázky,7
+Q7.4,Urči 10 regionů s nejmenším podílem kategorie 3.1 a navrhni akce pro jejich rozvoj. Vytvoř tabulku produktů s hodnotami prodejů a marží.,,tabulka,,,,,Strategické a návrhové otázky,7
+Q7.5,"Navrhni strategii, jak zvýšit obrat o 10 % bez navýšení nákladů na logistiku. Vytvoř textový návrh řešení založený na dosavadních trendech prodeje a marží.",,text,,,,,Strategické a návrhové otázky,7
+Q6.6,Vyhodnoť efekt snížení ceny malých roliček o 5 % při růstu objemu o 10 %.,,tabulka,,,,,Měsíční analýza firmy (trendové otázky),6
+Q5.13,Udělej simulaci cash-flow při zvýšení průměrné marže o 2 p.b. Vypočítej hrubou marži (v Kč a v %) a výsledek zobraz v tabulce.,,tabulka,,,,,Finanční a logistická efektivita,5
+Q7.6,"Navrhni cenové hladiny (premium, core, economy) pro produkt Jumbo 190 MAXI. Vytvoř tabulku produktů s hodnotami prodejů a marží.",,tabulka,,,,,Strategické a návrhové otázky,7
+Q6.7,Vyhodnoť návratnost kampaně na malé roličky po třech měsících. Výsledek zobraz v tabulce s měsíci v prvním sloupci a hodnotami v Kč v dalším.,,tabulka,,,,,Měsíční analýza firmy (trendové otázky),6
+Q7.7,Navrhni tři možné scénáře růstu obratu Karko Paper v letech 2026–2028. Vytvoř textový návrh řešení založený na dosavadních trendech prodeje a marží.,,text,,,,,Strategické a návrhové otázky,7
+Q6.8,Jaký je celkový obrat za poslední měsíc? Výsledek zobraz v tabulce s měsíci v prvním sloupci a hodnotami v Kč v dalším.,,,,,,,Měsíční analýza firmy (trendové otázky),6
+Q5.14,Které produkty mají nejvyšší marži? Vypočítej hrubou marži (v Kč a v %) a výsledek zobraz v tabulce.,,,,,,,Finanční a logistická efektivita,5
+Q3.11,Kteří zákazníci nejvíce nakupují?,,,,,,,Analýza zákazníků a segmentů,3
+Q1.5,Jaký je průměrný obrat na objednávku?,,,,,,,Základní přehled (jednoduché otázky),1
+Q2.10,Které produkty se prodávají společně? Vytvoř tabulku produktů s hodnotami prodejů a marží.,,,,,,,Analýza produktů a kategorií,2
+Q2.11,Kteří jsou TOP 10 zákazníků podle obratu a zisku?,,,,,,,Analýza produktů a kategorií,2
+Q3.12,Jaký je podíl TOP 20 zákazníků na celkovém obratu firmy?,,,,,,,Analýza zákazníků a segmentů,3
+Q5.15,Kteří zákazníci mají nejvyšší marži? Vypočítej hrubou marži (v Kč a v %) a výsledek zobraz v tabulce.,,,,,,,Finanční a logistická efektivita,5
+Q3.13,Kolik máme nových zákazníků za poslední rok?,,,,,,,Analýza zákazníků a segmentů,3
+Q3.14,Kteří zákazníci jsou ztracení (bez objednávky za poslední rok)?,,,,,,,Analýza zákazníků a segmentů,3
+Q2.12,Které produkty tvoří 80% obratu? Vytvoř tabulku produktů s hodnotami prodejů a marží.,,,,,,,Analýza produktů a kategorií,2
+Q5.16,Které produkty mají nejvyšší marži? Vypočítej hrubou marži (v Kč a v %) a výsledek zobraz v tabulce.,,,,,,,Finanční a logistická efektivita,5
+Q2.13,Které produkty se vůbec neprodávají? Vytvoř tabulku produktů s hodnotami prodejů a marží.,,,,,,,Analýza produktů a kategorií,2
+Q2.14,Které jsou top produkty za posledních 6 měsíců? Výsledek zobraz v tabulce s měsíci v prvním sloupci a hodnotami v Kč v dalším.,,,,,,,Analýza produktů a kategorií,2
+Q2.15,Které produkty mají nejlepší rotaci? Vytvoř tabulku produktů s hodnotami prodejů a marží.,,,,,,,Analýza produktů a kategorií,2
+Q6.9,Jaký je obrat a zisk podle obchodního zástupce?,,,,,,,Měsíční analýza firmy (trendové otázky),6
+Q2.16,Jaký je trend obratu a zisku firmy po měsících? Výsledek zobraz v tabulce s měsíci v prvním sloupci a hodnotami v Kč v dalším.,,,,,,,Analýza produktů a kategorií,2
+Q6.10,Jaké je porovnání obratu podle měsíců v roce 2024? Výsledek zobraz v tabulce s měsíci v prvním sloupci a hodnotami v Kč v dalším.,,,,,,,Měsíční analýza firmy (trendové otázky),6
+Q4.1,"Category/Region analysis Uveď výsledky po regionech, seřazené sestupně podle obratu.",,,,,,,Regionální analýzy (místopis/geo),4
+Q2.17,Jaký je obrat podle kategorie odběratelů? Vytvoř tabulku produktů s hodnotami prodejů a marží.,,,,,,,Analýza produktů a kategorií,2
+Q2.18,Jaký je obrat podle kategorie produktů? Vytvoř tabulku produktů s hodnotami prodejů a marží.,,,,,,,Analýza produktů a kategorií,2
+Q4.2,"Jaký je obrat podle regionu? Uveď výsledky po regionech, seřazené sestupně podle obratu.",,,,,,,Regionální analýzy (místopis/geo),4
+Q4.3,"Jak si vedou jednotlivé regiony? Uveď výsledky po regionech, seřazené sestupně podle obratu.",,,,,,,Regionální analýzy (místopis/geo),4
+Q3.15,Kteří zákazníci kupují toaletní papír ale ne ručníky?,,,,,,,Analýza zákazníků a segmentů,3
+Q2.19,Jaké jsou nejčastější kombinace produktů v objednávkách? Vytvoř tabulku produktů s hodnotami prodejů a marží.,,,,,,,Analýza produktů a kategorií,2
+Q3.16,Kteří zákazníci mají klesající objem objednávek?,,,,,,,Analýza zákazníků a segmentů,3
+Q3.17,Kteří zákazníci nakupovali dříve ale ne v posledních 6 měsících? Výsledek zobraz v tabulce s měsíci v prvním sloupci a hodnotami v Kč v dalším.,,,,,,,Analýza zákazníků a segmentů,3
+Q3.18,Kteří zákazníci patří do jakého cenového segmentu?,,,,,,,Analýza zákazníků a segmentů,3
+Q2.20,Které produkty mají nejvyšší průměrný objem objednávky? Vytvoř tabulku produktů s hodnotami prodejů a marží.,,,,,,,Analýza produktů a kategorií,2
+Q6.11,Jaké je srovnání kalkulační a prodejní ceny?,,,,,,,Měsíční analýza firmy (trendové otázky),6
+Q1.6,Nan,,,,,,,Základní přehled (jednoduché otázky),1
+Q1.7,Kdo jsou mých TOP 10 zákazníků podle obratu a zisku? Uveď název zákazníka a hodnotu v Kč v přehledné tabulce.,"okamžitý přehled, kdo ti skutečně živí firmu.",,,,,,Základní přehled (jednoduché otázky),1
+Q1.8,Jaký je podíl TOP 20 zákazníků na celkovém obratu firmy?,zjistíš závislost na klientech (riziko koncentrace).,,,,,,Základní přehled (jednoduché otázky),1
+Q1.9,Kteří zákazníci mají nejvyšší marži a kteří naopak nejnižší? Vypočítej hrubou marži (v Kč a v %) a výsledek zobraz v tabulce.,"ukáže, kdo je „zlatý důl“ a kdo jen zabírá kapacitu.",,,,,,Základní přehled (jednoduché otázky),1
+Q1.10,Kolik nových zákazníků jsme získali a kolik ztratili za poslední rok?,"hned vidíš, jestli firma roste nebo stagnuje.",,,,,,Základní přehled (jednoduché otázky),1
+Q1.11,Kteří zákazníci rostou nejrychleji a kteří naopak klesají?,včasná identifikace příležitostí i problémů.,,,,,,Základní přehled (jednoduché otázky),1
+Q1.12,Které produkty tvoří 80 % našeho obratu (Paretovo 80/20)? Vytvoř tabulku produktů s hodnotami prodejů a marží.,"jasný pohled na to, co skutečně táhne byznys.",,,,,,Základní přehled (jednoduché otázky),1
+Q1.13,Které produkty mají nejvyšší marži a které jsou prodávané s minimem zisku? Vypočítej hrubou marži (v Kč a v %) a výsledek zobraz v tabulce.," podklad pro rozhodování, co tlačit a co omezit.",,,,,,Základní přehled (jednoduché otázky),1
+Q1.14,Které produkty se vůbec neprodávají (mrtvý sklad)? Vytvoř tabulku produktů s hodnotami prodejů a marží.,okamžitá úspora peněz v zásobách.,,,,,,Základní přehled (jednoduché otázky),1
+Q1.15,Jaký obrat a zisk má každý obchodní zástupce?, měřitelný výkon obchodního týmu.,,,,,,Základní přehled (jednoduché otázky),1
+Q1.16,Jaký je trend celkového obratu a zisku firmy po měsících? Výsledek zobraz v tabulce s měsíci v prvním sloupci a hodnotami v Kč v dalším.,"jednoduchý graf, který hned ukáže směr (roste/klesá).",,,,,,Základní přehled (jednoduché otázky),1
+Q1.17,Jaký je obrat podle kategorie odběratelů? Vytvoř tabulku produktů s hodnotami prodejů a marží.,,,,,,,Základní přehled (jednoduché otázky),

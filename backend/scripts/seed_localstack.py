@@ -16,7 +16,7 @@ import argparse
 import json
 import sys
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 from decimal import Decimal
 
 import boto3
@@ -182,6 +182,61 @@ class LocalStackSeeder:
             else:
                 raise
 
+    def create_tenant_data_table(self, tenant_id: str) -> None:
+        """Create a per-tenant operational data table (Entities)."""
+        table_name = f"tenant-{tenant_id}-data"
+        print(f"Creating {table_name} table...")
+        
+        try:
+            self.dynamodb.create_table(
+                TableName=table_name,
+                KeySchema=[
+                    {"AttributeName": "pk", "KeyType": "HASH"},
+                    {"AttributeName": "sk", "KeyType": "RANGE"},
+                ],
+                AttributeDefinitions=[
+                    {"AttributeName": "pk", "AttributeType": "S"},
+                    {"AttributeName": "sk", "AttributeType": "S"},
+                    {"AttributeName": "entityType", "AttributeType": "S"},
+                    {"AttributeName": "entityId", "AttributeType": "S"},
+                    {"AttributeName": "name", "AttributeType": "S"},
+                    {"AttributeName": "parentId", "AttributeType": "S"},
+                ],
+                GlobalSecondaryIndexes=[
+                    {
+                        "IndexName": "EntityTypeIndex",
+                        "KeySchema": [
+                            {"AttributeName": "entityType", "KeyType": "HASH"},
+                            {"AttributeName": "entityId", "KeyType": "RANGE"},
+                        ],
+                        "Projection": {"ProjectionType": "ALL"},
+                    },
+                    {
+                        "IndexName": "NameIndex",
+                        "KeySchema": [
+                            {"AttributeName": "entityType", "KeyType": "HASH"},
+                            {"AttributeName": "name", "KeyType": "RANGE"},
+                        ],
+                        "Projection": {"ProjectionType": "ALL"},
+                    },
+                    {
+                        "IndexName": "ParentIndex",
+                        "KeySchema": [
+                            {"AttributeName": "parentId", "KeyType": "HASH"},
+                            {"AttributeName": "sk", "KeyType": "RANGE"},
+                        ],
+                        "Projection": {"ProjectionType": "ALL"},
+                    },
+                ],
+                BillingMode="PAY_PER_REQUEST",
+            )
+            print(f"✓ Created {table_name} table")
+        except ClientError as e:
+            if e.response["Error"]["Code"] == "ResourceInUseException":
+                print(f"✓ {table_name} table already exists")
+            else:
+                raise
+
     def load_json_file(self, filepath: Path) -> Any:
         """Load JSON data from file."""
         with open(filepath, "r") as f:
@@ -229,28 +284,47 @@ class LocalStackSeeder:
                 raise
         print(f"✓ Seeded {len(metrics)} metrics for {tenant_id}")
 
+    def seed_data(self, tenant_id: str, data: List[Dict[str, Any]]) -> None:
+        """Seed operational data (entities) for a tenant."""
+        table_name = f"tenant-{tenant_id}-data"
+        table = self.dynamodb_resource.Table(table_name)
+        
+        print(f"Seeding {len(data)} entities for {tenant_id}...")
+        for item in data:
+            try:
+                table.put_item(Item=self._convert_numbers(item))
+            except Exception as e:
+                print(f"✗ Error seeding entity {item.get('pk')}: {e}")
+                raise
+        print(f"✓ Seeded {len(data)} entities for {tenant_id}")
+
     def seed_tenant(
         self,
         tenant_file: Path,
         messages_file: Path,
         metrics_file: Path,
+        data_file: Optional[Path] = None,
     ) -> None:
         """Seed a complete tenant with all data."""
         # Load data
         tenant_data = self.load_json_file(tenant_file)
         messages = self.load_json_file(messages_file)
         metrics = self.load_json_file(metrics_file)
+        data = self.load_json_file(data_file) if data_file else []
         
         tenant_id = tenant_data["tenantId"]
         
         # Create tables
         self.create_tenant_messages_table(tenant_id)
         self.create_tenant_metrics_table(tenant_id)
+        self.create_tenant_data_table(tenant_id)
         
         # Seed data
         self.seed_tenant_metadata(tenant_data)
         self.seed_messages(tenant_id, messages)
         self.seed_metrics(tenant_id, metrics)
+        if data:
+            self.seed_data(tenant_id, data)
 
     def seed_all(self) -> None:
         """Seed all test tenants."""
@@ -271,6 +345,7 @@ class LocalStackSeeder:
             tenant_file=SEED_DATA_DIR / "tenant_acme_corp.json",
             messages_file=SEED_DATA_DIR / "acme_corp_messages.json",
             metrics_file=SEED_DATA_DIR / "acme_corp_metrics.json",
+            data_file=SEED_DATA_DIR / "acme_corp_data.json",
         )
         
         # Seed TechStart Inc
@@ -291,8 +366,10 @@ class LocalStackSeeder:
         print("  - tenants-metadata")
         print("  - tenant-acme-corp-001-messages")
         print("  - tenant-acme-corp-001-metrics")
+        print("  - tenant-acme-corp-001-data")
         print("  - tenant-techstart-inc-002-messages")
         print("  - tenant-techstart-inc-002-metrics")
+        print("  - tenant-techstart-inc-002-data")
 
     def _convert_numbers(self, obj: Any) -> Any:
         """Recursively convert float numbers to Decimal for DynamoDB compatibility."""

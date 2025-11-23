@@ -1,0 +1,170 @@
+[
+  {
+    "id": "metric_point_lookup",
+    "description": "Fetch single value for a specific period (e.g. Revenue in Q3)",
+    "match": {
+      "intents": ["what", "compare"],
+      "subjects": ["revenue", "margin", "cost", "aov", "units_sold", "orders"]
+    },
+    "dynamodb": {
+      "table": "metrics",
+      "pk": "METRIC#{subject}",
+      "sk": "{time.period}",
+      "query_type": "query",
+      "filter_strategy": "expression"
+    }
+  },
+  {
+    "id": "metric_trend_analysis",
+    "description": "Fetch all values for a year to show trend",
+    "match": {
+      "intents": ["trend", "forecast"],
+      "subjects": ["revenue", "margin", "customers", "orders"]
+    },
+    "dynamodb": {
+      "table": "metrics",
+      "pk": "METRIC#{subject}",
+      "sk_prefix": "{time.year}",
+      "query_type": "query",
+      "filter_strategy": "expression"
+    }
+  },
+  {
+    "id": "dimensional_breakdown",
+    "description": "Break down a metric by a dimension (e.g. Revenue by Region)",
+    "match": {
+      "intents": ["drill", "breakdown"],
+      "subjects": ["revenue", "margin", "units_sold"]
+    },
+    "dynamodb": {
+      "table": "metrics",
+      "index": "DimensionIndex",
+      "pk": "METRIC#{subject}",
+      "sk_prefix": "{time.period}",
+      "query_type": "query",
+      "filter_strategy": "expression"
+    }
+  },
+  {
+    "id": "metric_ranking_by_dimension",
+    "description": "Rank a dimension by a metric (e.g. Top Customers by Revenue)",
+    "match": {
+      "intents": ["rank", "top"],
+      "subjects": ["revenue", "margin", "orders", "units_sold"],
+      "required_dimensions": ["customer", "product", "region", "category"]
+    },
+    "dynamodb": {
+      "table": "metrics",
+      "pk": "METRIC#{subject}",
+      "sk_prefix": "{time.period}#",
+      "query_type": "query",
+      "post_process": "sort_desc"
+    }
+  },
+  {
+    "id": "metric_period_ranking",
+    "description": "Rank time periods by metric (e.g. Which month had highest revenue)",
+    "match": {
+      "intents": ["rank", "top"],
+      "subjects": ["revenue", "margin", "orders"],
+      "required_dimensions": ["month", "quarter"]
+    },
+    "dynamodb": {
+      "table": "metrics",
+      "pk": "METRIC#{subject}",
+      "sk_prefix": "{time.year}",
+      "query_type": "query",
+      "post_process": "sort_desc"
+    }
+  },
+  {
+    "id": "inventory_aging",
+    "description": "List inventory items by age",
+    "match": {
+      "intents": ["list", "what"],
+      "subjects": ["inventory", "stock"],
+      "required_dimensions": ["age"]
+    },
+    "dynamodb": {
+      "table": "metrics",
+      "pk": "METRIC#inventory_value",
+      "sk_prefix": "AGING",
+      "query_type": "query"
+    }
+  },
+  {
+    "id": "top_entities_ranking",
+    "description": "Get top performing entities (e.g. Top 10 Customers)",
+    "match": {
+      "intents": ["rank", "top"],
+      "subjects": ["customers", "products", "regions"]
+    },
+    "dynamodb": {
+      "table": "metrics",
+      "index": "ValueIndex",
+      "pk": "METRIC#{subject}", 
+      "sk_prefix": "{time.period}",
+      "scan_forward": false,
+      "limit": 10
+    }
+  },
+  {
+    "id": "list_entities_by_type",
+    "description": "List all entities of a certain type (e.g. List all Customers)",
+    "match": {
+      "intents": ["list"],
+      "subjects": ["customers", "products"]
+    },
+    "dynamodb": {
+      "table": "data",
+      "index": "EntityTypeIndex",
+      "pk": "{subject_singular}", 
+      "query_type": "query"
+    }
+  },
+  {
+    "id": "entity_profile_lookup",
+    "description": "Get details for a specific entity (e.g. Customer Profile)",
+    "match": {
+      "intents": ["what", "profile"],
+      "subjects": ["customer", "product"],
+      "required_dimensions": ["id"]
+    },
+    "dynamodb": {
+      "table": "data",
+      "pk": "{subject_upper}#{dimension.id}",
+      "sk": "PROFILE",
+      "query_type": "get_item"
+    }
+  },
+  {
+    "id": "entity_search_by_name",
+    "description": "Find entity by name (e.g. Find customer Acme)",
+    "match": {
+      "intents": ["find", "search"],
+      "subjects": ["customer", "product"]
+    },
+    "dynamodb": {
+      "table": "data",
+      "index": "NameIndex",
+      "pk": "{subject_singular}",
+      "sk": "{dimension.name}",
+      "query_type": "query"
+    }
+  },
+  {
+    "id": "child_entities_lookup",
+    "description": "Find child entities (e.g. Orders for Customer X)",
+    "match": {
+      "intents": ["list", "history"],
+      "subjects": ["orders"],
+      "required_dimensions": ["customer_id"]
+    },
+    "dynamodb": {
+      "table": "data",
+      "index": "ParentIndex",
+      "pk": "{dimension.customer_id}",
+      "query_type": "query"
+    }
+  }
+]

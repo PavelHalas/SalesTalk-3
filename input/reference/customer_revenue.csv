@@ -1,0 +1,6 @@
+code,name,description
+XL,XL,obrat = 2mil a více
+L,L,obrat = 1mil až 2mil
+M,M,obrat = 0.5mil až 1mil
+S,S,obrat = 100tis až 0.5mil
+XS,XS,obrat = do 100tis

@@ -217,6 +217,94 @@ resource "aws_dynamodb_table" "tenant_metrics_template" {
 }
 
 # ============================================================================
+# Per-Tenant Operational Data Table Module (Entities)
+# ============================================================================
+
+resource "aws_dynamodb_table" "tenant_data_template" {
+  count = var.create_sample_tenants ? 2 : 0
+
+  name           = "tenant-${var.sample_tenant_ids[count.index]}-data"
+  billing_mode   = "PAY_PER_REQUEST"
+  hash_key       = "pk"
+  range_key      = "sk"
+
+  attribute {
+    name = "pk"
+    type = "S"
+  }
+
+  attribute {
+    name = "sk"
+    type = "S"
+  }
+
+  # GSI for listing entities by type (e.g., "List all Customers")
+  attribute {
+    name = "entityType"
+    type = "S"
+  }
+
+  attribute {
+    name = "entityId"
+    type = "S"
+  }
+
+  global_secondary_index {
+    name            = "EntityTypeIndex"
+    hash_key        = "entityType"
+    range_key       = "entityId"
+    projection_type = "ALL"
+  }
+
+  # GSI for searching by name (e.g., "Find customer Acme")
+  attribute {
+    name = "name"
+    type = "S"
+  }
+
+  global_secondary_index {
+    name            = "NameIndex"
+    hash_key        = "entityType"
+    range_key       = "name"
+    projection_type = "ALL"
+  }
+
+  # GSI for looking up by parent (e.g., "Orders for Customer X")
+  attribute {
+    name = "parentId"
+    type = "S"
+  }
+
+  global_secondary_index {
+    name            = "ParentIndex"
+    hash_key        = "parentId"
+    range_key       = "sk"
+    projection_type = "ALL"
+  }
+
+  ttl {
+    enabled        = false
+    attribute_name = ""
+  }
+
+  point_in_time_recovery {
+    enabled = true
+  }
+
+  server_side_encryption {
+    enabled = true
+  }
+
+  tags = {
+    Environment = var.environment
+    Service     = "salestalk"
+    ManagedBy   = "terraform"
+    TenantId    = var.sample_tenant_ids[count.index]
+    Purpose     = "operational-data"
+  }
+}
+
+# ============================================================================
 # Outputs
 # ============================================================================
 
@@ -238,4 +326,9 @@ output "sample_tenant_messages_tables" {
 output "sample_tenant_metrics_tables" {
   description = "Names of sample tenant metrics tables"
   value       = var.create_sample_tenants ? aws_dynamodb_table.tenant_metrics_template[*].name : []
+}
+
+output "sample_tenant_data_tables" {
+  description = "Names of sample tenant data tables"
+  value       = var.create_sample_tenants ? aws_dynamodb_table.tenant_data_template[*].name : []
 }

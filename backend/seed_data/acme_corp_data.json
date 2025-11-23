@@ -1,0 +1,113 @@
+[
+  {
+    "pk": "CUSTOMER#CUST-001",
+    "sk": "PROFILE",
+    "entityType": "customer",
+    "entityId": "CUST-001",
+    "name": "TechFlow Systems",
+    "email": "contact@techflow.example.com",
+    "segment": "Enterprise",
+    "region": "North America",
+    "status": "Active",
+    "joinedDate": "2023-01-15",
+    "accountManager": "Sarah Jenkins",
+    "metadata": {
+      "industry": "Technology",
+      "employeeCount": 500
+    }
+  },
+  {
+    "pk": "CUSTOMER#CUST-002",
+    "sk": "PROFILE",
+    "entityType": "customer",
+    "entityId": "CUST-002",
+    "name": "Global Logistics Co",
+    "email": "procurement@globallogistics.example.com",
+    "segment": "Enterprise",
+    "region": "EMEA",
+    "status": "Active",
+    "joinedDate": "2023-03-10",
+    "accountManager": "Mike Chen",
+    "metadata": {
+      "industry": "Logistics",
+      "employeeCount": 1200
+    }
+  },
+  {
+    "pk": "CUSTOMER#CUST-003",
+    "sk": "PROFILE",
+    "entityType": "customer",
+    "entityId": "CUST-003",
+    "name": "StartUp Inc",
+    "email": "hello@startup.example.com",
+    "segment": "SMB",
+    "region": "North America",
+    "status": "Churned",
+    "joinedDate": "2024-01-05",
+    "accountManager": "Sarah Jenkins",
+    "metadata": {
+      "industry": "Software",
+      "employeeCount": 25
+    }
+  },
+  {
+    "pk": "PRODUCT#PROD-101",
+    "sk": "PROFILE",
+    "entityType": "product",
+    "entityId": "PROD-101",
+    "name": "Enterprise Analytics Suite",
+    "category": "Software",
+    "price": 5000.00,
+    "currency": "USD",
+    "status": "Active",
+    "metadata": {
+      "version": "2.0",
+      "licenseType": "Annual"
+    }
+  },
+  {
+    "pk": "PRODUCT#PROD-102",
+    "sk": "PROFILE",
+    "entityType": "product",
+    "entityId": "PROD-102",
+    "name": "Cloud Storage Add-on",
+    "category": "Infrastructure",
+    "price": 500.00,
+    "currency": "USD",
+    "status": "Active",
+    "metadata": {
+      "storageLimit": "1TB"
+    }
+  },
+  {
+    "pk": "ORDER#ORD-2025-001",
+    "sk": "META",
+    "entityType": "order",
+    "entityId": "ORD-2025-001",
+    "parentId": "CUST-001",
+    "name": "Order #2025-001",
+    "orderDate": "2025-08-15",
+    "totalAmount": 5500.00,
+    "currency": "USD",
+    "status": "Completed",
+    "items": [
+      {"productId": "PROD-101", "quantity": 1, "price": 5000.00},
+      {"productId": "PROD-102", "quantity": 1, "price": 500.00}
+    ]
+  },
+  {
+    "pk": "ORDER#ORD-2025-002",
+    "sk": "META",
+    "entityType": "order",
+    "entityId": "ORD-2025-002",
+    "parentId": "CUST-002",
+    "name": "Order #2025-002",
+    "orderDate": "2025-09-01",
+    "totalAmount": 5000.00,
+    "currency": "USD",
+    "status": "Processing",
+    "items": [
+      {"productId": "PROD-101", "quantity": 1, "price": 5000.00}
+    ]
+  }
+]

@@ -27,5 +27,13 @@
     "ltv",
     "nps"
   ],
-  "dimensions": {}
+  "dimensions": {
+    "valid": [
+      "regions",
+      "segments",
+      "channels",
+      "status",
+      "plans"
+    ]
+  }
 }

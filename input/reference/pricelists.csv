@@ -1,0 +1,11 @@
+code,name,description,discount
+---,"Bez ceníku","Žádný ceník přiřazen",0
+PC-A,"Ceník A","Prodejní ceník A",0
+PC-B,"Ceník B","Prodejní ceník B",0
+PC-D,"Ceník D","Prodejní ceník D",0
+PC-G,"Ceník G","Prodejní ceník G",0
+IC,"Individuální ceník","Individuální cena",0
+NC+M,"Nákupní cena + marže","Nákupní cena + marže",0
+MOC,"Maloobchodní ceník","základní cena - eshop-maloobchod",0
+VOC,"Velkoobchodní ceník","velkoobchodní cena - základní",0
+VIPVOC,"VIP velkoobchodní ceník","individuální cena - cena stanovená obchodníkem na základě jednání",0
