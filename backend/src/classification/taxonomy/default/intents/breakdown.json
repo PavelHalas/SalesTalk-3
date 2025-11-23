@@ -1,10 +1,20 @@
 {
   "id": "breakdown",
   "description": "Category split",
-  "keywords": [
+  "patterns": [
     "breakdown",
-    "by",
-    "split"
+    "break down",
+    "by segment",
+    "by region",
+    "by channel",
+    "by product",
+    "split by",
+    "group by",
+    "per",
+    "segmented by",
+    "distributed by",
+    "distribution of",
+    "categorized by"
   ],
   "required_fields": [
     "dimension"

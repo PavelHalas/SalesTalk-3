@@ -1,10 +1,15 @@
 {
   "id": "forecast",
   "description": "Forward-looking question",
-  "keywords": [
+  "patterns": [
     "forecast",
-    "expected",
-    "projected"
+    "predict",
+    "prediction",
+    "projection",
+    "outlook",
+    "future",
+    "expect",
+    "expected"
   ],
   "required_fields": [],
   "prompt_hints": [

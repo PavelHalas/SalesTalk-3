@@ -1,10 +1,21 @@
 {
   "id": "rank",
   "description": "Ranking requests",
-  "keywords": [
+  "patterns": [
     "top",
     "bottom",
-    "rank"
+    "best",
+    "worst",
+    "highest",
+    "lowest",
+    "leading",
+    "lagging",
+    "most",
+    "least",
+    "rank",
+    "ranking",
+    "leaderboard",
+    "performers"
   ],
   "required_fields": [
     "dimension.limit"

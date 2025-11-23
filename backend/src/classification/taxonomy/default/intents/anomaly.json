@@ -1,12 +1,16 @@
 {
   "id": "anomaly",
   "description": "Detect or explain unexpected spikes or drops",
-  "keywords": [
+  "patterns": [
     "anomaly",
     "spike",
     "drop",
     "outlier",
     "unusual",
+    "weird",
+    "strange",
+    "unexpected",
+    "deviation",
     "sudden"
   ],
   "required_fields": [],

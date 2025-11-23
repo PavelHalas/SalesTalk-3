@@ -1,12 +1,21 @@
 {
   "id": "compare",
   "description": "Compare one KPI or segment against another",
-  "keywords": [
-    "compare",
-    "vs",
-    "versus",
-    "than",
-    "relative"
+  "patterns": [
+    " compare ",
+    " vs ",
+    " versus ",
+    "which performed",
+    "which is better",
+    "difference between",
+    "how does",
+    "against",
+    "compare to",
+    "compared with",
+    "relative to",
+    "comparison of",
+    "benchmark",
+    "side by side"
   ],
   "required_fields": [],
   "prompt_hints": [

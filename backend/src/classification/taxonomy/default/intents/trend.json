@@ -1,10 +1,15 @@
 {
   "id": "trend",
   "description": "Trend or comparison over time",
-  "keywords": [
+  "patterns": [
     "trend",
+    "trending",
     "over time",
-    "vs"
+    "history",
+    "historical",
+    "evolution",
+    "trajectory",
+    "movement"
   ],
   "required_fields": [
     "time"

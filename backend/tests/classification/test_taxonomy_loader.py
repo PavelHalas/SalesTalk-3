@@ -59,4 +59,4 @@ def test_intents_registry_loaded():
     taxonomy = config_loader.get_classification_config()
     intents = taxonomy.get("intents")
     assert "rank" in intents
-    assert "keywords" in intents["rank"]
+    assert "patterns" in intents["rank"]

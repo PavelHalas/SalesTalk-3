@@ -149,10 +149,16 @@ def _load_taxonomy() -> Dict[str, Any]:
     shared_dir = root / "shared"
     dimensions = _read_json(shared_dir / "dimensions.json")
     time_config = _read_json(shared_dir / "time.json")
-    intent_patterns_path = shared_dir / "intent_patterns.json"
-    intent_patterns = _read_json(intent_patterns_path) if intent_patterns_path.exists() else {}
 
     intents_registry = _load_intents(root)
+    
+    # Build intent_patterns from intent registry
+    intent_patterns = {}
+    for intent_id, intent_data in intents_registry.items():
+        patterns = intent_data.get("patterns", [])
+        if patterns:
+            intent_patterns[f"{intent_id}_cues"] = patterns
+
     metrics_registry, metrics_index = _load_metrics(root)
     subjects = _load_subjects(root, metrics_registry, intents_registry)
 

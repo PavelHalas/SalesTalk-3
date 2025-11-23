@@ -1,10 +1,20 @@
 {
   "id": "why",
   "description": "Explain drivers or anomalies",
-  "keywords": [
+  "patterns": [
     "why",
+    "reason",
+    "cause",
+    "root cause",
+    "explain",
+    "what caused",
+    "what's driving",
+    "what drove",
     "drivers",
-    "cause"
+    "driving factors",
+    "account for",
+    "due to",
+    "explanation for"
   ],
   "required_fields": [
     "intent"

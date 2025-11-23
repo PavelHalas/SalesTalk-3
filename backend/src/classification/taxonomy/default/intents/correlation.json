@@ -1,10 +1,15 @@
 {
   "id": "correlation",
   "description": "Relationship questions",
-  "keywords": [
+  "patterns": [
     "correlation",
+    "correlate",
     "relationship",
-    "impact"
+    "related to",
+    "impact on",
+    "affect",
+    "influence",
+    "connection"
   ],
   "required_fields": [],
   "prompt_hints": [

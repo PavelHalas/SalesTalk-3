@@ -1,10 +1,14 @@
 {
   "id": "what",
   "description": "Direct fact or KPI lookup",
-  "keywords": [
+  "patterns": [
     "what",
     "show",
-    "give"
+    "give",
+    "tell",
+    "how much",
+    "how many",
+    "value of"
   ],
   "required_fields": [
     "intent",

@@ -1,9 +1,14 @@
 {
   "id": "target",
   "description": "Target vs actual",
-  "keywords": [
+  "patterns": [
     "target",
-    "goal"
+    "goal",
+    "quota",
+    "budget",
+    "plan",
+    "objective",
+    "aim"
   ],
   "required_fields": [],
   "prompt_hints": [
