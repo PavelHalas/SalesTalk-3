@@ -4,12 +4,12 @@
     "description": "Fetch single value for a specific period (e.g. Revenue in Q3)",
     "match": {
       "intents": ["what", "compare"],
-      "subjects": ["revenue", "margin", "cost", "aov", "units_sold", "orders"],
+      "subjects": ["revenue", "margin", "cost", "aov", "units_sold", "orders", "customers", "marketing", "sales", "profit", "inventory", "stock", "products", "regions", "channels", "segments", "reps", "productLines"],
       "dimensions": ["time"]
     },
     "dynamodb": {
       "table": "metrics",
-      "pk": "METRIC#{subject}",
+      "pk": "METRIC#{metric}",
       "sk": "{time.period}",
       "query_type": "query",
       "filter_strategy": "expression"
@@ -20,12 +20,12 @@
     "description": "Fetch values over a specified time window (e.g. Year, Quarter) to show trend",
     "match": {
       "intents": ["trend", "forecast"],
-      "subjects": ["revenue", "margin", "customers", "orders"],
-      "dimensions": ["time"]
+      "subjects": ["revenue", "margin", "cost", "aov", "units_sold", "orders", "customers", "marketing", "sales", "profit", "inventory", "stock"],
+      "dimensions": ["time", "region", "segment", "channel", "productLine", "status", "timeOfWeek", "device", "planTier", "churnReason", "stage", "competitor", "landingPage", "experiment"]
     },
     "dynamodb": {
       "table": "metrics",
-      "pk": "METRIC#{subject}",
+      "pk": "METRIC#{metric}",
       "sk_prefix": "{time.year}",
       "query_type": "query",
       "filter_strategy": "expression"
@@ -35,15 +35,14 @@
     "id": "dimensional_breakdown",
     "description": "Break down a metric by a dimension (e.g. Revenue by Region)",
     "match": {
-      "intents": ["drill", "breakdown", "compare"],
-      "subjects": ["revenue", "margin", "units_sold"],
-      "dimensions": ["time", "region", "customer", "product"]
+      "intents": ["drill", "breakdown", "compare", "what"],
+      "subjects": ["revenue", "margin", "cost", "aov", "units_sold", "orders", "customers", "marketing", "sales", "profit", "products", "regions", "channels", "segments", "reps", "productLines"],
+      "dimensions": ["time", "region", "customer", "product", "segment", "channel", "productLine", "status", "timeOfWeek", "device", "planTier", "churnReason", "stage", "competitor", "landingPage", "experiment", "breakdown_by"]
     },
     "dynamodb": {
       "table": "metrics",
-      "index": "DimensionIndex",
-      "pk": "METRIC#{subject}",
-      "sk_prefix": "{time.period}",
+      "pk": "METRIC#{metric}",
+      "sk_prefix": "{time.period}#",
       "query_type": "query",
       "filter_strategy": "expression"
     }
@@ -53,12 +52,12 @@
     "description": "Rank a dimension by a metric (e.g. Top Customers by Revenue)",
     "match": {
       "intents": ["rank", "top"],
-      "subjects": ["revenue", "margin", "orders", "units_sold"],
-      "dimensions": ["time", "customer", "product", "region", "category"]
+      "subjects": ["revenue", "margin", "cost", "aov", "units_sold", "orders", "customers", "marketing", "sales", "profit"],
+      "dimensions": ["time", "customer", "product", "region", "category", "segment", "channel", "productLine", "rep", "competitor", "limit", "direction"]
     },
     "dynamodb": {
       "table": "metrics",
-      "pk": "METRIC#{subject}",
+      "pk": "METRIC#{metric}",
       "sk_prefix": "{time.period}#",
       "query_type": "query",
       "post_process": "sort_desc"
@@ -69,12 +68,12 @@
     "description": "Rank time periods by metric (e.g. Which month had highest revenue)",
     "match": {
       "intents": ["rank", "top"],
-      "subjects": ["revenue", "margin", "orders"],
-      "dimensions": ["time"]
+      "subjects": ["revenue", "margin", "cost", "aov", "units_sold", "orders", "customers", "marketing", "sales", "profit", "timePeriods"],
+      "dimensions": ["time", "window"]
     },
     "dynamodb": {
       "table": "metrics",
-      "pk": "METRIC#{subject}",
+      "pk": "METRIC#{metric}",
       "sk_prefix": "{time.year}",
       "query_type": "query",
       "post_process": "sort_desc"
@@ -100,15 +99,15 @@
     "description": "Get top performing entities (e.g. Top 10 Customers)",
     "match": {
       "intents": ["rank", "top"],
-      "subjects": ["customers", "products", "regions"],
-      "dimensions": ["time"]
+      "subjects": ["customers", "products", "regions", "channels", "segments", "reps", "productLines"],
+      "dimensions": ["time", "limit", "direction"]
     },
     "dynamodb": {
       "table": "metrics",
-      "index": "ValueIndex",
-      "pk": "METRIC#{subject}", 
-      "sk_prefix": "{time.period}",
-      "scan_forward": false,
+      "pk": "METRIC#{metric}", 
+      "sk_prefix": "{time.period}#",
+      "query_type": "query",
+      "post_process": "sort_desc",
       "limit": 10
     }
   },
@@ -117,7 +116,7 @@
     "description": "List all entities of a certain type (e.g. List all Customers)",
     "match": {
       "intents": ["list"],
-      "subjects": ["customers", "products"],
+      "subjects": ["customers", "products", "regions", "channels", "segments", "reps", "productLines"],
       "dimensions": []
     },
     "dynamodb": {
@@ -171,6 +170,54 @@
       "index": "ParentIndex",
       "pk": "{dimension.customer_id}",
       "query_type": "query"
+    }
+  },
+  {
+    "id": "anomaly_detection",
+    "description": "Detect anomalies in metrics",
+    "match": {
+      "intents": ["anomaly", "why"],
+      "subjects": ["revenue", "margin", "cost", "aov", "units_sold", "orders", "customers", "marketing", "sales", "profit"],
+      "dimensions": ["time", "region", "segment", "channel", "productLine"]
+    },
+    "dynamodb": {
+      "table": "metrics",
+      "pk": "METRIC#{metric}",
+      "sk_prefix": "{time.year}",
+      "query_type": "query",
+      "filter_strategy": "expression"
+    }
+  },
+  {
+    "id": "target_tracking",
+    "description": "Check if metrics are on track to hit targets",
+    "match": {
+      "intents": ["target"],
+      "subjects": ["revenue", "margin", "cost", "aov", "units_sold", "orders", "customers", "marketing", "sales", "profit"],
+      "dimensions": ["time", "region", "segment", "channel", "productLine"]
+    },
+    "dynamodb": {
+      "table": "metrics",
+      "pk": "METRIC#{metric}",
+      "sk": "{time.period}",
+      "query_type": "query",
+      "filter_strategy": "expression"
+    }
+  },
+  {
+    "id": "correlation_analysis",
+    "description": "Analyze correlation between metrics",
+    "match": {
+      "intents": ["correlation"],
+      "subjects": ["revenue", "margin", "cost", "aov", "units_sold", "orders", "customers", "marketing", "sales", "profit"],
+      "dimensions": ["time", "related_metric", "region", "segment", "channel", "productLine"]
+    },
+    "dynamodb": {
+      "table": "metrics",
+      "pk": "METRIC#{metric}",
+      "sk_prefix": "{time.year}",
+      "query_type": "query",
+      "filter_strategy": "expression"
     }
   }
 ]

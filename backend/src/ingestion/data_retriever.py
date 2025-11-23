@@ -96,13 +96,13 @@ class DataRetriever:
             
             # Refined Logic:
             # If template has non-time dimensions, the query MUST have at least one of them.
-            non_time_supported = [d for d in supported_dims if d != "time"]
-            non_time_query = [d for d in query_dims if d != "time"]
+            # non_time_supported = [d for d in supported_dims if d != "time"]
+            # non_time_query = [d for d in query_dims if d != "time"]
             
-            if non_time_supported and not non_time_query:
-                # Template supports "customer", but query is just "time".
-                # This template is likely a breakdown/ranking, not a point lookup.
-                continue
+            # if non_time_supported and not non_time_query:
+            #    # Template supports "customer", but query is just "time".
+            #    # This template is likely a breakdown/ranking, not a point lookup.
+            #    continue
             
             return template
             
@@ -111,6 +111,7 @@ class DataRetriever:
     def _hydrate_template(self, template: Dict[str, Any], classification: Dict[str, Any]) -> Dict[str, Any]:
         """Replace placeholders in the template with actual values."""
         subject = classification.get("subject", {}).get("primary")
+        measure = classification.get("measure", {}).get("primary")
         time_data = classification.get("time", {})
         dimensions = classification.get("dimension", {})
         
@@ -134,6 +135,10 @@ class DataRetriever:
                 return subject.rstrip('s')
             if parts[0] == 'subject_upper':
                 return subject.upper().rstrip('S')
+            if parts[0] == 'metric':
+                # Use measure if available, else subject
+                # This handles cases where subject="marketing" but measure="conversion_rate"
+                return measure if measure else subject
             return ""
 
         # Replace placeholders in string values
@@ -225,9 +230,12 @@ class DataRetriever:
         # Handle FilterExpression (Dynamic Dimensions)
         dimensions = classification.get("dimension", {})
         filter_expression = None
+        meta_dimensions = ["limit", "direction", "breakdown_by", "window", "related_metric"]
         
         if query_config.get("filter_strategy") == "expression" and dimensions:
              for dim_name, dim_info in dimensions.items():
+                if dim_name in meta_dimensions:
+                    continue
                 val = dim_info.get("value")
                 if val and val != "all":
                     # Use Attr for safe path handling

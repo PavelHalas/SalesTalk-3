@@ -1,7 +1,7 @@
 question,intent,subject,measure,dimension,time
 "What is our Q3 revenue?","what","revenue","revenue","{}","{""period"":""Q3"",""granularity"":""quarter""}"
 "What's our gross margin percentage this quarter?","what","margin","gm_pct","{}","{""period"":""this_quarter"",""granularity"":""quarter""}"
-"How many active customers do we have?","what","customers","customer_count","{""status"":""active""}","{}"
+"How many active customers do we have?","what","customers","customer_count","{""status"":""active""}","{""period"":""current""}"
 "What were online sales last month?","what","revenue","revenue","{""channel"":""online""}","{""period"":""last_month"",""granularity"":""month""}"
 "What is average order value this year to date?","what","orders","aov","{}","{""window"":""ytd"",""granularity"":""month""}"
 "What's our churn rate in Q4?","what","customers","churn_rate","{}","{""period"":""Q4"",""granularity"":""quarter""}"
@@ -63,7 +63,7 @@ question,intent,subject,measure,dimension,time
 "Which regions are performing worst?","rank","regions","performance","{""direction"":""bottom""}","{}"
 "Top 10 customers by MRR","rank","customers","mrr","{""limit"":10,""direction"":""top""}","{}"
 "Best performing channels by conversion rate","rank","channels","conversion_rate","{""direction"":""top""}","{}"
-"Top 3 segments by margin","rank","margin","margin_pct","{""limit"":3,""direction"":""top""}","{}"
+"Top 3 segments by margin","rank","segments","margin_pct","{""limit"":3,""direction"":""top""}","{}"
 "Bottom 5 products by gross profit","rank","products","gross_profit","{""limit"":5,""direction"":""bottom""}","{}"
 "Rank regions by churn rate","rank","regions","churn_rate","{}","{}"
 "Rank sales reps by win rate","rank","reps","win_rate","{}","{}"
