@@ -178,7 +178,7 @@
     "match": {
       "intents": ["anomaly", "why"],
       "subjects": ["revenue", "margin", "cost", "aov", "units_sold", "orders", "customers", "marketing", "sales", "profit"],
-      "dimensions": ["time", "region", "segment", "channel", "productLine"]
+      "dimensions": ["time", "region", "segment", "channel", "productLine", "experiment"]
     },
     "dynamodb": {
       "table": "metrics",

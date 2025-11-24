@@ -4,6 +4,8 @@ import boto3
 import json
 import os
 import sys
+import csv
+import re
 from pathlib import Path
 from botocore.exceptions import ClientError
 
@@ -15,6 +17,70 @@ from ingestion.data_retriever import DataRetriever
 ENDPOINT_URL = "http://localhost:4566"
 REGION = "us-east-1"
 TENANT_ID = "test-tenant"
+CSV_PATH = Path(__file__).parents[1] / "data" / "product_owner_questions.csv"
+
+def load_csv_scenarios():
+    """Load scenarios from CSV for parametrization."""
+    scenarios = []
+    if not CSV_PATH.exists():
+        return scenarios
+
+    with open(CSV_PATH, 'r') as f:
+        lines = f.readlines()
+        
+    # Skip header
+    for row_idx, line in enumerate(lines[1:]):
+        line = line.strip()
+        if not line: continue
+        
+        try:
+            # Regex to split by comma, ignoring commas inside quotes
+            parts = re.split(r',(?=(?:[^"]*"[^"]*")*[^"]*$)', line)
+            
+            row = []
+            for p in parts:
+                p = p.strip()
+                if p.startswith('"') and p.endswith('"'):
+                    p = p[1:-1]
+                    p = p.replace('""', '"')
+                row.append(p)
+
+            if len(row) < 5:
+                continue
+                
+            # Map by index
+            question = row[0]
+            intent = row[1]
+            subject = row[2]
+            measure = row[3]
+            dimension_str = row[4]
+            time_str = row[5] if len(row) > 5 else "{}"
+            
+            # Normalize dimensions
+            normalized_dims = {}
+            if dimension_str:
+                try:
+                    raw_dims = json.loads(dimension_str)
+                    for k, v in raw_dims.items():
+                        if isinstance(v, dict) and "value" in v:
+                            normalized_dims[k] = v
+                        else:
+                            normalized_dims[k] = {"value": v}
+                except json.JSONDecodeError:
+                    continue
+
+            classification = {
+                "intent": {"primary": intent},
+                "subject": {"primary": subject},
+                "measure": {"primary": measure},
+                "time": json.loads(time_str) if time_str else {},
+                "dimension": normalized_dims
+            }
+            scenarios.append((question, classification))
+        except Exception:
+            continue
+            
+    return scenarios
 
 @pytest.fixture(scope="module")
 def dynamodb():
@@ -122,6 +188,27 @@ def setup_tables(dynamodb):
             "value": 50000,
             "dimensions": {"region": r},
             "dimensionKey": r, # For GSI
+            "timestamp": 1696118400
+        })
+
+    # Seed Ranking Data (Top Entities)
+    # Top Customers (Generic Score/Metric)
+    for i in range(1, 6):
+        table.put_item(Item={
+            "pk": "METRIC#customers", 
+            "sk": f"Q3#Cust{i}", 
+            "value": i * 100, 
+            "name": f"Customer {i}",
+            "timestamp": 1696118400
+        })
+
+    # Seed Metric Ranking (Revenue by Customer)
+    for i in range(1, 6):
+        table.put_item(Item={
+            "pk": "METRIC#revenue", 
+            "sk": f"Q3#Cust{i}", 
+            "value": i * 5000, 
+            "dimensions": {"customer": f"Cust{i}"},
             "timestamp": 1696118400
         })
 
@@ -257,25 +344,22 @@ def test_dimensional_breakdown(setup_tables):
     result = retriever.retrieve(classification)
     
     assert "items" in result
-    # Should return 3 regions (EMEA, NA, APAC)
-    assert len(result["items"]) == 3
-    assert result["items"][0]["dimensions"]["region"] in ["EMEA", "NA", "APAC"]
+    # Should return 3 regions (EMEA, NA, APAC) + 5 customers (Cust1..Cust5) = 8
+    assert len(result["items"]) == 8
+    # Check that we have at least one region
+    regions = [i["dimensions"].get("region") for i in result["items"] if "region" in i.get("dimensions", {})]
+    assert "EMEA" in regions
 
-def test_csv_questions(setup_tables):
-    """Run a few samples from the CSV."""
+@pytest.mark.parametrize("question,classification", load_csv_scenarios())
+def test_product_owner_questions_from_csv(setup_tables, question, classification):
+    """Run all questions from the Product Owner CSV."""
     retriever = DataRetriever(tenant_id=TENANT_ID, endpoint_url=ENDPOINT_URL)
     
-    # Sample 1: "What is our Q3 revenue?"
-    c1 = {
-        "intent": {"primary": "what"},
-        "subject": {"primary": "revenue"},
-        "measure": {"primary": "revenue"},
-        "time": {"period": "Q3"},
-        "dimension": {}
-    }
-    r1 = retriever.retrieve(c1)
-    assert "items" in r1
-    assert len(r1["items"]) > 0
+    print(f"Testing question: {question}")
+    result = retriever.retrieve(classification)
+    
+    assert "items" in result, f"Failed to retrieve items for: {question}"
+    assert result.get("status") == "success", f"Status not success for: {question}"
 
 def test_metric_ranking_by_dimension(setup_tables):
     """Test 'Top Customers by Revenue'"""

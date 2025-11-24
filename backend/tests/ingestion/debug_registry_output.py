@@ -1,5 +1,6 @@
 import boto3
 import json
+import csv
 import sys
 from pathlib import Path
 from decimal import Decimal
@@ -13,6 +14,7 @@ from ingestion.data_retriever import DataRetriever
 ENDPOINT_URL = "http://localhost:4566"
 REGION = "us-east-1"
 TENANT_ID = "test-tenant"
+CSV_PATH = Path(__file__).parents[1] / "data" / "product_owner_questions.csv"
 
 class DecimalEncoder(json.JSONEncoder):
     def default(self, obj):
@@ -117,25 +119,91 @@ def setup_data():
 def run_scenarios():
     retriever = DataRetriever(tenant_id=TENANT_ID, endpoint_url=ENDPOINT_URL)
     
-    scenarios = [
-        ("Point Lookup", {"intent": {"primary": "what"}, "subject": {"primary": "revenue"}, "measure": {"primary": "revenue"}, "time": {"period": "Q3"}, "dimension": {}}),
-        ("Trend Analysis", {"intent": {"primary": "trend"}, "subject": {"primary": "revenue"}, "measure": {"primary": "revenue"}, "time": {"year": "2025"}, "dimension": {}}),
-        ("Dimensional Breakdown", {"intent": {"primary": "breakdown"}, "subject": {"primary": "revenue"}, "measure": {"primary": "revenue"}, "time": {"period": "Q3"}, "dimension": {"breakdown_by": {"value": "region"}}}),
-        ("Metric Ranking", {"intent": {"primary": "rank"}, "subject": {"primary": "revenue"}, "measure": {"primary": "revenue"}, "time": {"period": "Q3"}, "dimension": {"limit": {"value": 5}, "direction": {"value": "top"}}}),
-        ("Period Ranking", {"intent": {"primary": "rank"}, "subject": {"primary": "revenue"}, "measure": {"primary": "revenue"}, "time": {"year": "2025"}, "dimension": {"window": {"value": "year"}}}),
-        ("Inventory Aging", {"intent": {"primary": "list"}, "subject": {"primary": "inventory"}, "measure": {"primary": "inventory_value"}, "dimension": {"age": {"value": "30_days"}}}),
-        ("Top Entities", {"intent": {"primary": "rank"}, "subject": {"primary": "customers"}, "time": {"period": "Q3"}, "dimension": {"limit": {"value": 10}}}),
-        ("List Entities", {"intent": {"primary": "list"}, "subject": {"primary": "customers"}, "subject_singular": "customer", "dimension": {}}),
-        ("Entity Profile", {"intent": {"primary": "profile"}, "subject": {"primary": "customer"}, "subject_upper": "CUSTOMER", "dimension": {"id": {"value": "123"}}}),
-        ("Entity Search", {"intent": {"primary": "find"}, "subject": {"primary": "customer"}, "subject_singular": "customer", "dimension": {"name": {"value": "Acme Corp"}}}),
-        ("Child Entities", {"intent": {"primary": "list"}, "subject": {"primary": "orders"}, "dimension": {"customer_id": {"value": "123"}}}),
-        ("Anomaly Detection", {"intent": {"primary": "anomaly"}, "subject": {"primary": "revenue"}, "measure": {"primary": "revenue"}, "time": {"year": "2025"}, "dimension": {}}),
-        ("Target Tracking", {"intent": {"primary": "target"}, "subject": {"primary": "revenue"}, "measure": {"primary": "revenue"}, "time": {"period": "Q3"}, "dimension": {}}),
-        ("Correlation Analysis", {"intent": {"primary": "correlation"}, "subject": {"primary": "revenue"}, "measure": {"primary": "revenue"}, "time": {"year": "2025"}, "dimension": {"related_metric": {"value": "marketing_spend"}}}),
-    ]
+    scenarios = []
+    
+import re
 
-    print(f"{'SCENARIO':<25} | {'STATUS':<10} | {'ITEMS':<5} | {'SAMPLE OUTPUT'}")
-    print("-" * 100)
+# ... (imports)
+
+# ... (setup_data)
+
+def run_scenarios():
+    retriever = DataRetriever(tenant_id=TENANT_ID, endpoint_url=ENDPOINT_URL)
+    
+    scenarios = []
+    
+    # Load scenarios from CSV
+    if CSV_PATH.exists():
+        print(f"Loading scenarios from {CSV_PATH}...")
+        with open(CSV_PATH, 'r') as f:
+            lines = f.readlines()
+            
+        # Skip header
+        for row_idx, line in enumerate(lines[1:]):
+            line = line.strip()
+            if not line: continue
+            
+            try:
+                # Regex to split by comma, ignoring commas inside quotes
+                # This handles nested quotes better than simple csv readers sometimes
+                parts = re.split(r',(?=(?:[^"]*"[^"]*")*[^"]*$)', line)
+                
+                row = []
+                for p in parts:
+                    p = p.strip()
+                    if p.startswith('"') and p.endswith('"'):
+                        p = p[1:-1]
+                        p = p.replace('""', '"')
+                    row.append(p)
+
+                if len(row) < 5:
+                    print(f"Skipping malformed row {row_idx+2}: {row}")
+                    continue
+                    
+                # Map by index
+                # question,intent,subject,measure,dimension,time
+                question = row[0]
+                intent = row[1]
+                subject = row[2]
+                measure = row[3]
+                dimension_str = row[4]
+                time_str = row[5] if len(row) > 5 else "{}"
+                
+                # Normalize dimensions
+                normalized_dims = {}
+                if dimension_str:
+                    try:
+                        raw_dims = json.loads(dimension_str)
+                        for k, v in raw_dims.items():
+                            if isinstance(v, dict) and "value" in v:
+                                normalized_dims[k] = v
+                            else:
+                                normalized_dims[k] = {"value": v}
+                    except json.JSONDecodeError:
+                        raise
+
+                classification = {
+                    "intent": {"primary": intent},
+                    "subject": {"primary": subject},
+                    "measure": {"primary": measure},
+                    "time": json.loads(time_str) if time_str else {},
+                    "dimension": normalized_dims
+                }
+                scenarios.append((question, classification))
+            except json.JSONDecodeError as e:
+                print(f"Error parsing JSON in row {row_idx+2}: {line} - {e}")
+            except Exception as e:
+                print(f"Error processing row {row_idx+2}: {line} - {e}")
+    else:
+        print(f"Warning: CSV file not found at {CSV_PATH}")
+        # Fallback to hardcoded scenarios if CSV is missing
+        scenarios = [
+            ("Point Lookup", {"intent": {"primary": "what"}, "subject": {"primary": "revenue"}, "measure": {"primary": "revenue"}, "time": {"period": "Q3"}, "dimension": {}}),
+            # ... (rest of the hardcoded scenarios could go here, but let's rely on CSV for now as requested)
+        ]
+
+    print(f"{'SCENARIO':<50} | {'STATUS':<10} | {'ITEMS':<5} | {'SAMPLE OUTPUT'}")
+    print("-" * 120)
 
     for name, classification in scenarios:
         result = retriever.retrieve(classification)
@@ -159,7 +227,9 @@ def run_scenarios():
         else:
             sample = "No data found"
             
-        print(f"{name:<25} | {status:<10} | {count:<5} | {sample}")
+        # Truncate name if too long
+        display_name = (name[:47] + '...') if len(name) > 47 else name
+        print(f"{display_name:<50} | {status:<10} | {count:<5} | {sample}")
 
 if __name__ == "__main__":
     setup_data()
